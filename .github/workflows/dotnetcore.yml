@@ -1,4 +1,4 @@
-name: AAEmu Workflow
+name: Build & Unit Test
 
 on:
   push:
