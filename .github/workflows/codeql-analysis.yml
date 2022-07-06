@@ -5,7 +5,9 @@ on:
     branches: [develop, master]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [develop]
+    branches:    
+      - '*'         # matches every branch
+      - '*/*'       # matches every branch containing a single '/'
   schedule:
     - cron: '0 6 * * 2'
 
@@ -13,7 +15,7 @@ jobs:
   analyse:
     name: Analyse
     runs-on: ubuntu-latest
-
+ 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
