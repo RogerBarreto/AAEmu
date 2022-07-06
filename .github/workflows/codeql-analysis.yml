@@ -10,7 +10,7 @@ on:
       - '*/*'       # matches every branch containing a single '/'
   schedule:
     - cron: '0 6 * * 2'
-
+ 
 jobs:
   analyse:
     name: Analyse
