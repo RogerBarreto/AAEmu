@@ -5,11 +5,11 @@ on:
       - develop
       - '*'         # matches every branch
       - '*/*'       # matches every branch containing a single '/'
-    pull_request:
-      # The branches below must be a subset of the branches above
-      branches:    
-        - '*'         # matches every branch
-        - '*/*'       # matches every branch containing a single '/'
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches:    
+      - '*'         # matches every branch
+      - '*/*'       # matches every branch containing a single '/'
 jobs:
   build:
     name: Build
