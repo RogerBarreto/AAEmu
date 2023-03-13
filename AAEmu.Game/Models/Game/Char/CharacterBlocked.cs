@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Core.Packets.G2C;
-using AAEmu.Game.Utils.DB;
 using MySql.Data.MySqlClient;
 using NLog;
 
@@ -107,8 +107,8 @@ namespace AAEmu.Game.Models.Game.Char
                     command.Transaction = transaction;
 
                     command.CommandText = "DELETE FROM blocked WHERE owner = @owner AND blocked_id IN(" + string.Join(",", _removedBlocked) + ")";
-                    command.Prepare();
                     command.Parameters.AddWithValue("@owner", Owner.Id);
+                    command.Prepare();
                     command.ExecuteNonQuery();
                     _removedBlocked.Clear();
                 }

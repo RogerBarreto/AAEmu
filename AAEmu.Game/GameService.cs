@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using AAEmu.Commons.IO;
 using AAEmu.Commons.Utils.Updater;
 using AAEmu.Game.IO;
 using AAEmu.Game.Core.Managers;
@@ -17,12 +15,11 @@ using AAEmu.Game.Core.Network.Login;
 using AAEmu.Game.Core.Network.Stream;
 using AAEmu.Game.GameData.Framework;
 using AAEmu.Game.Models;
-using AAEmu.Game.Models.Game;
-using AAEmu.Game.Utils.DB;
 using AAEmu.Game.Utils.Scripts;
 using Microsoft.Extensions.Hosting;
 using NLog;
-using System.Linq;
+using AAEmu.Game.Utils.DB;
+using MySQL = AAEmu.Commons.Utils.DB.MySQL;
 
 namespace AAEmu.Game
 {
@@ -33,20 +30,20 @@ namespace AAEmu.Game
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _log.Info("Starting daemon: AAEmu.Game");
-            
+
             // Check for updates
             using (var connection = MySQL.CreateConnection())
             {
                 if (connection is null)
                 {
-                    _log.Fatal("Failed up connect to mysql database check version and credentials!");
+                    _log.Fatal("Failed to connect to mysql database check version and credentials!");
                     _log.Fatal("Press Ctrl+C to quit");
                     return;
                 }
                 
                 if (!MySqlDatabaseUpdater.Run(connection, "aaemu_game", AppConfiguration.Instance.Connections.MySQLProvider.Database))
                 {
-                    _log.Fatal("Failed up update database !");
+                    _log.Fatal("Failed to update database!");
                     _log.Fatal("Press Ctrl+C to quit");
                     return;
                 }
@@ -56,7 +53,7 @@ namespace AAEmu.Game
             {
                 if (connection is null)
                 {
-                    _log.Fatal("Failed up load compact.sqlite3 database check if it exists!");
+                    _log.Fatal("Failed to load compact.sqlite3 database check if it exists!");
                     _log.Fatal("Press Ctrl+C to quit");
                     return;
                 }
@@ -91,6 +88,11 @@ namespace AAEmu.Game
                 WorldManager.Instance.LoadHeightmaps();
             });
 
+            var waterBodyTask = Task.Run(() =>
+            {
+                WorldManager.Instance.LoadWaterBodies();
+            });
+            
             ContainerIdManager.Instance.Initialize();
             ItemIdManager.Instance.Initialize();
             DoodadIdManager.Instance.Initialize();
@@ -116,6 +118,9 @@ namespace AAEmu.Game
             GameDataManager.Instance.LoadGameData();
             QuestManager.Instance.Load();
 
+            SphereQuestManager.Instance.Load();
+            SphereQuestManager.Instance.Initialize();
+
             FormulaManager.Instance.Load();
             ExpirienceManager.Instance.Load();
 
@@ -132,6 +137,7 @@ namespace AAEmu.Game
             TeamManager.Instance.Load();
             AuctionManager.Instance.Load();
             MailManager.Instance.Load();
+            ExpressTextManager.Instance.Load();
 
             NameManager.Instance.Load();
             FactionManager.Instance.Load();
@@ -143,7 +149,10 @@ namespace AAEmu.Game
             ModelManager.Instance.Load();
 
             AIManager.Instance.Initialize();
+
+            GameScheduleManager.Instance.Load();
             NpcManager.Instance.Load();
+            
             DoodadManager.Instance.Load();
             TaxationsManager.Instance.Load();
             HousingManager.Instance.Load();
@@ -162,17 +171,23 @@ namespace AAEmu.Game
 
             TimeManager.Instance.Start();
             TaskManager.Instance.Start();
-            
+
+            DuelManager.Instance.Initialize();
             SaveManager.Instance.Initialize();
             AreaTriggerManager.Instance.Initialize();
             SpecialtyManager.Instance.Initialize();
-            BoatPhysicsManager.Instance.Initialize();
             TransferManager.Instance.Initialize();
             GimmickManager.Instance.Initialize();
             SlaveManager.Instance.Initialize();
             CashShopManager.Instance.Initialize();
             GameDataManager.Instance.PostLoadGameData();
 
+            if ((waterBodyTask != null) && (!waterBodyTask.IsCompleted))
+            {
+                _log.Info("Waiting on water to be loaded before proceeding, please wait ...");
+                await waterBodyTask;
+            }
+            
             if ((heightmapTask != null) && (!heightmapTask.IsCompleted))
             {
                 _log.Info("Waiting on heightmaps to be loaded before proceeding, please wait ...");
@@ -187,6 +202,9 @@ namespace AAEmu.Game
             TransferManager.Instance.SpawnAll();
             spawnSw.Stop();
             _log.Info("Units spawned in {0}", spawnSw.Elapsed);
+
+            // Start running Physics when everything is loaded
+            WorldManager.Instance.StartPhysics();
             
             CharacterManager.Instance.CheckForDeletedCharacters();
             
@@ -200,7 +218,7 @@ namespace AAEmu.Game
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _log.Info("Stopping daemon ...");
+            _log.Info("Stopping daemon...");
 
             SaveManager.Instance.Stop();
 
@@ -215,7 +233,7 @@ namespace AAEmu.Game
             MailManager.Instance.Save();
             ItemManager.Instance.Save();
             */
-            BoatPhysicsManager.Instance.Stop();
+            WorldManager.Instance.Stop();
 
             TickManager.Instance.Stop();
             TimeManager.Instance.Stop();
@@ -226,7 +244,7 @@ namespace AAEmu.Game
 
         public void Dispose()
         {
-            _log.Info("Disposing ...");
+            _log.Info("Disposing...");
 
             LogManager.Flush();
         }

@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AAEmu.Commons.IO;
+using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Genesis;
 using AAEmu.Game.Models;
-using AAEmu.Game.Utils.DB;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,16 +26,31 @@ namespace AAEmu.Game
         public static AutoResetEvent ShutdownSignal = new AutoResetEvent(false); // TODO save to shutdown server?
 
         public static int UpTime => (int)(DateTime.UtcNow - _startTime).TotalSeconds;
-        private static string[] _launchArgs; 
+        private static string[] _launchArgs;
 
         public static async Task Main(string[] args)
         {
             Initialization();
             _launchArgs = args;
-            LoadConfiguration();
+            if (!LoadConfiguration())
+            {
+                return;
+            }
 
-            _log.Info("{0} version {1}", Name, Version);
-
+            _log.Info($"{Name} version {Version}");
+            
+            // Apply MySQL Configuration
+            try
+            {
+                MySQL.SetConfiguration(AppConfiguration.Instance.Connections.MySQLProvider);
+            }
+            catch
+            {
+                _log.Fatal("MySQL configuration could not be loaded !");
+                return;
+            }
+            
+            // Test the DB connection
             var connection = MySQL.CreateConnection();
             if (connection == null)
             {
@@ -45,7 +59,7 @@ namespace AAEmu.Game
             }
 
             connection.Close();
-            
+
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
             var builder = new HostBuilder()
@@ -64,9 +78,9 @@ namespace AAEmu.Game
                     services.AddSingleton<IHostedService, GameService>();
                     services.AddSingleton<IHostedService, DiscordBotService>();
                 });
-            
-            try 
-            { 
+
+            try
+            {
                 await builder.RunConsoleAsync();
             }
             catch (OperationCanceledException ocex)
@@ -74,23 +88,24 @@ namespace AAEmu.Game
                 _log.Fatal(ocex.Message);
             }
         }
-        
+
         private static void Initialization()
         {
             _thread.Name = "AA.Game Base Thread";
             _startTime = DateTime.UtcNow;
         }
 
-        public static void LoadConfiguration()
+        public static bool LoadConfiguration()
         {
             var mainConfig = Path.Combine(FileManager.AppPath, "Config.json");
-            if (File.Exists(mainConfig))
-                Configuration(_launchArgs, mainConfig);
-            else
+            if (!File.Exists(mainConfig))
             {
-                _log.Error($"{mainConfig} doesn't exist!");
-                return;
+                _log.Fatal($"{mainConfig} doesn't exist!");
+                return false;
             }
+
+            Configuration(_launchArgs, mainConfig);
+            return true;            
         }
 
         private static void Configuration(string[] args, string mainConfigJson)
@@ -101,7 +116,7 @@ namespace AAEmu.Game
 
             // Load Game server configuration
             // Get files inside in the Configurations folder
-            var configFiles = Directory.GetFiles(Path.Combine(FileManager.AppPath,"Configurations"), "*.json", SearchOption.AllDirectories).ToList();
+            var configFiles = Directory.GetFiles(Path.Combine(FileManager.AppPath, "Configurations"), "*.json", SearchOption.AllDirectories).ToList();
             configFiles.Sort();
             // Add the old main Config.json file
             configFiles.Insert(0, mainConfigJson);
@@ -113,18 +128,17 @@ namespace AAEmu.Game
                 _log.Info($"Config: {file}");
                 configurationBuilder.AddJsonFile(file);
             }
+
             // Add command-line arguments
             configurationBuilder.AddCommandLine(args);
 
             var configurationBuilderResult = configurationBuilder.Build();
             configurationBuilderResult.Bind(AppConfiguration.Instance);
         }
-        
-        private static void OnUnhandledException(
-            object sender, UnhandledExceptionEventArgs e)
+
+        private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             var exceptionStr = e.ExceptionObject.ToString();
-            //_log.Error(exceptionStr);
             _log.Fatal(exceptionStr);
         }
     }

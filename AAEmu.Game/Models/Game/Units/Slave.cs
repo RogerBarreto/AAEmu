@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using AAEmu.Game.Core.Managers;
-using AAEmu.Game.Core.Managers.World;
-using AAEmu.Game.Core.Network.Game;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.DoodadObj;
@@ -12,17 +10,13 @@ using AAEmu.Game.Models.Game.Formulas;
 using AAEmu.Game.Models.Game.Items;
 using Jitter.Dynamics;
 
-using NLog;
-
 namespace AAEmu.Game.Models.Game.Units
 {
     public class Slave : Unit
     {
-        private static Logger _log = LogManager.GetCurrentClassLogger();
-
         public override UnitTypeFlag TypeFlag { get; } = UnitTypeFlag.Slave;
-        public uint Id { get; set; }
-        public uint TemplateId { get; set; }
+        //public uint Id { get; set; } // moved to BaseUnit
+        //public uint TemplateId { get; set; } // moved to BaseUnit
         public uint BondingObjId { get; set; } = 0;
         
         public SlaveTemplate Template { get; set; }
@@ -43,6 +37,7 @@ namespace AAEmu.Game.Models.Game.Units
         public sbyte AttachPointId { get; set; } = -1;
         public uint OwnerObjId { get; set; }
         public RigidBody RigidBody { get; set; }
+        public SlaveSpawner Spawner { get; set; }
 
         public Slave()
         {
@@ -573,6 +568,9 @@ namespace AAEmu.Game.Models.Game.Units
                 return res;
             }
         }
+        
+        [UnitAttribute(UnitAttribute.TurnSpeed)]
+        public virtual float TurnSpeed { get => (float)CalculateWithBonuses(0, UnitAttribute.TurnSpeed); }
 
         #endregion
         

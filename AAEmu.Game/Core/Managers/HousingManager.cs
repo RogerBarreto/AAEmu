@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using AAEmu.Commons.IO;
 using AAEmu.Commons.Utils;
+using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Core.Managers.Id;
 using AAEmu.Game.Core.Managers.Stream;
 using AAEmu.Game.Core.Managers.UnitManagers;
@@ -87,7 +88,8 @@ namespace AAEmu.Game.Core.Managers
             house.TlId = tlId > 0 ? tlId : (ushort)HousingTldManager.Instance.GetNextId();
             house.ObjId = objectId > 0 ? objectId : ObjectIdManager.Instance.GetNextId();
             house.Template = template;
-            house.TemplateId = template.Id;
+            house.TemplateId = template.Id; // duplicate Id
+            house.Id = template.Id;
             house.Faction = FactionManager.Instance.GetFaction(factionId); // TODO: Inherit from owner
             house.Name = LocalizationManager.Instance.Get("housings", "name", template.Id);
             house.Hp = house.MaxHp;
@@ -190,10 +192,9 @@ namespace AAEmu.Game.Core.Managers
                             var templateBindings = binding.Find(x => x.TemplateId.Contains(template.Id));
                             using (var command2 = connection.CreateCommand())
                             {
-                                command2.CommandText =
-                                    "SELECT * FROM housing_binding_doodads WHERE owner_id=@owner_id AND owner_type='Housing'";
-                                command2.Prepare();
+                                command2.CommandText = "SELECT * FROM housing_binding_doodads WHERE owner_id=@owner_id AND owner_type='Housing'";
                                 command2.Parameters.AddWithValue("owner_id", template.Id);
+                                command2.Prepare();
                                 using (var reader2 = new SQLiteWrapperReader(command2.ExecuteReader()))
                                 {
                                     var doodads = new List<HousingBindingDoodad>();
@@ -1028,6 +1029,23 @@ namespace AAEmu.Game.Core.Managers
                     if (item.ItemFlags.HasFlag(ItemFlag.SoulBound))
                         wantReturned = true;
                 }
+                
+                // If this doodad is a Coffer and has a ItemContainer attached, also return all item of that container
+                if ((f is DoodadCoffer coffer) && (f.GetItemContainerId() > 0))
+                {
+                    // TODO: Check if items should stay in the coffer when house is sold.
+                    // Move it to new owner's SystemContainer first so they don't get destroyed
+                    var ownerSystemContainer = ItemManager.Instance.GetItemContainerForCharacter(house.OwnerId, SlotType.System);
+                    for (var i = coffer.ItemContainer.Items.Count - 1; i >= 0; i--)
+                    {
+                        var cofferItem = coffer.ItemContainer.Items[i];
+                        //if (cofferItem.HasFlag(ItemFlag.SoulBound) || forceRestoreAllDecor)
+                        {
+                            ownerSystemContainer?.AddOrMoveExistingItem(ItemTaskType.Invalid, cofferItem);
+                            returnedItems.Add(cofferItem);
+                        }
+                    }
+                }
 
                 // If the decoration item isn't marked as Restore, then just delete it (and it's possibly attached item)
                 if (!wantReturned)
@@ -1357,7 +1375,7 @@ namespace AAEmu.Game.Core.Managers
                 if (furniture.AttachPoint != AttachPointKind.None)
                     continue;
                 furniture.OwnerId = characterId;
-                furniture.BroadcastPacket(new SCDoodadOriginatorPacket(furniture.ObjId, characterId),true);
+                furniture.BroadcastPacket(new SCDoodadOriginatorPacket(furniture.ObjId, characterId, 0),true);
                 res++;
             }
             return res;
@@ -1587,6 +1605,11 @@ namespace AAEmu.Game.Core.Managers
             doodad.OwnerType = DoodadOwnerType.Housing;
             doodad.UccId = itemUcc?.Id ?? 0;
             doodad.IsPersistent = true;
+            
+            if (doodad is DoodadCoffer coffer)
+            {
+                coffer.InitializeCoffer(player.Id);
+            }
 
             doodad.Spawn();
             doodad.Save();

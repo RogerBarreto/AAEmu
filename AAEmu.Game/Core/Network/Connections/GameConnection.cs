@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+
 using AAEmu.Commons.Network;
 using AAEmu.Commons.Network.Core;
+using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Core.Managers;
-using AAEmu.Game.Core.Managers.Id;
 using AAEmu.Game.Core.Managers.UnitManagers;
 using AAEmu.Game.Core.Network.Game;
-using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models;
-using AAEmu.Game.Models.Game;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.Housing;
-using AAEmu.Game.Models.Game.Items;
-using AAEmu.Game.Models.Tasks;
-using AAEmu.Game.Utils.DB;
 
 namespace AAEmu.Game.Core.Network.Connections
 {
@@ -32,18 +30,15 @@ namespace AAEmu.Game.Core.Network.Connections
         public uint AccountId { get; set; }
         public IPAddress Ip => _session.Ip;
         public PacketStream LastPacket { get; set; }
-        
         public AccountPayment Payment { get; set; }
-        
         public int PacketCount { get; set; }
-        
         public List<IDisposable> Subscribers { get; set; }
         public GameState State { get; set; }
         public Character ActiveChar { get; set; }
         public Dictionary<uint, Character> Characters;
         public Dictionary<uint, House> Houses;
-        
         public Task LeaveTask { get; set; }
+        public CancellationTokenSource CancelTokenSource { get; set; }
         public DateTime LastPing { get; set; }
 
         public GameConnection(Session session)
@@ -106,8 +101,6 @@ namespace AAEmu.Game.Core.Network.Connections
             Subscribers.Add(disposable);
         }
 
-        
-
         public void LoadAccount()
         {
             Characters.Clear();
@@ -157,7 +150,7 @@ namespace AAEmu.Game.Core.Network.Connections
                 return;
 
             // stopping the TransferTelescopeTickStartTask if character disconnected
-            TransferTelescopeManager.Instance.StopTransferTelescopeTick().GetAwaiter().GetResult();
+            TransferTelescopeManager.Instance.StopTransferTelescopeTickAsync().GetAwaiter().GetResult();
 
             ActiveChar.Delete();
             // Removed ReleaseId here to try and fix party/raid disconnect and reconnect issues. Replaced with saving the data

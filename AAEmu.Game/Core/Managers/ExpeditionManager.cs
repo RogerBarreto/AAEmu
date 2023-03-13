@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using AAEmu.Commons.IO;
 using AAEmu.Commons.Utils;
 using AAEmu.Game.Core.Managers.Id;
 using AAEmu.Game.Core.Managers.World;
@@ -13,10 +11,10 @@ using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.Expeditions;
 using AAEmu.Game.Models.Game.Faction;
 using AAEmu.Game.Models.Game.Items.Actions;
-using AAEmu.Game.Utils.DB;
 using NLog;
 using AAEmu.Game.Models.Game.Team;
 using System.Numerics;
+using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Models;
 using AAEmu.Game.Models.Game;
 
@@ -90,8 +88,8 @@ namespace AAEmu.Game.Core.Managers
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandText = "SELECT * FROM expedition_members WHERE expedition_id = @expedition_id";
-                        command.Prepare();
                         command.Parameters.AddWithValue("@expedition_id", expedition.Id);
+                        command.Prepare();
                         using (var reader = command.ExecuteReader())
                         {
                             while (reader.Read())
@@ -119,8 +117,8 @@ namespace AAEmu.Game.Core.Managers
                     {
                         command.CommandText =
                             "SELECT * FROM expedition_role_policies WHERE expedition_id = @expedition_id";
-                        command.Prepare();
                         command.Parameters.AddWithValue("@expedition_id", expedition.Id);
+                        command.Prepare();
                         using (var reader = command.ExecuteReader())
                         {
                             while (reader.Read())
@@ -545,6 +543,11 @@ namespace AAEmu.Game.Core.Managers
             }
 
             character.SendPacket(new SCExpeditionRolePolicyListPacket(new List<ExpeditionRolePolicy>()));
+        }
+
+        public uint GetExpeditionOfCharacter(uint characterId)
+        {
+            return (from guild in _expeditions.Values from member in guild.Members where member.CharacterId == characterId select guild.Id).FirstOrDefault();
         }
     }
 }

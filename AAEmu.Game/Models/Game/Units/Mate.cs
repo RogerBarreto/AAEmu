@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.World;
-using AAEmu.Game.Core.Network.Game;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.DoodadObj.Static;
 using AAEmu.Game.Models.Game.Formulas;
 using AAEmu.Game.Models.Game.NPChar;
-using AAEmu.Game.Models.Game.Units.Static;
+using AAEmu.Game.Models.Tasks;
+using AAEmu.Game.Models.Tasks.Mate;
 
 namespace AAEmu.Game.Models.Game.Units
 {
@@ -18,21 +19,21 @@ namespace AAEmu.Game.Models.Game.Units
         public uint _objId;
         public AttachUnitReason _reason;
     }
-    
+
     public sealed class Mate : Unit
     {
         public override UnitTypeFlag TypeFlag { get; } = UnitTypeFlag.Mate;
         //public ushort TlId { get; set; }
-        public uint TemplateId { get; set; }
+        //public uint TemplateId { get; set; } // moved to BaseUnit
         public NpcTemplate Template { get; set; }
 
         public uint OwnerObjId { get; set; }
-        public Dictionary<AttachPointKind,MatePassengerInfo> Passengers { get; }
+        public Dictionary<AttachPointKind, MatePassengerInfo> Passengers { get; }
 
         public override float Scale => Template.Scale;
 
         // SpawnMate
-        public uint Id { get; set; }
+        //public uint Id { get; set; } // moved to BaseUnit
         public ulong ItemId { get; set; }
         public byte UserState { get; set; }
         public int Experience { get; set; }
@@ -40,6 +41,7 @@ namespace AAEmu.Game.Models.Game.Units
         public uint SpawnDelayTime { get; set; }
         public List<uint> Skills { get; set; }
         public MateDb DbInfo { get; set; }
+        public Task MateXpUpdateTask { get; set; }
 
         #region Attributes
 
@@ -394,13 +396,13 @@ namespace AAEmu.Game.Models.Game.Units
 
             // TODO: Spawn this with the correct amount of seats depending on the template
             // 2 seats by default
-            Passengers.Add(AttachPointKind.Driver,new MatePassengerInfo() { _objId = 0 , _reason = 0 });
-            Passengers.Add(AttachPointKind.Passenger0,new MatePassengerInfo() { _objId = 0 , _reason = 0 });
+            Passengers.Add(AttachPointKind.Driver, new MatePassengerInfo() { _objId = 0, _reason = 0 });
+            Passengers.Add(AttachPointKind.Passenger0, new MatePassengerInfo() { _objId = 0, _reason = 0 });
         }
 
         public void AddExp(int exp)
         {
-            
+
             if (exp == 0)
                 return;
             if (exp > 0)
@@ -426,7 +428,7 @@ namespace AAEmu.Game.Models.Game.Units
             if (change)
             {
                 BroadcastPacket(new SCLevelChangedPacket(ObjId, Level), true);
-                StartRegen();
+                //StartRegen();
             }
 
             DbInfo.Xp = Experience;
@@ -479,6 +481,61 @@ namespace AAEmu.Game.Models.Game.Units
             }
 
             return fallDmg;
+        }
+
+        public void Regenerate()
+        {
+            if (!NeedsRegen)
+            {
+                return;
+            }
+            if (IsDead)
+            {
+                var riders = Passengers.ToList();
+                for (var i = riders.Count - 1; i >= 0; i--)
+                {
+                    var pos = riders[i].Key;
+                    var rider = WorldManager.Instance.GetCharacterByObjId(riders[i].Value._objId);
+                    if (rider != null)
+                    {
+                        MateManager.Instance.UnMountMate(rider, TlId, pos, AttachUnitReason.None);
+                    }
+                }
+                return;
+            }
+
+            if (IsInBattle)
+            {
+                Hp += PersistentHpRegen;
+                Mp += PersistentMpRegen;
+            }
+            else
+            {
+                Hp += HpRegen;
+                Mp += MpRegen;
+            }
+
+            Hp = Math.Min(Hp, MaxHp);
+            Mp = Math.Min(Mp, MaxMp);
+            BroadcastPacket(new SCUnitPointsPacket(ObjId, Hp, Mp), false);
+        }
+
+        public void StartUpdateXp(Character Owner)
+        {
+            if (MateXpUpdateTask != null)
+            {
+                return;
+            }
+            MateXpUpdateTask = new MateXpUpdateTask(Owner, this);
+            TaskManager.Instance.Schedule(MateXpUpdateTask, TimeSpan.FromSeconds(60));
+            //_log.Trace("[StartUpdateXp] The current timer has been started...");
+        }
+
+        public void StopUpdateXp()
+        {
+            _ = MateXpUpdateTask?.CancelAsync();
+            MateXpUpdateTask = null;
+            //_log.Trace("[StopUpdateXp] The current timer has been canceled...");
         }
     }
 }

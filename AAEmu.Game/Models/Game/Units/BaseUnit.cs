@@ -33,14 +33,16 @@ namespace AAEmu.Game.Models.Game.Units
         TurretState = 8
     }
 
-    public class BaseUnit : GameObject
+    public class BaseUnit : GameObject, IBaseUnit
     {
+        public uint Id { get; set; }
+        public uint TemplateId { get; set; }
         public string Name { get; set; } = string.Empty;
         public SystemFaction Faction { get; set; }
 
         public virtual float Scale { get; set; } = 1f;
         
-        public Buffs Buffs { get; set; }
+        public IBuffs Buffs { get; set; }
         public SkillModifiers SkillModifiersCache { get; set; }
         public BuffModifiers BuffModifiersCache { get; set; }
         public CombatBuffs CombatBuffs { get; set; }

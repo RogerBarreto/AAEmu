@@ -1,4 +1,5 @@
 ﻿using System;
+using AAEmu.Game.Models.StaticValues;
 
 namespace AAEmu.Game.Models.Game.Items.Templates
 {
@@ -11,7 +12,7 @@ namespace AAEmu.Game.Models.Game.Items.Templates
         BindOnPickupPack = 5,
         BindOnAuctionWin = 6,
     }
-    
+
     public class ItemTemplate
     {
         public virtual Type ClassType => typeof(Item);
@@ -31,6 +32,7 @@ namespace AAEmu.Game.Models.Game.Items.Templates
         public bool Sellable { get; set; }
         public uint UseSkillId { get; set; }
         public bool UseSkillAsReagent { get; set; }
+        public ItemImplEnum ImplId { get; set; }
         public uint BuffId { get; set; }
         public bool Gradable { get; set; }
         public bool LootMulti { get; set; }
@@ -38,13 +40,14 @@ namespace AAEmu.Game.Models.Game.Items.Templates
         public int HonorPrice { get; set; }
         public int ExpAbsLifetime { get; set; }
         public int ExpOnlineLifetime { get; set; }
-        public int ExpDate { get; set; }
+        public DateTime ExpDate { get; set; }
         public int LevelRequirement { get; set; }
         public int AuctionCategoryA {get; set; }
         public int AuctionCategoryB { get; set; }
         public int AuctionCategoryC { get; set; }
         public int LevelLimit { get; set; }
         public int FixedGrade { get; set; }
+        public bool Disenchantable { get; set; }
         public int LivingPointPrice { get; set; }
         public byte CharGender { get; set; }
 

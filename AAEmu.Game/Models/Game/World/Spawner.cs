@@ -4,8 +4,9 @@ namespace AAEmu.Game.Models.Game.World
 {
     public class Spawner<T> where T : GameObject
     {
-        public uint Id { get; set; }
-        public uint UnitId { get; set; }
+        public uint Id { get; set; }     // index
+        public uint UnitId { get; set; } // MemberId | TemplateId
+        public string FollowPath { get; set; }
         public WorldSpawnPosition Position { get; set; }
         public int RespawnTime { get; set; } = 15;
         public int DespawnTime { get; set; } = 20;

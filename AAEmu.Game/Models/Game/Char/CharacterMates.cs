@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.Id;
 using AAEmu.Game.Core.Managers.UnitManagers;
 using AAEmu.Game.Models.Game.Items.Templates;
-using AAEmu.Game.Models.Game.Mate;
 using AAEmu.Game.Models.Game.NPChar;
 using AAEmu.Game.Models.Game.Skills;
 using AAEmu.Game.Models.Game.Skills.Effects;
-using AAEmu.Game.Models.Game.Units;
-using AAEmu.Game.Utils;
+
 using MySql.Data.MySqlClient;
+
+using NLog;
 
 namespace AAEmu.Game.Models.Game.Char
 {
@@ -23,6 +24,8 @@ namespace AAEmu.Game.Models.Game.Char
          * NAME FROM LOCALIZED TABLE
          */
 
+        protected static Logger _log = LogManager.GetCurrentClassLogger();
+        
         public Character Owner { get; set; }
 
         private readonly Dictionary<ulong, MateDb> _mates; // itemId, MountDb
@@ -49,7 +52,7 @@ namespace AAEmu.Game.Models.Game.Char
                 Id = MateIdManager.Instance.GetNextId(),
                 ItemId = itemId,
                 Level = npctemplate.Level,
-                Name = LocalizationManager.Instance.Get("npcs","name",npctemplate.Id,npctemplate.Name), // npctemplate.Name,
+                Name = LocalizationManager.Instance.Get("npcs","name", npctemplate.Id,npctemplate.Name), // npctemplate.Name,
                 Owner = Owner.Id,
                 Mileage = 0,
                 Xp = ExpirienceManager.Instance.GetExpForLevel(npctemplate.Level, true),
@@ -104,6 +107,7 @@ namespace AAEmu.Game.Models.Game.Char
                 SpawnDelayTime = 0, // TODO
                 DbInfo = mateDbInfo
             };
+            
             mount.Transform = Owner.Transform.CloneDetached(mount);
 
             foreach (var skill in MateManager.Instance.GetMateSkills(npcId))
@@ -126,6 +130,7 @@ namespace AAEmu.Game.Models.Game.Char
             mount.Mp = Math.Min(mount.Mp, mount.MaxMp);
             
             mount.Transform.Local.AddDistanceToFront(3f);
+            //_log.Warn($"Spawn the pet:{mount.ObjId} X={mount.Transform.World.Position.X} Y={mount.Transform.World.Position.Y}");
             MateManager.Instance.AddActiveMateAndSpawn(Owner, mount, item);
         }
 
@@ -191,8 +196,8 @@ namespace AAEmu.Game.Models.Game.Char
                     command.Transaction = transaction;
 
                     command.CommandText = "DELETE FROM mates WHERE owner = @owner AND id IN(" + string.Join(",", _removedMates) + ")";
-                    command.Prepare();
                     command.Parameters.AddWithValue("@owner", Owner.Id);
+                    command.Prepare();
                     command.ExecuteNonQuery();
                     _removedMates.Clear();
                 }

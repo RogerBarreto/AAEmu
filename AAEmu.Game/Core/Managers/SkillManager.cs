@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using AAEmu.Commons.Utils;
+using AAEmu.Game.Models.Game.AI.Enums;
 using AAEmu.Game.Models.Game.Skills;
 using AAEmu.Game.Models.Game.Skills.Buffs;
 using AAEmu.Game.Models.Game.Skills.Effects;
@@ -16,9 +16,10 @@ using NLog;
 
 namespace AAEmu.Game.Core.Managers
 {
-    public class SkillManager : Singleton<SkillManager>
+    public class SkillManager : Singleton<SkillManager>, ISkillManager
     {
         private static Logger _log = LogManager.GetCurrentClassLogger();
+        private bool _loaded = false;
 
         private Dictionary<uint, SkillTemplate> _skills;
         private Dictionary<uint, DefaultSkill> _defaultSkills;
@@ -39,11 +40,9 @@ namespace AAEmu.Game.Core.Managers
         private Dictionary<uint, SkillProduct> _skillProducts;
         private HashSet<ushort> _skillIds = new HashSet<ushort>();
         private ushort _skillIdIndex = 1;
-        /**
-         * Events
-         */
-        public event EventHandler OnSkillsLoaded;
 
+        //Events
+        public event EventHandler OnSkillsLoaded;
 
         public ushort NextId()
         {
@@ -79,7 +78,7 @@ namespace AAEmu.Game.Core.Managers
                 return _skills[id];
             return null;
         }
-        
+
         public bool IsDefaultSkill(uint id)
         {
             return _defaultSkills.ContainsKey(id);
@@ -121,10 +120,10 @@ namespace AAEmu.Game.Core.Managers
 
         public EffectTemplate GetEffectTemplate(uint id)
         {
-            if(_types.ContainsKey(id))
+            if (_types.ContainsKey(id))
             {
                 var type = _types[id];
- 
+
                 _log.Trace("Get Effect Template: type = {0}, id = {1}", type.Type, type.ActualId);
 
                 if (_effects.TryGetValue(type.Type, out var effect))
@@ -133,7 +132,7 @@ namespace AAEmu.Game.Core.Managers
                 }
                 else
                 {
-                    _log.Warn("No such Effec Type[{0}] found.", type.Type);
+                    _log.Warn("No such Effect Type[{0}] found.", type.Type);
                     return null;
                 }
             }
@@ -143,10 +142,10 @@ namespace AAEmu.Game.Core.Managers
         public EffectTemplate GetEffectTemplate(uint id, string type)
         {
             _log.Trace("Get Effect Template: type = {0}, id = {1}", type, id);
-            
+
             if (_effects.TryGetValue(type, out var value))
             {
-                if(value.TryGetValue(id, out var res))
+                if (value.TryGetValue(id, out var res))
                 {
                     return res;
                 }
@@ -163,14 +162,14 @@ namespace AAEmu.Game.Core.Managers
 
         public List<uint> GetBuffsByTagId(uint tagId)
         {
-            if(_taggedBuffs.ContainsKey(tagId))
+            if (_taggedBuffs.ContainsKey(tagId))
                 return _taggedBuffs[tagId];
             return null;
         }
 
         public List<uint> GetSkillTags(uint skillId)
         {
-            if(_skillTags.ContainsKey(skillId))
+            if (_skillTags.ContainsKey(skillId))
                 return _skillTags[skillId];
             return new List<uint>();
         }
@@ -184,14 +183,14 @@ namespace AAEmu.Game.Core.Managers
 
         public PassiveBuffTemplate GetPassiveBuffTemplate(uint id)
         {
-            if(_passiveBuffs.ContainsKey(id))
+            if (_passiveBuffs.ContainsKey(id))
                 return _passiveBuffs[id];
             return null;
         }
-        
+
         public List<SkillModifier> GetModifiersByOwnerId(uint id)
         {
-            if(_skillModifiers.ContainsKey(id))
+            if (_skillModifiers.ContainsKey(id))
                 return _skillModifiers[id];
             return new List<SkillModifier>();
         }
@@ -232,6 +231,9 @@ namespace AAEmu.Game.Core.Managers
 
         public void Load()
         {
+            if (_loaded)
+                return;
+
             _skills = new Dictionary<uint, SkillTemplate>();
             _defaultSkills = new Dictionary<uint, DefaultSkill>();
             _commonSkills = new List<uint>();
@@ -239,11 +241,13 @@ namespace AAEmu.Game.Core.Managers
             _passiveBuffs = new Dictionary<uint, PassiveBuffTemplate>();
             _types = new Dictionary<uint, EffectType>();
             _effects = new Dictionary<string, Dictionary<uint, EffectTemplate>>();
-            _effects.Add("Buff", new Dictionary<uint, EffectTemplate>());
-            _effects.Add("BuffEffect", new Dictionary<uint, EffectTemplate>());
+            _effects.Add("Buff", new Dictionary<uint, EffectTemplate>()); // missing from the effect table
             _effects.Add("AcceptQuestEffect", new Dictionary<uint, EffectTemplate>());
+            _effects.Add("AccountAttributeEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("AggroEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("BubbleEffect", new Dictionary<uint, EffectTemplate>());
+            _effects.Add("BuffEffect", new Dictionary<uint, EffectTemplate>());
+            _effects.Add("CinemaEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("CleanupUccEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("ConversionEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("CraftEffect", new Dictionary<uint, EffectTemplate>());
@@ -258,6 +262,9 @@ namespace AAEmu.Game.Core.Managers
             _effects.Add("KillNpcWithoutCorpseEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("ManaBurnEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("MoveToRezPointEffect", new Dictionary<uint, EffectTemplate>());
+            _effects.Add("NpcControlEffect", new Dictionary<uint, EffectTemplate>());
+            _effects.Add("NpcSpawnerDespawnEffect", new Dictionary<uint, EffectTemplate>());
+            _effects.Add("NpcSpawnerSpawnEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("OpenPortalEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("PhysicalExplosionEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("PutDownBackpackEffect", new Dictionary<uint, EffectTemplate>());
@@ -270,18 +277,17 @@ namespace AAEmu.Game.Core.Managers
             _effects.Add("SpawnGimmickEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("SpecialEffect", new Dictionary<uint, EffectTemplate>());
             _effects.Add("TrainCraftEffect", new Dictionary<uint, EffectTemplate>());
-            _effects.Add("SkillController", new Dictionary<uint, EffectTemplate>());
-            _effects.Add("ResetAoeDiminishingEffect", new Dictionary<uint, EffectTemplate>());
+
+            _effects.Add("TrainCraftRankEffect", new Dictionary<uint, EffectTemplate>()); // missing from the effect table
+            _effects.Add("SkillController", new Dictionary<uint, EffectTemplate>()); // missing from the effect table
+            _effects.Add("SpawnFishEffect", new Dictionary<uint, EffectTemplate>()); // missing from the effect table
+            _effects.Add("ResetAoeDiminishingEffect", new Dictionary<uint, EffectTemplate>()); // missing from the effect table
+
             _buffs = new Dictionary<uint, BuffTemplate>();
             // TODO 
             /*
-                "CinemaEffect"
-                "NpcControlEffect"
-                "NpcSpawnerDespawnEffect"
-                "NpcSpawnerSpawnEffect"
-                "SpawnFishEffect"
-                "PlayLogEffect"
-             */
+                _effects.Add("PlayLogEffect", new Dictionary<uint, EffectTemplate>()); // missing from the effect table
+            */
 
             _buffTags = new Dictionary<uint, List<uint>>();
             _taggedBuffs = new Dictionary<uint, List<uint>>();
@@ -756,6 +762,26 @@ namespace AAEmu.Game.Core.Managers
 
                 using (var command = connection.CreateCommand())
                 {
+                    command.CommandText = "SELECT * FROM account_attribute_effects";
+                    command.Prepare();
+                    using (var reader = new SQLiteWrapperReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            var template = new AccountAttributeEffect();
+                            template.Id = reader.GetUInt32("id");
+                            template.KindId = reader.GetUInt32("kind_id");
+                            template.BindWorld = reader.GetBoolean("bind_world");
+                            template.IsAdd = reader.GetBoolean("is_add");
+                            template.Count = reader.GetUInt32("count");
+                            template.Time = reader.GetUInt32("time");
+                            _effects["AccountAttributeEffect"].Add(template.Id, template);
+                        }
+                    }
+                }
+
+                using (var command = connection.CreateCommand())
+                {
                     command.CommandText = "SELECT * FROM accept_quest_effects";
                     command.Prepare();
                     using (var reader = new SQLiteWrapperReader(command.ExecuteReader()))
@@ -769,6 +795,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM aggro_effects";
@@ -793,6 +820,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM bubble_effects";
@@ -808,6 +836,23 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT * FROM cinema_effects";
+                    command.Prepare();
+                    using (var reader = new SQLiteWrapperReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            var template = new CinemalEffect();
+                            template.Id = reader.GetUInt32("id");
+                            template.CinemaId = reader.GetUInt32("cinema_id");
+                            _effects["CinemaEffect"].Add(template.Id, template);
+                        }
+                    }
+                }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM cleanup_ucc_effects";
@@ -822,6 +867,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM conversion_effects";
@@ -841,6 +887,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM craft_effects";
@@ -856,6 +903,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM damage_effects";
@@ -917,6 +965,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM dispel_effects";
@@ -934,6 +983,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM flying_state_change_effects";
@@ -949,6 +999,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM gain_loot_pack_item_effects";
@@ -968,6 +1019,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM heal_effects";
@@ -1000,6 +1052,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM imprint_ucc_effects";
@@ -1015,6 +1068,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM impulse_effects";
@@ -1041,6 +1095,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM interaction_effects";
@@ -1057,6 +1112,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM kill_npc_without_corpse_effects";
@@ -1075,6 +1131,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM mana_burn_effects";
@@ -1095,6 +1152,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM move_to_rez_point_effects";
@@ -1109,6 +1167,25 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT * FROM npc_control_effects";
+                    command.Prepare();
+                    using (var reader = new SQLiteWrapperReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            var template = new NpcControlEffect();
+                            template.Id = reader.GetUInt32("id");
+                            template.CategoryId = (NpcControlCategory)reader.GetUInt32("category_id");
+                            template.ParamString = reader.GetString("param_string", "");
+                            template.ParamInt = reader.GetUInt32("param_int");
+                            _effects["NpcControlEffect"].Add(template.Id, template);
+                        }
+                    }
+                }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM open_portal_effects";
@@ -1124,6 +1201,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM physical_explosion_effects";
@@ -1141,6 +1219,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM put_down_backpack_effects";
@@ -1156,6 +1235,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM recover_exp_effects";
@@ -1174,6 +1254,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM repair_slave_effects";
@@ -1190,6 +1271,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM report_crime_effects";
@@ -1206,6 +1288,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM reset_aoe_diminishing_effects";
@@ -1220,6 +1303,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM restore_mana_effects";
@@ -1242,6 +1326,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM scoped_f_effects";
@@ -1259,6 +1344,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM spawn_effects";
@@ -1279,13 +1365,66 @@ namespace AAEmu.Game.Core.Managers
                             template.UseSummonerFaction = reader.GetBoolean("use_summoner_faction", true);
                             template.LifeTime = reader.GetFloat("life_time");
                             template.DespawnOnCreatorDeath = reader.GetBoolean("despawn_on_creator_death", true);
-                            template.UseSummoneerAggroTarget = reader.GetBoolean("use_summoner_aggro_target", true);
+                            template.UseSummonerAggroTarget = reader.GetBoolean("use_summoner_aggro_target", true);
                             // TODO 1.2 // template.MateStateId = reader.GetUInt32("mate_state_id", 0);
                             _effects["SpawnEffect"].Add(template.Id, template);
                         }
                     }
                 }
-                // TODO spawn_fish_effects
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT * FROM npc_spawner_spawn_effects";
+                    command.Prepare();
+                    using (var reader = new SQLiteWrapperReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            var template = new NpcSpawnerSpawnEffect();
+                            template.Id = reader.GetUInt32("id");
+                            template.SpawnerId = reader.GetUInt32("spawner_id", 0);
+                            template.LifeTime = reader.GetFloat("life_time");
+                            template.DespawnOnCreatorDeath = reader.GetBoolean("despawn_on_creator_death", true);
+                            template.UseSummonerAggroTarget = reader.GetBoolean("use_summoner_aggro_target", true);
+                            template.ActivationState = reader.GetBoolean("activation_state", true);
+                            _effects["NpcSpawnerSpawnEffect"].Add(template.Id, template);
+                        }
+                    }
+                }
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT * FROM npc_spawner_despawn_effects";
+                    command.Prepare();
+                    using (var reader = new SQLiteWrapperReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            var template = new NpcSpawnerDespawnEffect();
+                            template.Id = reader.GetUInt32("id");
+                            template.SpawnerId = reader.GetUInt32("spawner_id");
+                            _effects["NpcSpawnerDespawnEffect"].Add(template.Id, template);
+                        }
+                    }
+                }
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT * FROM spawn_fish_effects";
+                    command.Prepare();
+                    using (var reader = new SQLiteWrapperReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            var template = new SpawnFishEffect();
+                            template.Id = reader.GetUInt32("id");
+                            template.Range = reader.GetUInt32("range");
+                            template.DoodadId = reader.GetUInt32("doodad_id", 0);
+                            _effects["SpawnFishEffect"].Add(template.Id, template);
+                        }
+                    }
+                }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM spawn_gimmick_effects";
@@ -1335,6 +1474,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM train_craft_effects";
@@ -1350,7 +1490,24 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
-                // TODO train_craft_rank_effects
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT * FROM train_craft_rank_effects";
+                    command.Prepare();
+                    using (var reader = new SQLiteWrapperReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            var template = new TrainCraftRankEffect();
+                            template.Id = reader.GetUInt32("id");
+                            template.KindId = reader.GetUInt32("kind_id");
+                            template.RankId = reader.GetUInt32("rank_id");
+                            _effects["TrainCraftRankEffect"].Add(template.Id, template);
+                        }
+                    }
+                }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM effects";
@@ -1367,6 +1524,7 @@ namespace AAEmu.Game.Core.Managers
                         }
                     }
                 }
+
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM skill_effects";
@@ -1381,7 +1539,7 @@ namespace AAEmu.Game.Core.Managers
 
                             var template = new SkillEffect();
                             var effectId = reader.GetUInt32("effect_id");
-                            
+
                             //for easier debugging
                             template.EffectId = effectId;
 
@@ -1507,14 +1665,14 @@ namespace AAEmu.Game.Core.Managers
                                 ReqBuffId = reader.GetUInt32("req_buff_id"),
                                 IsHealSpell = reader.GetBoolean("is_heal_spell", true)
                             };
-                            
+
                             if (!_combatBuffs.ContainsKey(combatBuffTemplate.ReqBuffId))
                                 _combatBuffs.Add(combatBuffTemplate.ReqBuffId, new List<CombatBuffTemplate>());
                             _combatBuffs[combatBuffTemplate.ReqBuffId].Add(combatBuffTemplate);
                         }
                     }
                 }
-                
+
                 _log.Info("Skill effects loaded");
 
                 _buffTriggers = new Dictionary<uint, List<BuffTriggerTemplate>>();
@@ -1543,7 +1701,7 @@ namespace AAEmu.Game.Core.Managers
                             trigger.Synergy = reader.GetBoolean("synergy", true);
 
                             //Apparently this is possible..
-                            if(trigger.Effect != null)
+                            if (trigger.Effect != null)
                             {
                                 _buffTriggers[buffId].Add(trigger);
                             }
@@ -1608,11 +1766,13 @@ namespace AAEmu.Game.Core.Managers
                 if (!skillTemplate.NeedLearn || skillTemplate.AbilityId == 0 || skillTemplate.AbilityLevel > 1 ||
                     !skillTemplate.Show)
                     continue;
-                var ability = (AbilityType) skillTemplate.AbilityId;
+                var ability = (AbilityType)skillTemplate.AbilityId;
                 if (!_startAbilitySkills.ContainsKey(ability))
                     _startAbilitySkills.Add(ability, new List<SkillTemplate>());
                 _startAbilitySkills[ability].Add(skillTemplate);
             }
+
+            _loaded = true;
         }
     }
 }

@@ -98,7 +98,7 @@ namespace AAEmu.Commons.Utils.Updater
                         continue; // shouldn't happen here
                     fName = fName.ToLower();
                     if (!fName.Contains(moduleNamePrefix))
-                        continue; // This files is not related to us, ignore (technically shouldn't happen, but add it anyway)
+                        continue; // These files are not related to us, ignore (technically shouldn't happen, but add it anyway)
 
                     command.CommandText = "REPLACE INTO `updates` " +
                                           "(`script_name`,`installed`,`install_date`,`last_error`" +
@@ -116,29 +116,39 @@ namespace AAEmu.Commons.Utils.Updater
             }
         }
 
-        private static bool InstallUpdatesFiles(MySqlConnection connection, List<string> filesToRun)
+        private static bool InstallUpdatesFiles(MySqlConnection connection, List<string> filesToRun, bool doSkip)
         {
             foreach (var fName in filesToRun)
             {
-                var sql = File.ReadAllText(fName);
-
-                // Run update script
                 var success = false;
                 var errorText = string.Empty;
-                using (var command = connection.CreateCommand())
+                if (doSkip == false)
                 {
-                    command.Connection = connection;
-                    command.CommandText = sql;
+                    var sql = File.ReadAllText(fName);
 
-                    try
+                    // Run update script
+                    success = false;
+                    errorText = string.Empty;
+                    using (var command = connection.CreateCommand())
                     {
-                        command.ExecuteNonQuery();
-                        success = true;
+                        command.Connection = connection;
+                        command.CommandText = sql;
+
+                        try
+                        {
+                            command.ExecuteNonQuery();
+                            success = true;
+                        }
+                        catch (Exception e)
+                        {
+                            errorText = e.Message;
+                        }
                     }
-                    catch (Exception e)
-                    {
-                        errorText = e.Message;
-                    }
+                }
+                else
+                {
+                    success = true;
+                    errorText = "Skipped";
                 }
 
                 // Save the results
@@ -151,7 +161,7 @@ namespace AAEmu.Commons.Utils.Updater
                                           "@script_name,@installed,@install_date,@last_error)";
 
                     command.Parameters.Clear();
-                    command.Parameters.AddWithValue("@script_name", fName);
+                    command.Parameters.AddWithValue("@script_name", Path.GetFileName(fName));
                     command.Parameters.AddWithValue("@installed", success ? 1 : 0);
                     command.Parameters.AddWithValue("@install_date", success ? DateTime.UtcNow : DateTime.MinValue);
                     command.Parameters.AddWithValue("@last_error", errorText);
@@ -166,7 +176,7 @@ namespace AAEmu.Commons.Utils.Updater
                     return false;
                 }
 
-                _log.Info($"Installed: {fName}");
+                _log.Info(doSkip ? $"Skipped: {fName}" : $"Installed: {fName}");
                 //filesAlreadyUpdated.Add(fName);
             }
 
@@ -253,7 +263,7 @@ namespace AAEmu.Commons.Utils.Updater
             if (filesToRun.Count > 0)
             {
                 Thread.Sleep(1000);
-                Console.WriteLine($"Warning, there are {filesToRun.Count} updates for the database that need to be installed first !");
+                Console.WriteLine($"Warning, there are {filesToRun.Count} updates for the database that need to be installed first!");
                 Console.WriteLine("-----");
                 foreach (var fName in filesToRun)
                 {
@@ -261,12 +271,12 @@ namespace AAEmu.Commons.Utils.Updater
                 }
 
                 Console.WriteLine("-----");
-                Console.Write("Please type YES (all caps) to try and automatically install the updates, or press Ctrl+C here to quit: ");
+                Console.Write("Please type YES (all caps) to try and automatically install the updates, type SKIP if you already installed the update manually, or press Ctrl+C here to quit: ");
                 var yesNo = Console.ReadLine();
-                if (yesNo != "YES")
+                if ((yesNo != "YES") && (yesNo != "SKIP"))
                     return false;
 
-                if (!InstallUpdatesFiles(connection, filesToRun))
+                if (!InstallUpdatesFiles(connection, filesToRun, yesNo == "SKIP"))
                     return false;
             }
             else
@@ -297,7 +307,7 @@ namespace AAEmu.Commons.Utils.Updater
 
                 try
                 {
-                    currentDir = Directory.GetParent(currentDir).FullName;
+                    currentDir = Directory.GetParent(currentDir)?.FullName ?? string.Empty;
                 }
                 catch (Exception ex)
                 {

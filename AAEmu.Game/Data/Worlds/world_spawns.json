@@ -9,6 +9,15 @@
         }
     },
     {
+        "Name": "arche_mall",
+        "SpawnPosition": {
+            "ZoneId": 260,
+            "X": 3680.518,
+            "Y": 4572.221,
+            "Z": 156
+        }
+    },
+    {
         "Name": "instance_burntcastle_armory",
         "SpawnPosition": {
             "ZoneId": 236,
@@ -90,6 +99,69 @@
         }
     },
     {
+        "Name": "instance_library_1",
+        "SpawnPosition": {
+            "ZoneId": 296,
+            "X": 621.05,
+            "Y": 643.36,
+            "Z": 134.64
+        }
+    },
+    {
+        "Name": "instance_library_2",
+        "SpawnPosition": {
+            "ZoneId": 297,
+            "X": 510.2,
+            "Y": 2538.6,
+            "Z": 128.4
+        }
+    },
+    {
+        "Name": "instance_library_3",
+        "SpawnPosition": {
+            "ZoneId": 298,
+            "X": 516.8,
+            "Y": 4611.5,
+            "Z": 255.7
+        }
+    },
+    {
+        "Name": "instance_library_boss_1",
+        "SpawnPosition": {
+            "ZoneId": 303,
+            "X": 2498.29,
+            "Y": 181.488,
+            "Z": 131.087
+        }
+    },
+    {
+        "Name": "instance_library_boss_2",
+        "SpawnPosition": {
+            "ZoneId": 304,
+            "X": 2867.995,
+            "Y": 1645.93,
+            "Z": 136.859
+        }
+    },
+    {
+        "Name": "instance_library_boss_3",
+        "SpawnPosition": {
+            "ZoneId": 305,
+            "X": 2624.0,
+            "Y": 2416.0,
+            "Z": 129.0
+        }
+    },
+    {
+        "Name": "instance_library_tower_defense",
+        "SpawnPosition": {
+            "ZoneId": 306,
+            "X": 3671.562,
+            "Y": 631.305,
+            "Z": 210.962 // TODO уточнить координаты
+        }
+    },
+    {
         "Name": "instance_nachashgar",
         "SpawnPosition": {
             "ZoneId": 278,
@@ -113,7 +185,8 @@
             "ZoneId": 240,
             "X": 431.406,
             "Y": 300.08,
-            "Z": 154.036
+            "Z": 154.036,
+			"Yaw": -90.0
         }
     }
 ]

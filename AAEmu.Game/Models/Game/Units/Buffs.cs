@@ -6,13 +6,12 @@ using AAEmu.Game.GameData;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.Skills;
 using AAEmu.Game.Models.Game.Skills.Buffs;
-using AAEmu.Game.Models.Game.Skills.Effects;
 using AAEmu.Game.Models.Game.Skills.Static;
 using AAEmu.Game.Models.Game.Skills.Templates;
 
 namespace AAEmu.Game.Models.Game.Units
 {
-    public class Buffs
+    public class Buffs : IBuffs
     {
         private readonly object _lock = new object();
         private uint _nextIndex;
@@ -38,14 +37,20 @@ namespace AAEmu.Game.Models.Game.Units
 
         public bool CheckBuffImmune(uint buffId)
         {
-            foreach (var effect in _effects.ToList())
+            IEnumerable<Buff> effects;
+            lock (_lock)
+            {
+                effects = _effects.ToArray();
+            }
+
+            foreach (var effect in effects)
             {
                 if (effect == null)
                     continue;
 
                 if (effect.Template.ImmuneBuffTagId == 0)
                     continue;
-                
+
                 var buffs = SkillManager.Instance.GetBuffsByTagId(effect.Template.ImmuneBuffTagId);
                 if (buffs != null && buffs.Contains(buffId))
                     return true;
@@ -64,8 +69,8 @@ namespace AAEmu.Game.Models.Game.Units
 
                 if (template == null)
                     continue;
-                
-                switch(damageType)
+
+                switch (damageType)
                 {
                     case DamageType.Melee:
                         if (template.MeleeImmune) return true;
@@ -122,14 +127,14 @@ namespace AAEmu.Game.Models.Game.Units
 
         public bool CheckBuffTag(uint tagId)
         {
-            var buffs= SkillManager.Instance.GetBuffsByTagId(tagId);
-            
+            var buffs = SkillManager.Instance.GetBuffsByTagId(tagId);
+
             foreach (var effect in _effects.ToList())
                 if (effect != null && buffs.Contains(effect.Template.BuffId))
                     return true;
             return false;
         }
-        
+
         public Buff GetEffectFromBuffId(uint id)
         {
             foreach (var effect in _effects.ToList())
@@ -212,7 +217,7 @@ namespace AAEmu.Game.Models.Game.Units
                 {
                     buff.Index = index;
                 }
-                
+
                 var buffIds = SkillManager.Instance.GetBuffTags(buff.Template.Id);
                 var buffTolerance = buffIds
                     .Select(buffId => BuffGameData.Instance.GetBuffToleranceForBuffTag(buffId))
@@ -239,7 +244,7 @@ namespace AAEmu.Game.Models.Game.Units
                     }
 
                     counter.LastStep = DateTime.UtcNow;
-                } 
+                }
                 else if (buffTolerance != null)
                 {
                     _toleranceCounters.Add(buffTolerance.Id, new BuffToleranceCounter()
@@ -251,16 +256,16 @@ namespace AAEmu.Game.Models.Game.Units
                 }
 
                 buff.Duration = buff.Template.GetDuration(buff.AbLevel);
-                buff.Duration = (int) buff.Caster.BuffModifiersCache.ApplyModifiers(buff.Template,
+                buff.Duration = (int)buff.Caster.BuffModifiersCache.ApplyModifiers(buff.Template,
                     BuffAttribute.Duration, buff.Duration);
-                buff.Duration = (int) buff.Owner.BuffModifiersCache.ApplyModifiers(buff.Template,
+                buff.Duration = (int)buff.Owner.BuffModifiersCache.ApplyModifiers(buff.Template,
                     BuffAttribute.InDuration, buff.Duration);
-                
+
                 if (buffTolerance != null)
                 {
                     var counter = _toleranceCounters[buffTolerance.Id];
                     buff.Duration = (int)(buff.Duration * ((100 - counter.CurrentStep.TimeReduction) / 100.0));
-                    
+
                     if (buff.Caster is Character && buff.Owner is Character)
                         buff.Duration = (int)(buff.Duration * ((100 - buffTolerance.CharacterTimeReduction) / 100.0));
                 }
@@ -317,7 +322,7 @@ namespace AAEmu.Game.Models.Game.Units
                     if (bufft.Stun || bufft.Silence || bufft.Sleep)
                         owner.InterruptSkills();
                 }
-                
+
                 //if (buff.Duration > 0)
                 if (buff.Duration > 0 || buff.Template.TickEffects.Count > 0)
                     buff.SetInUse(true, false);
@@ -328,7 +333,7 @@ namespace AAEmu.Game.Models.Game.Units
                     buff.Template.Start(buff.Caster, owner, buff); // TODO поменять на target
                 }
             }
-            
+
             if (finalToleranceBuffId > 0)
             {
                 AddBuff(new Buff(buff.Owner, buff.Caster, buff.SkillCaster, SkillManager.Instance.GetBuffTemplate(finalToleranceBuffId), buff.Skill, DateTime.UtcNow));
@@ -352,7 +357,7 @@ namespace AAEmu.Game.Models.Game.Units
                 own.BuffModifiersCache.RemoveModifiers(buff.Template.BuffId);
                 own.CombatBuffs.RemoveCombatBuff(buff.Template.BuffId);
                 //effect.Triggers.UnsubscribeEvents();
-                
+
                 if (buff.Template.Gliding)
                     TriggerRemoveOn(BuffRemoveOn.Land);
             }
@@ -413,7 +418,7 @@ namespace AAEmu.Game.Models.Game.Units
             if (own == null)
                 return;
 
-            if (_effects == null) 
+            if (_effects == null)
                 return;
             foreach (var e in _effects.ToList())
             {
@@ -438,7 +443,7 @@ namespace AAEmu.Game.Models.Game.Units
                 return;
 
             var taggedBuffs = SkillManager.Instance.GetBuffsByTagId(buffTagId);
-            
+
             if (_effects == null)
                 return;
             foreach (var buff in _effects.ToList())
@@ -455,20 +460,20 @@ namespace AAEmu.Game.Models.Game.Units
                         continue;
                     if (buffTagId > 0 && !taggedBuffs.Contains(buffTemplate.Id))
                         continue;
-                    
+
                     buff.Exit();
                     count--;
                     if (count == 0)
                         return;
                 }
         }
-        
+
         public void RemoveBuffs(uint buffTagId, int count)
         {
             var own = GetOwner();
             if (own == null)
                 return;
-        
+
             if (_effects == null)
                 return;
 
@@ -501,78 +506,81 @@ namespace AAEmu.Game.Models.Game.Units
         {
             foreach (var effect in _effects.ToList())
             {
-                var template = effect.Template;
+                if (effect != null)
+                {
+                    var template = effect.Template;
 
-                if (template.RemoveOnAttackBuffTrigger && on == BuffRemoveOn.AttackBuffTrigger)
-                    effect.Exit();
-                else if (template.RemoveOnAttackedBuffTrigger && on == BuffRemoveOn.AttackedBuffTrigger)
-                    effect.Exit();
-                else if (template.RemoveOnAttackedEtc && on == BuffRemoveOn.AttackedEtc)
-                    effect.Exit();
-                else if (template.RemoveOnAttackedEtcDot && on == BuffRemoveOn.AttackedEtcDot)
-                    effect.Exit();
-                else if (template.RemoveOnAttackedSpellDot && on == BuffRemoveOn.AttackedSpellDot)
-                    effect.Exit();
-                else if (template.RemoveOnAttackEtc && on == BuffRemoveOn.AttackEtc)
-                    effect.Exit();
-                else if (template.RemoveOnAttackEtcDot && on == BuffRemoveOn.AttackEtcDot)
-                    effect.Exit();
-                else if (template.RemoveOnAttackSpellDot && on == BuffRemoveOn.AttackSpellDot)
-                    effect.Exit();
-                else if (template.RemoveOnAutoAttack && on == BuffRemoveOn.AutoAttack)
-                    effect.Exit();
-                else if (template.RemoveOnDamageBuffTrigger && on == BuffRemoveOn.DamageBuffTrigger)
-                    effect.Exit();
-                else if (template.RemoveOnDamagedBuffTrigger && on == BuffRemoveOn.DamagedBuffTrigger)
-                    effect.Exit();
-                else if (template.RemoveOnDamagedEtc && on == BuffRemoveOn.DamagedEtc)
-                    effect.Exit();
-                else if (template.RemoveOnDamagedEtcDot && on == BuffRemoveOn.DamagedEtcDot)
-                    effect.Exit();
-                else if (template.RemoveOnDamagedSpellDot && on == BuffRemoveOn.DamagedSpellDot)
-                    effect.Exit();
-                else if (template.RemoveOnDamageEtc && on == BuffRemoveOn.DamageEtc)
-                    effect.Exit();
-                else if (template.RemoveOnDamageEtcDot && on == BuffRemoveOn.DamageEtcDot)
-                    effect.Exit();
-                else if (template.RemoveOnDamageSpellDot && on == BuffRemoveOn.DamageSpellDot)
-                    effect.Exit();
-                else if (template.RemoveOnDeath && on == BuffRemoveOn.Death)
-                    effect.Exit();
-                else if (template.RemoveOnExempt && on == BuffRemoveOn.Exempt)
-                    effect.Exit();
-                else if (template.RemoveOnInteraction && on == BuffRemoveOn.Interaction)
-                    effect.Exit();
-                else if (template.RemoveOnLand && on == BuffRemoveOn.Land)
-                    effect.Exit();
-                else if (template.RemoveOnMount && on == BuffRemoveOn.Mount)
-                    effect.Exit();
-                else if (template.RemoveOnMove && on == BuffRemoveOn.Move)
-                {
-                    // stopping the TransferTelescopeTickStartTask if character moved
-                    TransferTelescopeManager.Instance.StopTransferTelescopeTick().GetAwaiter().GetResult();
-                    
-                    effect.Exit();
-                }                
-                else if (template.RemoveOnSourceDead && on == BuffRemoveOn.SourceDead && value == effect.Caster.ObjId)
-                    effect.Exit();//Need to investigate this one
-                else if (template.RemoveOnStartSkill && on == BuffRemoveOn.StartSkill)
-                {
-                    if (value == 0)
+                    if (template.RemoveOnAttackBuffTrigger && on == BuffRemoveOn.AttackBuffTrigger)
+                        effect.Exit();
+                    else if (template.RemoveOnAttackedBuffTrigger && on == BuffRemoveOn.AttackedBuffTrigger)
+                        effect.Exit();
+                    else if (template.RemoveOnAttackedEtc && on == BuffRemoveOn.AttackedEtc)
+                        effect.Exit();
+                    else if (template.RemoveOnAttackedEtcDot && on == BuffRemoveOn.AttackedEtcDot)
+                        effect.Exit();
+                    else if (template.RemoveOnAttackedSpellDot && on == BuffRemoveOn.AttackedSpellDot)
+                        effect.Exit();
+                    else if (template.RemoveOnAttackEtc && on == BuffRemoveOn.AttackEtc)
+                        effect.Exit();
+                    else if (template.RemoveOnAttackEtcDot && on == BuffRemoveOn.AttackEtcDot)
+                        effect.Exit();
+                    else if (template.RemoveOnAttackSpellDot && on == BuffRemoveOn.AttackSpellDot)
+                        effect.Exit();
+                    else if (template.RemoveOnAutoAttack && on == BuffRemoveOn.AutoAttack)
+                        effect.Exit();
+                    else if (template.RemoveOnDamageBuffTrigger && on == BuffRemoveOn.DamageBuffTrigger)
+                        effect.Exit();
+                    else if (template.RemoveOnDamagedBuffTrigger && on == BuffRemoveOn.DamagedBuffTrigger)
+                        effect.Exit();
+                    else if (template.RemoveOnDamagedEtc && on == BuffRemoveOn.DamagedEtc)
+                        effect.Exit();
+                    else if (template.RemoveOnDamagedEtcDot && on == BuffRemoveOn.DamagedEtcDot)
+                        effect.Exit();
+                    else if (template.RemoveOnDamagedSpellDot && on == BuffRemoveOn.DamagedSpellDot)
+                        effect.Exit();
+                    else if (template.RemoveOnDamageEtc && on == BuffRemoveOn.DamageEtc)
+                        effect.Exit();
+                    else if (template.RemoveOnDamageEtcDot && on == BuffRemoveOn.DamageEtcDot)
+                        effect.Exit();
+                    else if (template.RemoveOnDamageSpellDot && on == BuffRemoveOn.DamageSpellDot)
+                        effect.Exit();
+                    else if (template.RemoveOnDeath && on == BuffRemoveOn.Death)
+                        effect.Exit();
+                    else if (template.RemoveOnExempt && on == BuffRemoveOn.Exempt)
+                        effect.Exit();
+                    else if (template.RemoveOnInteraction && on == BuffRemoveOn.Interaction)
+                        effect.Exit();
+                    else if (template.RemoveOnLand && on == BuffRemoveOn.Land)
+                        effect.Exit();
+                    else if (template.RemoveOnMount && on == BuffRemoveOn.Mount)
+                        effect.Exit();
+                    else if (template.RemoveOnMove && on == BuffRemoveOn.Move)
+                    {
+                        // stopping the TransferTelescopeTickStartTask if character moved
+                        TransferTelescopeManager.Instance.StopTransferTelescopeTickAsync().GetAwaiter().GetResult();
+
+                        effect.Exit();
+                    }
+                    else if (template.RemoveOnSourceDead && on == BuffRemoveOn.SourceDead && value == effect.Caster.ObjId)
+                        effect.Exit();//Need to investigate this one
+                    else if (template.RemoveOnStartSkill && on == BuffRemoveOn.StartSkill)
+                    {
+                        if (value == 0)
+                            effect.Exit();
+                        else
+                        {
+                            var tags = SkillManager.Instance.GetBuffTags(effect.Template.BuffId);
+                            if (!tags.Contains(value))
+                                effect.Exit();
+                        }
+                    }
+                    else if (template.RemoveOnUnmount && on == BuffRemoveOn.Unmount)
+                        effect.Exit();
+                    else if (template.RemoveOnUseSkill && on == BuffRemoveOn.UseSkill)
                         effect.Exit();
                     else
-                    {
-                        var tags = SkillManager.Instance.GetBuffTags(effect.Template.BuffId);
-                        if (!tags.Contains(value))
-                            effect.Exit();   
-                    }
+                        continue;
                 }
-                else if (template.RemoveOnUnmount && on == BuffRemoveOn.Unmount)
-                    effect.Exit();
-                else if (template.RemoveOnUseSkill && on == BuffRemoveOn.UseSkill)
-                    effect.Exit();
-                else
-                    continue;
             }
         }
 
@@ -591,7 +599,7 @@ namespace AAEmu.Game.Models.Game.Units
         {
             _owner = owner == null ? null : new WeakReference(owner);
         }
-        
+
         public void RemoveStealth()
         {
             var own = GetOwner();
@@ -612,7 +620,7 @@ namespace AAEmu.Game.Models.Game.Units
         {
             return _effects.Where(e => e.Template.DamageAbsorptionTypeId > 0);
         }
-        
+
         public bool HasEffectsMatchingCondition(Func<Buff, bool> predicate)
         {
             return _effects.Any(predicate);

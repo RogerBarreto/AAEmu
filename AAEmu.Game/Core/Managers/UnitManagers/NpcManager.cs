@@ -8,7 +8,6 @@ using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.GameData;
 using AAEmu.Game.Models.Game.AI.Params;
 using AAEmu.Game.Models.Game.AI.Utils;
-using AAEmu.Game.Models.Game.AI.v2.AiCharacters;
 using AAEmu.Game.Models.Game.Items;
 using AAEmu.Game.Models.Game.Merchant;
 using AAEmu.Game.Models.Game.Char;
@@ -26,7 +25,8 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
     public class NpcManager : Singleton<NpcManager>
     {
         private static Logger _log = LogManager.GetCurrentClassLogger();
-
+        private bool _loaded = false;
+        
         private Dictionary<uint, NpcTemplate> _templates;
         private Dictionary<uint, MerchantGoods> _goods;
         private Dictionary<uint, TotalCharacterCustom> _totalCharacterCustoms;
@@ -34,6 +34,9 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
         private Dictionary<uint, List<uint>> _tccLookup;
         // you can provide a seed here if you want NPCs to more reliable retain their appearance between reboots, or leave out the seed to get it random every time
         private Random _loadCustomRandom = new Random(123456789);
+        public Dictionary<uint, NpcSpawnerNpc> _npcSpawnerNpc;    // npcSpawnerId, nsn
+        public Dictionary<uint, NpcSpawnerTemplate> _npcSpawners; // npcSpawnerId, template
+        public Dictionary<uint, List<uint>> _npcMemberAndSpawnerId; // memberId, List<npcSpawnerId>
 
         public bool Exist(uint templateId)
         {
@@ -61,14 +64,16 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
 
         public Npc Create(uint objectId, uint id)
         {
-            if (!_templates.ContainsKey(id))
+            var template = GetTemplate(id);
+            if ( template == null)
+            {
                 return null;
-
-            var template = _templates[id];
+            }
 
             var npc = new Npc();
             npc.ObjId = objectId > 0 ? objectId : ObjectIdManager.Instance.GetNextId();
-            npc.TemplateId = id;
+            npc.TemplateId = id; // duplicate Id
+            npc.Id = id;
             npc.Template = template;
             npc.ModelId = template.ModelId;
             npc.Faction = FactionManager.Instance.GetFaction(template.FactionId);
@@ -315,6 +320,9 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
 
         public void Load()
         {
+            if (_loaded)
+                return;
+
             _templates = new Dictionary<uint, NpcTemplate>();
             _goods = new Dictionary<uint, MerchantGoods>();
             _tccLookup = new Dictionary<uint, List<uint>>();
@@ -514,8 +522,8 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                             using (var command2 = connection.CreateCommand())
                             {
                                 command2.CommandText = "SELECT char_race_id, char_gender_id FROM characters WHERE model_id = @model_id";
-                                command2.Prepare();
                                 command2.Parameters.AddWithValue("model_id", template.ModelId);
+                                command2.Prepare();
                                 using (var sqliteReader2 = command2.ExecuteReader())
                                 using (var reader2 = new SQLiteWrapperReader(sqliteReader2))
                                 {
@@ -534,8 +542,8 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                                 using (var command2 = connection.CreateCommand())
                                 {
                                     command2.CommandText = "SELECT * FROM equip_pack_cloths WHERE id=@id";
-                                    command2.Prepare();
                                     command2.Parameters.AddWithValue("id", clothPack);
+                                    command2.Prepare();
                                     using (var sqliteReader2 = command2.ExecuteReader())
                                     using (var reader2 = new SQLiteWrapperReader(sqliteReader2))
                                     {
@@ -575,8 +583,8 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                                 using (var command2 = connection.CreateCommand())
                                 {
                                     command2.CommandText = "SELECT * FROM equip_pack_weapons WHERE id=@id";
-                                    command2.Prepare();
                                     command2.Parameters.AddWithValue("id", weaponPack);
+                                    command2.Prepare();
                                     using (var sqliteReader2 = command2.ExecuteReader())
                                     using (var reader2 = new SQLiteWrapperReader(sqliteReader2))
                                     {
@@ -639,8 +647,8 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                                 using (var command2 = connection.CreateCommand())
                                 {
                                     command2.CommandText = "SELECT * FROM npc_postures WHERE npc_posture_set_id=@id";
-                                    command2.Prepare();
                                     command2.Parameters.AddWithValue("id", template.NpcPostureSetId);
+                                    command2.Prepare();
                                     using (var sqliteReader2 = command2.ExecuteReader())
                                     using (var reader2 = new SQLiteWrapperReader(sqliteReader2))
                                     {
@@ -773,6 +781,10 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
 
                 _log.Info("Loaded {0} merchant packs", _goods.Count);
             }
+
+            NpcGameData.Instance.LoadMemberAndSpawnerTemplateIds();
+
+            _loaded = true;
         }
 
         public void LoadAiParams()

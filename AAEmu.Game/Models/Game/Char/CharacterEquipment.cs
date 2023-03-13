@@ -31,7 +31,6 @@ namespace AAEmu.Game.Models.Game.Char
             // Apply Equip Effects
             ApplyEquipEffects(itemAdded, itemRemoved);
 
-
             // Compute gear buff
             ApplyWeaponWieldBuff();
             ApplyArmorGradeBuff(itemAdded, itemRemoved);
@@ -257,6 +256,7 @@ namespace AAEmu.Game.Models.Game.Char
         {
             if (itemRemoved != null)
             {
+                // Static Item Buffs
                 var itemRemovedBuff = ItemGameData.Instance.GetItemBuff(itemRemoved?.TemplateId ?? 0, itemRemoved?.Grade ?? 0);
                 if (itemRemovedBuff == null)
                     itemRemovedBuff = SkillManager.Instance.GetBuffTemplate(itemRemoved?.Template.BuffId ?? 0);
@@ -267,10 +267,17 @@ namespace AAEmu.Game.Models.Game.Char
                         Buffs.RemoveBuff(itemRemovedBuff.Id);
                     }
                 }
+
+                // Charged Item Buffs
+                if ((itemRemoved.Template is EquipItemTemplate equipItemTemplate) &&
+                    (equipItemTemplate.RechargeBuffId > 0) &&
+                    Buffs.CheckBuff(equipItemTemplate.RechargeBuffId))
+                    Buffs.RemoveBuff(equipItemTemplate.RechargeBuffId);
             }
 
             if(itemAdded != null)
             {
+                // Static Buffs
                 var itemAddedBuff = ItemGameData.Instance.GetItemBuff(itemAdded?.TemplateId ?? 0, itemAdded?.Grade ?? 0);
                 if (itemAddedBuff == null)
                     itemAddedBuff = SkillManager.Instance.GetBuffTemplate(itemAdded?.Template.BuffId ?? 0);
@@ -284,6 +291,40 @@ namespace AAEmu.Game.Models.Game.Char
 
                     Buffs.AddBuff(newEffect);
                 }
+
+                // Charged Item Buffs
+                if ((itemAdded is EquipItem equipItem) && (equipItem.Template is EquipItemTemplate equipItemTemplate) &&
+                    (equipItemTemplate.RechargeBuffId > 0))
+                {
+                    var addChargeBuff = false;
+                    var checkExpireTime = equipItemTemplate.BindType.HasFlag(ItemBindType.BindOnUnpack)
+                        ? equipItem.UnpackTime
+                        : equipItem.ChargeStartTime;
+                    checkExpireTime = checkExpireTime.AddMinutes(equipItemTemplate.ChargeLifetime);
+                    
+                    // Check against timer
+                    if ((equipItemTemplate.ChargeLifetime > 0) && (checkExpireTime > DateTime.UtcNow))
+                        addChargeBuff = true;
+
+                    // Check against charge counter
+                    if ((equipItemTemplate.ChargeCount > 0) && (equipItem.ChargeCount > 0))
+                        addChargeBuff = true;
+
+                    // If this item is Bind on unwrap, don't start the buff if it's not unwrapped
+                    if (equipItemTemplate.BindType.HasFlag(ItemBindType.BindOnUnpack) && (equipItem.HasFlag(ItemFlag.Unpacked) == false))
+                        addChargeBuff = false;
+
+                    if (addChargeBuff)
+                    {
+                        var itemAddedChargedBuff = SkillManager.Instance.GetBuffTemplate(equipItemTemplate.RechargeBuffId);
+                        var newEffect =
+                            new Buff(this, this, new SkillCasterUnit(), itemAddedChargedBuff, null, DateTime.UtcNow)
+                            {
+                                AbLevel = (uint)itemAdded.Template.Level
+                            };
+                        Buffs.AddBuff(newEffect);
+                    }
+                }
             }
 
             if(itemAdded == null && itemRemoved == null) // This is the first load check to apply buffs for equipped items. 
@@ -291,6 +332,7 @@ namespace AAEmu.Game.Models.Game.Char
                 Buffs.RemoveBuffs((uint)BuffConstants.EquipmentBuffTag, 20);
                 foreach (var item in Equipment.Items)
                 {
+                    // Static Buffs
                     if(item.Template.BuffId != 0)
                     {
                         var buffTemplate = ItemGameData.Instance.GetItemBuff(item?.TemplateId ?? 0, item?.Grade ?? 0);
@@ -303,6 +345,40 @@ namespace AAEmu.Game.Models.Game.Char
                             };
 
                         Buffs.AddBuff(newEffect);
+                    }
+                    
+                    // Charged Item Buffs
+                    if ((item is EquipItem equipItem) && (equipItem.Template is EquipItemTemplate equipItemTemplate) &&
+                        (equipItemTemplate.RechargeBuffId > 0))
+                    {
+                        var addChargeBuff = false;
+                        var checkExpireTime = equipItemTemplate.BindType.HasFlag(ItemBindType.BindOnUnpack)
+                            ? equipItem.UnpackTime
+                            : equipItem.ChargeStartTime;
+                        checkExpireTime = checkExpireTime.AddMinutes(equipItemTemplate.ChargeLifetime);
+                    
+                        // Check against timer
+                        if ((equipItemTemplate.ChargeLifetime > 0) && (checkExpireTime > DateTime.UtcNow))
+                            addChargeBuff = true;
+
+                        // Check against charge counter
+                        if ((equipItemTemplate.ChargeCount > 0) && (equipItem.ChargeCount > 0))
+                            addChargeBuff = true;
+
+                        // If this item is Bind on unwrap, don't start the buff if it's not unwrapped
+                        if (equipItemTemplate.BindType.HasFlag(ItemBindType.BindOnUnpack) && (equipItem.HasFlag(ItemFlag.Unpacked) == false))
+                            addChargeBuff = false;
+
+                        if (addChargeBuff)
+                        {
+                            var itemAddedChargedBuff = SkillManager.Instance.GetBuffTemplate(equipItemTemplate.RechargeBuffId);
+                            var newEffect =
+                                new Buff(this, this, new SkillCasterUnit(), itemAddedChargedBuff, null, DateTime.UtcNow)
+                                {
+                                    AbLevel = (uint)item.Template.Level
+                                };
+                            Buffs.AddBuff(newEffect);
+                        }
                     }
                 }
             }

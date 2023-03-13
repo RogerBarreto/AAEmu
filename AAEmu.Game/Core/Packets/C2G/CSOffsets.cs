@@ -189,7 +189,7 @@
         public const ushort CSUnbondDoodadPacket = 0x0cd;
         public const ushort CSCompletedCinemaPacket = 0x0ce;
         public const ushort CSStartedCinemaPacket = 0x0cf;
-        //0xd0 CSRequestPermissionToPlayCinemaForDirectingMode
+        public const ushort CSRequestPermissionToPlayCinemaForDirectingMode = 0xd0;
         //0xd1 CSEditorRemoveGimmickPacket
         //0xd2 CSEditorAddGimmickPacket
         //0xd3 CSInteractGimmickPacket
@@ -271,12 +271,13 @@
         public const ushort CSPremiumServiceListPacket = 0x136;
         // 0x137 CSICSBuyAAPointPacket
         // 0x138 CSRequestTencentFatigueInfoPacket
-        // 0x139 CSTakeAllAttachmentItemPacket
+        public const ushort CSTakeAllAttachmentItemPacket = 0x139;
         // 0x13a unk packet
         // 0x13b unk packet
         public const ushort CSPremiumServieceMsgPacket = 0x13c;
         // 0x13d unk packet
         // 0x13e unk packet
+        public const ushort CSUnknownInstancePacket = 0x13e;
         // 0x13f unk packet
         public const ushort CSSetupSecondPassword = 0x140;
         // 0x141 unk packet

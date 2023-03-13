@@ -11,7 +11,7 @@ namespace AAEmu.Game.Scripts.Commands
     public class Teleport : ICommand
     {
         public List<TPloc> locations = new List<TPloc>();
-        public const bool AllowPingPos = true ; // Enable or Disable /teleport . (dot) command functionality
+        public bool AllowPingPos { get; set; } = true ; // Enable or Disable /teleport . (dot) command functionality
 
         public void OnLoad()
         {
@@ -31,8 +31,8 @@ namespace AAEmu.Game.Scripts.Commands
                 return
                     "Teleports you to target location. if no [location] is provided, you will get a list of available names. " +
                     "You can also use a period (.) as a location name to teleport to a location you marked on the map.";
-            /*else
-                return "Teleports you to target location. if no [location] is provided, you will get a list of available names."; */
+            else
+                return "Teleports you to target location. if no [location] is provided, you will get a list of available names."; 
         }
 
         public void loadLocations()
@@ -635,17 +635,18 @@ namespace AAEmu.Game.Scripts.Commands
                     character.SendMessage(s+"\n");
             }
         }
-    }
 
-    public enum TeleportCommandRegions { East = 0, West = 1, Auroria = 2, Dungeons = 3, Other = 4 }
+        public enum TeleportCommandRegions { East = 0, West = 1, Auroria = 2, Dungeons = 3, Other = 4 }
 
-    public class TPloc{
-        public string Name {get; set;}
-        public string Info {get; set;}
-        public int X {get; set;}
-        public int Y {get; set;}
-        public int Z {get; set;}
-        public string[] AltNames { get; set; }
-        public TeleportCommandRegions Region { get; set; }
+        public class TPloc
+        {
+            public string Name { get; set; }
+            public string Info { get; set; }
+            public int X { get; set; }
+            public int Y { get; set; }
+            public int Z { get; set; }
+            public string[] AltNames { get; set; }
+            public TeleportCommandRegions Region { get; set; }
+        }
     }
 }

@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using AAEmu.Commons.Utils;
-using AAEmu.Game.Core.Managers.World;
+using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Models.Game.Auction;
 using AAEmu.Game.Models.Game.Auction.Templates;
 using AAEmu.Game.Models.Game.Char;
-using AAEmu.Game.Utils.DB;
 using AAEmu.Game.Models.Game.Items;
 using NLog;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models.Game;
-using AAEmu.Game.Models.Game.Items.Templates;
 using MySql.Data.MySqlClient;
 using AAEmu.Game.Models.Game.Mails;
 
@@ -494,9 +492,6 @@ namespace AAEmu.Game.Core.Managers
                         " @creation_time, @end_time, @lifespan_mins, @type_1, @world_id, @unsecure_date_time, @unpack_date_time," +
                         " @world_id_2, @client_id, @client_name, @start_money, @direct_money, @bid_world_id," +
                         " @bidder_id, @bidder_name, @bid_money, @extra)";
-
-                    command.Prepare();
-
                     command.Parameters.AddWithValue("@id", mtbs.ID);
                     command.Parameters.AddWithValue("@duration", mtbs.Duration);
                     command.Parameters.AddWithValue("@item_id", mtbs.ItemID);
@@ -524,6 +519,7 @@ namespace AAEmu.Game.Core.Managers
                     command.Parameters.AddWithValue("@bid_money", mtbs.BidMoney);
                     command.Parameters.AddWithValue("@extra", mtbs.Extra);
 
+                    command.Prepare();
                     command.ExecuteNonQuery();
                     updatedCount++;
                     mtbs.IsDirty = false;

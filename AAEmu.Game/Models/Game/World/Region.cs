@@ -2,17 +2,12 @@
 using System.Collections.Generic;
 using System.Threading;
 
-using AAEmu.Commons.Utils;
-using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.DoodadObj;
-using AAEmu.Game.Models.Game.Gimmicks;
-using AAEmu.Game.Models.Game.Housing;
 using AAEmu.Game.Models.Game.NPChar;
 using AAEmu.Game.Models.Game.Units;
-using AAEmu.Game.Models.Game.Units.Route;
 
 using NLog;
 
@@ -23,7 +18,7 @@ namespace AAEmu.Game.Models.Game.World
         private static Logger _log = LogManager.GetCurrentClassLogger();
 
         private readonly uint _worldId;
-        private readonly object _objectsLock = new object();
+        private readonly object _objectsLock = new();
         private GameObject[] _objects;
         private int _objectsSize, _charactersSize;
         private Region[] _neighbors;
@@ -34,7 +29,7 @@ namespace AAEmu.Game.Models.Game.World
         public int Id => Y + (1024 * X);
         public uint ZoneKey { get; set; }
 
-        public Region(uint worldId, int x, int y, uint zoneKey) 
+        public Region(uint worldId, int x, int y, uint zoneKey)
         {
             _worldId = worldId;
             X = x;
@@ -62,28 +57,27 @@ namespace AAEmu.Game.Models.Game.World
 
                 _objects[_objectsSize] = obj;
                 _objectsSize++;
+            }
 
+            if (obj.Transform != null)
+            {
                 obj.Transform.WorldId = _worldId;
                 var zoneId = WorldManager.Instance.GetZoneId(_worldId, obj.Transform.World.Position.X, obj.Transform.World.Position.Y);
                 if (zoneId > 0)
                     obj.Transform.ZoneId = zoneId;
+            }
 
-                if (obj is Character)
-                {
-                    _charactersSize++;
-                    foreach (var region in GetNeighbors())
-                    {
+            if (obj is Character)
+            {
+                _charactersSize++;
+                foreach (var region in GetNeighbors())
+                    if (region != null)
                         Interlocked.Increment(ref region._playerCount);
-                    }
-                }
-
             }
             // Show debug info to subscribed players
-            if (obj.Transform._debugTrackers.Count > 0)
+            if (obj.Transform?._debugTrackers?.Count > 0)
                 foreach (var chr in obj.Transform._debugTrackers)
-                    chr?.SendMessage("[{0}] {1} entered region ({2} {3})){4}",
-                        DateTime.UtcNow.ToString("HH:mm:ss"), obj.ObjId, X, Y,
-                        obj is BaseUnit bu ? " - " + bu.Name : "");
+                    chr?.SendMessage("[{0}] {1} entered region ({2} {3})){4}", DateTime.UtcNow.ToString("HH:mm:ss"), obj.ObjId, X, Y, obj is BaseUnit bu ? " - " + bu.Name : "");
         }
 
         public void RemoveObject(GameObject obj) // TODO Нужно доделать =_+
@@ -123,18 +117,14 @@ namespace AAEmu.Game.Models.Game.World
                 {
                     _charactersSize--;
                     foreach (var region in GetNeighbors())
-                    {
-                        Interlocked.Decrement(ref region._playerCount);
-                    }
+                        if (region != null)
+                            Interlocked.Decrement(ref region._playerCount);
                 }
-                
             }
             // Show debug info to subscribed players
-            if (obj.Transform._debugTrackers.Count > 0)
+            if (obj.Transform?._debugTrackers?.Count > 0)
                 foreach (var chr in obj.Transform._debugTrackers)
-                    chr?.SendMessage("[{0}] {1} left the region ({2} {3})){4}",
-                        DateTime.UtcNow.ToString("HH:mm:ss"), obj.ObjId, X, Y,
-                        obj is BaseUnit bu ? " - " + bu.Name : "");
+                    chr?.SendMessage("[{0}] {1} left the region ({2} {3})){4}", DateTime.UtcNow.ToString("HH:mm:ss"), obj.ObjId, X, Y, obj is BaseUnit bu ? " - " + bu.Name : "");
         }
 
         public void AddToCharacters(GameObject obj)
@@ -151,30 +141,30 @@ namespace AAEmu.Game.Models.Game.World
                     // Ignore doodads here, as we have a special packet for those
                     if (go is Doodad)
                         continue;
-                    
+
                     // turn on the motion of the visible NPC
-                    if ((go is Npc npc) && (npc.Ai != null)) 
+                    if (go is Npc npc && npc.Ai != null)
                         npc.Ai.ShouldTick = true;
-                    
+
                     go.AddVisibleObject(objectAsCharacter);
                 }
-                
+
                 // Handle Doodads separately with sets of SCDoodadsCreatedPacket
                 var doodads = GetList(new List<Doodad>(), obj.ObjId).ToArray();
                 for (var i = 0; i < doodads.Length; i += SCDoodadsCreatedPacket.MaxCountPerPacket)
                 {
                     var count = doodads.Length - i;
-                    var temp = new Doodad[count <= SCDoodadsCreatedPacket.MaxCountPerPacket ? count : SCDoodadsCreatedPacket.MaxCountPerPacket];
+                    var temp = new Doodad[count <= SCDoodadsCreatedPacket.MaxCountPerPacket
+                        ? count
+                        : SCDoodadsCreatedPacket.MaxCountPerPacket];
                     Array.Copy(doodads, i, temp, 0, temp.Length);
                     objectAsCharacter.SendPacket(new SCDoodadsCreatedPacket(temp));
                 }
             }
-            
+
             // show the object to all players in the region
             foreach (var characterInRegion in GetList(new List<Character>(), obj.ObjId))
-            {
                 obj.AddVisibleObject(characterInRegion);
-            }
         }
 
         public void RemoveFromCharacters(GameObject obj)
@@ -185,7 +175,6 @@ namespace AAEmu.Game.Models.Game.World
             // remove all visible objects in the region from the player
             if (obj is Character character1)
             {
-                //var unitIds = GetListId<Unit>(new List<uint>(), obj.ObjId).ToArray();
                 var unitIds = GetListId<Unit>(new List<uint>(), character1.ObjId).ToArray();
                 var units = GetList(new List<Unit>(), character1.ObjId);
                 foreach (var t in units)
@@ -199,10 +188,13 @@ namespace AAEmu.Game.Models.Game.World
                 for (var offset = 0; offset < unitIds.Length; offset += SCUnitsRemovedPacket.MaxCountPerPacket)
                 {
                     var length = unitIds.Length - offset;
-                    var temp = new uint[length > SCUnitsRemovedPacket.MaxCountPerPacket ? SCUnitsRemovedPacket.MaxCountPerPacket : length];
+                    var temp = new uint[length > SCUnitsRemovedPacket.MaxCountPerPacket
+                        ? SCUnitsRemovedPacket.MaxCountPerPacket
+                        : length];
                     Array.Copy(unitIds, offset, temp, 0, temp.Length);
                     character1.SendPacket(new SCUnitsRemovedPacket(temp));
                 }
+
                 var doodadIds = GetListId<Doodad>(new List<uint>(), character1.ObjId).ToArray();
                 for (var offset = 0; offset < doodadIds.Length; offset += SCDoodadsRemovedPacket.MaxCountPerPacket)
                 {
@@ -217,9 +209,7 @@ namespace AAEmu.Game.Models.Game.World
 
             // remove the object from all players in the region
             foreach (var character in GetList(new List<Character>(), obj.ObjId))
-            {
                 obj.RemoveVisibleObject(character);
-            }
         }
 
         public Region[] GetNeighbors()
@@ -348,8 +338,8 @@ namespace AAEmu.Game.Models.Game.World
 
                 var finalrad = sqrad;
                 if (useModelSize)
-                    finalrad += (obj.ModelSize * obj.ModelSize);
-                
+                    finalrad += obj.ModelSize * obj.ModelSize;
+
                 var dx = obj.Transform.World.Position.X - x;
                 dx *= dx;
                 if (dx > finalrad)
@@ -376,6 +366,32 @@ namespace AAEmu.Game.Models.Game.World
         public override int GetHashCode()
         {
             return HashCode.Combine(_worldId, X, Y);
+        }
+
+        public Region[] FindDifferenceBetweenRegions(Region other)
+        {
+            var regions = new List<Region>();
+            var oldNeighbors = this.GetNeighbors();
+            var newNeighbors = other.GetNeighbors();
+
+            foreach (var oldNeighbor in oldNeighbors)
+            {
+                var add = true;
+                foreach (var newNeighbor in newNeighbors)
+                {
+                    if (newNeighbor.Equals(oldNeighbor))
+                    {
+                        add = false;
+                        break;
+                    }
+                }
+
+                if (add)
+                {
+                    regions.Add(oldNeighbor);
+                }
+            }
+            return regions.ToArray(); ;
         }
     }
 }

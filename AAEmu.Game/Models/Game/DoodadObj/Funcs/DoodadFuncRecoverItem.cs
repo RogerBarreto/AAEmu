@@ -10,23 +10,24 @@ namespace AAEmu.Game.Models.Game.DoodadObj.Funcs
 {
     public class DoodadFuncRecoverItem : DoodadFuncTemplate
     {
+        // doodad_funcs
         public override void Use(Unit caster, Doodad owner, uint skillId, int nextPhase = 0)
         {
-            _log.Debug("DoodadFuncRecoverItem");
+            _log.Debug($"DoodadFuncRecoverItem({Id}) - Caster:{caster.Name} - DoodadOwner Template:{owner?.TemplateId} - SkillId:{skillId} - Nextphase:{nextPhase}");
 
             var character = (Character)caster;
             var addedItem = false;
-            var item = ItemManager.Instance.GetItemByItemId(owner.ItemId);
-            if (owner.ItemId > 0)
+            var item = ItemManager.Instance.GetItemByItemId(owner?.ItemId ?? 0);
+            if (owner?.ItemId > 0)
             {
                 if (item != null)
                 {
                     // Recoverable doodads, should be referencing a item in a System container, if this is not the case,
                     // that means that it was already picked up by somebody else
-                    if (item._holdingContainer.ContainerType != SlotType.System)
+                    if (item._holdingContainer?.ContainerType != SlotType.System)
                     {
-                        owner.ToPhaseAndUse = false;
-                        // character.SendErrorMessage(ErrorMessageType.Backpack); // TODO: Not sure what error I need to put here
+                        owner.ToNextPhase = false;
+                        character.SendErrorMessage(ErrorMessageType.InteractionRecoverParent); // TODO: Not sure what error I need to put here
                         return;
                     }
                     
@@ -34,7 +35,7 @@ namespace AAEmu.Game.Models.Game.DoodadObj.Funcs
                     if (owner.DbHouseId > 0)
                     {
                         var house = HousingManager.Instance.GetHouseById(owner.DbHouseId);
-                        if ((house != null) && (!house.AllowedToInteract(character)))
+                        if (house != null && !house.AllowedToInteract(character))
                         {
                             character.SendErrorMessage(ErrorMessageType.InteractionPermissionDeny);
                             return;
@@ -58,20 +59,24 @@ namespace AAEmu.Game.Models.Game.DoodadObj.Funcs
                     }
                 }
             }
-            else if (owner.ItemTemplateId > 0)
+            else if (owner?.ItemTemplateId > 0)
             {
                 addedItem = character.Inventory.Bag.AcquireDefaultItem(ItemTaskType.RecoverDoodadItem, owner.ItemTemplateId, 1);
             }
             else
             {
                 // No itemId was provided with the doodad, need to check what needs to be done with this
-                _log.Warn("DoodadFuncRecoverItem: Doodad {0} has no item information attached to it", owner.InstanceId);
+                _log.Warn($"DoodadFuncRecoverItem: Doodad {owner?.ObjId} has no item information attached to it");
             }
 
-            if ((addedItem) && (item != null) && (item._holdingContainer.ContainerType == SlotType.Equipment))
+            if (addedItem && item != null && item._holdingContainer.ContainerType == SlotType.Equipment)
                 character.BroadcastPacket(new SCUnitEquipmentsChangedPacket(character.ObjId,(byte)item.Slot,item), false);
 
-            owner.ToPhaseAndUse = addedItem;
+            if (owner != null)
+                owner.ToNextPhase = addedItem;
+
+            //if (addedItem)
+            //    owner.Delete();
         }
     }
 }

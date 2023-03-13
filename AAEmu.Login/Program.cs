@@ -4,8 +4,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AAEmu.Commons.IO;
+using AAEmu.Commons.Utils.DB;
 using AAEmu.Login.Models;
-using AAEmu.Login.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -33,19 +33,30 @@ namespace AAEmu.Login
                 Configuration(args, mainConfig);
             else
             {
-                _log.Error($"{mainConfig} doesn't exist!");
+                _log.Fatal($"{mainConfig} doesn't exist!");
                 return;
             }
 
-            _log.Info("{0} version {1}", Name, Version);
+            _log.Info($"{Name} version {Version}");
 
-            var connection = MySQL.Create();
+            // Apply MySQL Configuration
+            try
+            {
+                MySQL.SetConfiguration(AppConfiguration.Instance.Connections.MySQLProvider);
+            }
+            catch
+            {
+                _log.Fatal("MySQL configuration could not be loaded !");
+                return;
+            }
+            
+            // Test the DB connection
+            var connection = MySQL.CreateConnection();
             if (connection == null)
             {
                 LogManager.Flush();
                 return;
             }
-
             connection.Close();
 
             var builder = new HostBuilder()

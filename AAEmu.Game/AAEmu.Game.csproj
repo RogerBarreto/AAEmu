@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\AAEmu.Commons\AAEmu.Commons.csproj" />
+        <InternalsVisibleTo Include="AAEmu.Tests.Integration" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,6 +25,10 @@
         <Content Include="ExampleConfig.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <None Include="Scripts\Commands\CofferActions.cs">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <LinkBase>Scripts\</LinkBase>
+        </None>
         <None Include="Scripts\Commands\Nrot.cs">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <LinkBase>Scripts\</LinkBase>
@@ -32,9 +37,8 @@
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <LinkBase>Scripts\</LinkBase>
         </None>
-        <None Update="Gonfigurations\expedition.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <LinkBase>Data\</LinkBase>
+        <None Update="Config.json">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="Configurations\Expedition.json">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -57,7 +61,7 @@
       <None Include="Data\**\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Data\" />
       <None Include="ClientData\**\**" CopyToOutputDirectory="PreserveNewest" LinkBase="ClientData\" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Discord.Net" Version="3.7.2" />
         <PackageReference Include="Jace" Version="0.9.2" />
@@ -80,6 +84,24 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Update="Scripts\Commands\GodMode.cs">
+        <LinkBase>$([MSBuild]::EnsureTrailingSlash(%(LinkBase)))</LinkBase>
+      </None>
+      <None Update="Scripts\Commands\GoldCmd.cs">
+        <LinkBase>$([MSBuild]::EnsureTrailingSlash(%(LinkBase)))</LinkBase>
+      </None>
+      <None Update="Scripts\Commands\ItemCmd.cs">
+        <LinkBase>$([MSBuild]::EnsureTrailingSlash(%(LinkBase)))</LinkBase>
+      </None>
+      <None Update="Scripts\Commands\SlaveCmd.cs">
+        <LinkBase>$([MSBuild]::EnsureTrailingSlash(%(LinkBase)))</LinkBase>
+      </None>
+      <None Update="Scripts\Commands\NpcCmd.cs">
+        <LinkBase>$([MSBuild]::EnsureTrailingSlash(%(LinkBase)))</LinkBase>
+      </None>
+      <None Update="Scripts\Commands\DoodadCmd.cs">
+        <LinkBase>$([MSBuild]::EnsureTrailingSlash(%(LinkBase)))</LinkBase>
+      </None>
       <None Update="Scripts\Commands\ReloadConfigs.cs">
         <LinkBase>$([MSBuild]::EnsureTrailingSlash(%(LinkBase)))</LinkBase>
       </None>
@@ -123,5 +145,6 @@
 
     <ItemGroup>
       <Folder Include="Models\ClientData" />
+      <Folder Include="Scripts\SubCommands" />
     </ItemGroup>
 </Project>

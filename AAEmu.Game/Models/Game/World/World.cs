@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Numerics;
+using AAEmu.Game.Models.Game.World.Interactions;
 using AAEmu.Game.Models.Game.World.Transform;
 using AAEmu.Game.Models.Game.World.Xml;
 using AAEmu.Game.Models.Game.World.Zones;
@@ -22,7 +24,21 @@ namespace AAEmu.Game.Models.Game.World
         public ushort[,] HeightMaps { get; set; }
         public List<uint> ZoneKeys { get; set; } = new List<uint>();
         public ConcurrentDictionary<uint, XmlWorldZone> XmlWorldZones;
-        
+
+        public BoatPhysicsManager Physics { get; set; }
+        public WaterBodies Water { get; set; }
+
+        public bool IsWater(Vector3 point)
+        {
+            if (Water != null)
+                return Water.IsWater(point);
+            
+            if (point.Z <= OceanLevel)
+                return true;
+            
+            // TODO: Check shapes
+            return false;
+        }
 
         public float GetRawHeightMapHeight(int x, int y)
         {

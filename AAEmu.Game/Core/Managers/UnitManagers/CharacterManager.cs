@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Data;
 using System.IO;
-using System.Linq;
 using AAEmu.Commons.IO;
 using AAEmu.Commons.Models;
 using AAEmu.Commons.Utils;
+using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Core.Managers.Id;
 using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Core.Network.Connections;
@@ -18,7 +16,6 @@ using AAEmu.Game.Models.Game.Char.Templates;
 using AAEmu.Game.Models.Game.Items;
 using AAEmu.Game.Models.Game.Skills;
 using AAEmu.Game.Models.Game.Units;
-using AAEmu.Game.Models.Game.World;
 using AAEmu.Game.Utils.DB;
 using AAEmu.Game.Models.Game.Chat;
 using AAEmu.Game.Models.Game.Housing;
@@ -26,9 +23,7 @@ using NLog;
 using AAEmu.Game.Models.Game.Items.Actions;
 using AAEmu.Game.Models.Tasks.Characters;
 using AAEmu.Game.Utils;
-using Microsoft.CodeAnalysis.Text;
 using MySql.Data.MySqlClient;
-using SQLitePCL;
 
 namespace AAEmu.Game.Core.Managers.UnitManagers
 {
@@ -91,66 +86,10 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
             return null;
         }
 
-        public void CombatTick(TimeSpan delta)
-        {
-            // Not sure if we should put this here or world
-            foreach(var character in WorldManager.Instance.GetAllCharacters())
-            {
-                // TODO: Make it so you can also become out of combat if you are not on any aggro lists
-                if (character.IsInCombat && character.LastCombatActivity.AddSeconds(30) < DateTime.UtcNow)
-                {
-                    character.BroadcastPacket(new SCCombatClearedPacket(character.ObjId), true);
-                    character.IsInCombat = false;
-                }
-                
-                if (character.IsInPostCast && character.LastCast.AddSeconds(5) < DateTime.UtcNow)
-                {
-                    character.IsInPostCast = false;
-                }
-            }
-        }
-
-        public void RegenTick(TimeSpan delta)
-        {
-            foreach (var character in WorldManager.Instance.GetAllCharacters())
-            {
-                if (character.IsDead || !character.NeedsRegen || character.IsDrowning)
-                    continue;
-
-                if (character.IsInCombat)
-                    character.Hp += character.PersistentHpRegen;
-                else
-                    character.Hp += character.HpRegen;
-
-                if (character.IsInPostCast)
-                    character.Mp += character.PersistentMpRegen;
-                else
-                    character.Mp += character.MpRegen;
-
-                character.Hp = Math.Min(character.Hp, character.MaxHp);
-                character.Mp = Math.Min(character.Mp, character.MaxMp);
-                character.BroadcastPacket(new SCUnitPointsPacket(character.ObjId, character.Hp, character.Mp), true);
-            }
-        }
-        
-        public void BreathTick(TimeSpan delta)
-        {
-            foreach (var character in WorldManager.Instance.GetAllCharacters())
-            {
-                if(character.IsDead || !character.IsUnderWater)
-                    continue;
-                
-                character.DoChangeBreath();
-            }
-        }
-
         public void Load()
         {
             Log.Info("Loading character templates...");
 
-            TickManager.Instance.OnTick.Subscribe(BreathTick, TimeSpan.FromMilliseconds(1000));
-            TickManager.Instance.OnTick.Subscribe(CombatTick, TimeSpan.FromMilliseconds(1000));
-            TickManager.Instance.OnTick.Subscribe(RegenTick, TimeSpan.FromMilliseconds(1000));
             using (var connection = SQLite.CreateConnection())
             {
                 var temp = new Dictionary<uint, byte>();
@@ -175,8 +114,8 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                             using (var command2 = connection.CreateCommand())
                             {
                                 command2.CommandText = "SELECT * FROM item_body_parts WHERE model_id=@model_id";
-                                command2.Prepare();
                                 command2.Parameters.AddWithValue("model_id", template.ModelId);
+                                command2.Prepare();
                                 using (var reader2 = new SQLiteWrapperReader(command2.ExecuteReader()))
                                 {
                                     while (reader2.Read())
@@ -251,8 +190,8 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                                 using (var command2 = connection.CreateCommand())
                                 {
                                     command2.CommandText = "SELECT * FROM equip_pack_cloths WHERE id=@id";
-                                    command2.Prepare();
                                     command2.Parameters.AddWithValue("id", clothPack);
+                                    command2.Prepare();
                                     using (var reader2 = new SQLiteWrapperReader(command2.ExecuteReader()))
                                     {
                                         while (reader2.Read())
@@ -291,8 +230,8 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                                 using (var command2 = connection.CreateCommand())
                                 {
                                     command2.CommandText = "SELECT * FROM equip_pack_weapons WHERE id=@id";
-                                    command2.Prepare();
                                     command2.Parameters.AddWithValue("id", weaponPack);
+                                    command2.Prepare();
                                     using (var reader2 = new SQLiteWrapperReader(command2.ExecuteReader()))
                                     {
                                         while (reader2.Read())
@@ -465,18 +404,18 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
             
         }
 
-        public void Create(GameConnection connection, string name, byte race, byte gender, uint[] body,
-            UnitCustomModelParams customModel, byte ability1)
+        public void Create(GameConnection connection, string name, byte race, byte gender, uint[] body, UnitCustomModelParams customModel, byte ability1)
         {
             var nameValidationCode = NameManager.Instance.ValidationCharacterName(name);
             if (nameValidationCode == 0)
             {
                 var characterId = CharacterIdManager.Instance.GetNextId();
-                NameManager.Instance.AddCharacterName(characterId, name);
+                NameManager.Instance.AddCharacterName(characterId, name, connection.AccountId);
                 var template = GetTemplate(race, gender);
 
                 var character = new Character(customModel);
-                character.Id = characterId;
+                character.Id = characterId; // duplicate Id
+                character.TemplateId = characterId;
                 character.AccountId = connection.AccountId;
                 character.Name = name.Substring(0, 1).ToUpper() + name.Substring(1);
                 character.Race = (Race) race;
@@ -485,11 +424,13 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                 character.Level = 1;
                 character.Faction = FactionManager.Instance.GetFaction(template.FactionId);
                 character.FactionName = "";
+                character.AccessLevel = 100; // TODO для тестирования создаем с полными правами
                 character.LaborPower = 50;
                 character.LaborPowerModified = DateTime.UtcNow;
                 character.NumInventorySlots = template.NumInventorySlot;
                 character.NumBankSlots = template.NumBankSlot;
                 character.Inventory = new Inventory(character);
+                character.Created = DateTime.UtcNow;
                 character.Updated = DateTime.UtcNow;
                 character.Ability1 = (AbilityType) ability1;
                 character.Ability2 = AbilityType.None;
@@ -531,7 +472,7 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                     //var createdItem = ItemManager.Instance.Create(item.Id, item.Amount, item.Grade);
                     //character.Inventory.AddItem(Models.Game.Items.Actions.ItemTaskType.Invalid, createdItem);
 
-                    character.SetAction(slot, ActionSlotType.Item, item.Id);
+                    character.SetAction(slot, ActionSlotType.ItemType, item.Id);
                     slot++;
                 }
 
@@ -543,7 +484,7 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                         //var createdItem = ItemManager.Instance.Create(item.Id, item.Amount, item.Grade);
                         //character.Inventory.AddItem(ItemTaskType.Invalid, createdItem);
 
-                        character.SetAction(slot, ActionSlotType.Item, item.Id);
+                        character.SetAction(slot, ActionSlotType.ItemType, item.Id);
                         slot++;
                     }
 
@@ -559,7 +500,7 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                 {
                     if (!skill.AddToSlot)
                         continue;
-                    character.SetAction(skill.Slot, ActionSlotType.Skill, skill.Template.Id);
+                    character.SetAction(skill.Slot, ActionSlotType.Spell, skill.Template.Id);
                 }
 
                 slot = 1;
@@ -568,7 +509,7 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                 foreach (var skill in SkillManager.Instance.GetStartAbilitySkills(character.Ability1))
                 {
                     character.Skills.AddSkill(skill, 1, false);
-                    character.SetAction(slot, ActionSlotType.Skill, skill.Id);
+                    character.SetAction(slot, ActionSlotType.Spell, skill.Id);
                     slot++;
                 }
                 
@@ -672,7 +613,7 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                     {
                         deletedName = "!" + character.Name;
                         NameManager.Instance.RemoveCharacterName(character.Id);
-                        NameManager.Instance.AddCharacterName(character.Id,deletedName);
+                        NameManager.Instance.AddCharacterName(character.Id,deletedName, character.AccountId);
                     }
                     
                     command.Connection = dbConnection;
@@ -797,12 +738,11 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                 {
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText =
-                            "UPDATE characters SET `delete_request_time` = @delete_request_time, `delete_time` = @delete_time WHERE `id` = @id";
-                        command.Prepare();
+                        command.CommandText = "UPDATE characters SET `delete_request_time` = @delete_request_time, `delete_time` = @delete_time WHERE `id` = @id";
                         command.Parameters.AddWithValue("@delete_request_time", character.DeleteRequestTime);
                         command.Parameters.AddWithValue("@delete_time", character.DeleteTime);
                         command.Parameters.AddWithValue("@id", character.Id);
+                        command.Prepare();
                         if (command.ExecuteNonQuery() == 1)
                         {
                             gameConnection.SendPacket(new SCDeleteCharacterResponsePacket(character.Id, 2, character.DeleteRequestTime, character.DeleteTime));
@@ -838,12 +778,11 @@ namespace AAEmu.Game.Core.Managers.UnitManagers
                 {
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText =
-                            "UPDATE characters SET `delete_request_time` = @delete_request_time, `delete_time` = @delete_time WHERE `id` = @id";
-                        command.Prepare();
+                        command.CommandText = "UPDATE characters SET `delete_request_time` = @delete_request_time, `delete_time` = @delete_time WHERE `id` = @id";
                         command.Parameters.AddWithValue("@delete_request_time", character.DeleteRequestTime);
                         command.Parameters.AddWithValue("@delete_time", character.DeleteTime);
                         command.Parameters.AddWithValue("@id", character.Id);
+                        command.Prepare();
                         command.ExecuteNonQuery();
                     }
                 }

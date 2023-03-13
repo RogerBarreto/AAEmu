@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.Id;
 using AAEmu.Game.Core.Packets.G2C;
+
 using MySql.Data.MySqlClient;
+
 using NLog;
-using AAEmu.Commons.Utils;
 
 namespace AAEmu.Game.Models.Game.Char
 {
@@ -58,22 +60,25 @@ namespace AAEmu.Game.Models.Game.Char
 
         public void NotifySubZone(uint subZoneId)
         {
-            if (!VisitedDistricts.ContainsKey(subZoneId))
+            if (VisitedDistricts.ContainsKey(subZoneId)) { return; }
+
+            var portals = PortalManager.Instance.GetRecallBySubZoneId(subZoneId);
+            if (portals == null) { return; }
+
+            foreach (var portal in portals)
             {
-                var portal = PortalManager.Instance.GetPortalBySubZoneId(subZoneId);
-                if (portal != null)
+                if (!VisitedDistricts.ContainsKey(subZoneId))
                 {
-                    var newVisitedDistrict = new VisitedDistrict()
-                    {
-                        Id = VisitedSubZoneIdManager.Instance.GetNextId(),
-                        SubZone = subZoneId,
-                        Owner = Owner.Id
-                    };
+                    var newVisitedDistrict = new VisitedDistrict();
+                    newVisitedDistrict.Id = VisitedSubZoneIdManager.Instance.GetNextId();
+                    newVisitedDistrict.SubZone = subZoneId;
+                    newVisitedDistrict.Owner = Owner.Id;
                     VisitedDistricts.Add(subZoneId, newVisitedDistrict);
-                    PopulateDistrictPortals();
-                    Send();
-                    _log.Info("{0}:{1} added to return district list ", portal.Name, subZoneId);
                 }
+                PopulateDistrictPortals();
+                Send();
+                _log.Info($"{portal.Name}:{subZoneId} added to return district list");
+                Owner.SendMessage($"{portal.Name}:{subZoneId} added to visited district list in the portal book");
             }
         }
 
@@ -106,9 +111,9 @@ namespace AAEmu.Game.Models.Game.Char
 
             if (DistrictPortals.Count > 0)
             {
-                var portals = new Portal[DistrictPortals.Count];
-                DistrictPortals.Values.CopyTo(portals, 0);
-                Owner.SendPacket(new SCCharacterReturnDistrictsPacket(portals, 139)); // INFO - What is returnDistrictId?
+                var portals = DistrictPortals.Values.ToArray();
+                var ReturnPointId = PortalManager.Instance.GetDistrictReturnPoint(Owner.ReturnDictrictId, Owner.Faction.Id);
+                Owner.SendPacket(new SCCharacterReturnDistrictsPacket(portals, ReturnPointId)); // INFO - What is returnDistrictId? Table district_return_point, field district_id => return_point_id
             }
         }
 
@@ -173,8 +178,8 @@ namespace AAEmu.Game.Models.Game.Char
                     command.Transaction = transaction;
 
                     command.CommandText = "DELETE FROM portal_visited_district WHERE owner = @owner AND subzone IN(" + string.Join(",", _removedVisitedDistricts) + ")";
-                    command.Prepare();
                     command.Parameters.AddWithValue("@owner", Owner.Id);
+                    command.Prepare();
                     command.ExecuteNonQuery();
                     _removedVisitedDistricts.Clear();
                 }
@@ -188,8 +193,8 @@ namespace AAEmu.Game.Models.Game.Char
                     command.Transaction = transaction;
 
                     command.CommandText = "DELETE FROM portal_book_coords WHERE owner = @owner AND id IN(" + string.Join(",", _removedPrivatePortals) + ")";
-                    command.Prepare();
                     command.Parameters.AddWithValue("@owner", Owner.Id);
+                    command.Prepare();
                     command.ExecuteNonQuery();
                     _removedPrivatePortals.Clear();
                 }
@@ -202,7 +207,7 @@ namespace AAEmu.Game.Models.Game.Char
                     command.Connection = connection;
                     command.Transaction = transaction;
 
-                    command.CommandText = "REPLACE INTO portal_book_coords(`id`,`name`,`x`,`y`,`z`,`zone_id`,`z_rot`,`owner`) VALUES (@id, @name, @x, @y, @z, @zone_id, @z_rot, @owner)";
+                    command.CommandText = "REPLACE INTO portal_book_coords(`id`,`name`,`x`,`y`,`z`,`zone_id`,`z_rot`,`sub_zone_id`,`owner`) VALUES (@id, @name, @x, @y, @z, @zone_id, @z_rot, @sub_zone_id, @owner)";
                     command.Parameters.AddWithValue("@id", value.Id);
                     command.Parameters.AddWithValue("@name", value.Name);
                     command.Parameters.AddWithValue("@x", value.X);
@@ -210,6 +215,7 @@ namespace AAEmu.Game.Models.Game.Char
                     command.Parameters.AddWithValue("@z", value.Z);
                     command.Parameters.AddWithValue("@zone_id", value.ZoneId);
                     command.Parameters.AddWithValue("@z_rot", value.ZRot);
+                    command.Parameters.AddWithValue("@sub_zone_id", value.SubZoneId);
                     command.Parameters.AddWithValue("@owner", value.Owner);
                     command.ExecuteNonQuery();
                 }
@@ -234,12 +240,21 @@ namespace AAEmu.Game.Models.Game.Char
         private void PopulateDistrictPortals()
         {
             DistrictPortals.Clear();
-            if (VisitedDistricts.Count > 0)
+            if (VisitedDistricts.Count <= 0) { return; }
+
+            foreach (var subZone in VisitedDistricts)
             {
-                foreach (var subZone in VisitedDistricts)
+                var portals = PortalManager.Instance.GetRecallBySubZoneId(subZone.Key);
+
+                //var returnPointsId = PortalManager.Instance.GetDistrictReturnPoint(subZone.Value.Id, Owner.Faction.Id);
+
+                if (portals.Count == 0) { continue; }
+
+                foreach (var portal in portals)
                 {
-                    var portal = PortalManager.Instance.GetPortalBySubZoneId(subZone.Key);
-                    if (portal != null)
+                    //if (portal.Id != returnPointsId) { continue; }
+
+                    if (!DistrictPortals.ContainsKey(portal.Id))
                     {
                         DistrictPortals.Add(portal.Id, portal);
                     }

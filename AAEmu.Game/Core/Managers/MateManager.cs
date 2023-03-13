@@ -15,7 +15,6 @@ using AAEmu.Game.Models.Game.Items.Actions;
 using AAEmu.Game.Models.Game.Mate;
 using AAEmu.Game.Models.Game.Skills.Buffs;
 using AAEmu.Game.Models.Game.Units;
-using AAEmu.Game.Models.Game.Units.Static;
 using AAEmu.Game.Utils.DB;
 
 using NLog;
@@ -124,18 +123,24 @@ namespace AAEmu.Game.Core.Managers
                     character.BroadcastPacket(new SCUnitAttachedPacket(character.ObjId, attachPoint, reason, mateInfo.ObjId), true);
                     seatInfo._objId = character.ObjId;
                     seatInfo._reason = reason;
-                    character.Transform.StickyParent = mateInfo.Transform;
+
+                    character.Transform.Local.SetPosition(mateInfo.Transform.Local.Position); // correct the position of the character
+                    character.Transform.Parent = mateInfo.Transform;
+                    character.IsRiding = true;
+                    //character.Transform.StickyParent = mateInfo.Transform;
+
+                    character.IsVisible = true; // When we're on a horse, you can see us
                 }
             }
             else
             {
-                _log.Warn("MountMate. Player {0} ({1}) tried to take a invalid seat {5} on mount {2} ({3})",
+                _log.Warn("MountMate. Player {0} ({1}) tried to take a invalid seat {4} on mount {2} ({3})",
                     character.Name, character.ObjId, mateInfo.Name, mateInfo.ObjId, attachPoint);
                 return;
             }
                 
             character.Buffs.TriggerRemoveOn(BuffRemoveOn.Mount);
-            _log.Debug("MountMate. mountTlId: {0}, attachPoint: {1}, reason: {3}, seats: {4}", 
+            _log.Debug("MountMate. mountTlId: {0}, attachPoint: {1}, reason: {2}, seats: {3}", 
                 mateInfo.TlId, attachPoint, reason, string.Join(", ",mateInfo.Passengers.Values.ToList()));
         }
 
@@ -144,7 +149,8 @@ namespace AAEmu.Game.Core.Managers
             var mateInfo = GetActiveMateByTlId(tlId);
             if (mateInfo == null) return;
 
-            
+            mateInfo.StopUpdateXp();
+
             // Request seat position
             Character targetObj = null;
             if (mateInfo.Passengers.TryGetValue(attachPoint, out var seatInfo))
@@ -160,8 +166,10 @@ namespace AAEmu.Game.Core.Managers
 
             if (targetObj != null)
             {
-                targetObj.Transform.StickyParent = null;
-                
+                //targetObj.Transform.StickyParent = null;
+                character.Transform.Parent = null;
+                character.IsRiding = false;
+
                 character.BroadcastPacket(new SCUnitDetachedPacket(targetObj.ObjId, reason), true);
 
                 character.Events.OnUnmount(character, new OnUnmountArgs { });

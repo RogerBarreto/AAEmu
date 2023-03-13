@@ -1,4 +1,7 @@
-﻿using AAEmu.Game.Models.Game.Char;
+﻿using System;
+using AAEmu.Game.Core.Managers;
+using AAEmu.Game.Models.Game.Char;
+using AAEmu.Game.Models.Game.Items.Actions;
 using AAEmu.Game.Models.Game.Items.Templates;
 
 namespace AAEmu.Game.Models.Game.Items.Containers
@@ -25,7 +28,7 @@ namespace AAEmu.Game.Models.Game.Items.Containers
             // All Chests will not accept timed items 
             if ((itemTemplate.ExpAbsLifetime > 0) || 
                 (itemTemplate.ExpOnlineLifetime > 0) ||
-                (itemTemplate.ExpDate > 0))
+                (itemTemplate.ExpDate > DateTime.MinValue))
                 return false;
 
             // Otherwordly Storage Chest will accept pretty much any other item
@@ -44,9 +47,23 @@ namespace AAEmu.Game.Models.Game.Items.Containers
 
         public override bool CanAccept(Item item, int targetSlot)
         {
-            return !item.HasFlag(ItemFlag.SoulBound) && 
+            return (item == null) || (!item.HasFlag(ItemFlag.SoulBound) && 
                    CanAcceptTemplate(item.Template) && 
-                   base.CanAccept(item, targetSlot);
+                   base.CanAccept(item, targetSlot));
+        }
+
+        public override void Delete()
+        {
+            // Destroy associated items if any left in this coffer
+            for (var i = Items.Count - 1; i >= 0; i--)
+            {
+                var item = Items[i]; 
+                _log.Warn($"Destroying item {item.Id} from coffer item_container {ContainerId} due to delete");
+                item._holdingContainer.RemoveItem(ItemTaskType.Invalid, item, true);
+            }
+            
+            // Delete container
+            base.Delete();
         }
     }
 }

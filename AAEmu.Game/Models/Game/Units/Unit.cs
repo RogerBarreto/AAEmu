@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
+using AAEmu.Commons.Network;
 using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.Id;
@@ -15,6 +16,7 @@ using AAEmu.Game.Models.Game.Expeditions;
 using AAEmu.Game.Models.Game.Housing;
 using AAEmu.Game.Models.Game.Items;
 using AAEmu.Game.Models.Game.Items.Containers;
+using AAEmu.Game.Models.Game.NPChar;
 using AAEmu.Game.Models.Game.Skills;
 using AAEmu.Game.Models.Game.Skills.Plots.Tree;
 using AAEmu.Game.Models.Game.Skills.SkillControllers;
@@ -27,7 +29,7 @@ using AAEmu.Game.Utils;
 
 namespace AAEmu.Game.Models.Game.Units
 {
-    public class Unit : BaseUnit
+    public class Unit : BaseUnit, IUnit
     {
         public virtual UnitTypeFlag TypeFlag { get; } = UnitTypeFlag.None;
 
@@ -46,6 +48,11 @@ namespace AAEmu.Game.Models.Game.Units
 
         public byte Level { get; set; }
         public int Hp { get; set; }
+
+        #region Attributes
+
+        [UnitAttribute(UnitAttribute.MoveSpeedMul)]
+        public virtual float MoveSpeedMul { get => (float)CalculateWithBonuses(1000f, UnitAttribute.MoveSpeedMul) / 1000f; }
         [UnitAttribute(UnitAttribute.GlobalCooldownMul)]
         public virtual float GlobalCooldownMul { get; set; } = 100f;
         [UnitAttribute(UnitAttribute.MaxHealth)]
@@ -161,6 +168,9 @@ namespace AAEmu.Game.Models.Game.Units
             get => (float)CalculateWithBonuses(100d, UnitAttribute.AggroMul);
         }
         [UnitAttribute(UnitAttribute.IncomingAggroMul)]
+
+        #endregion Attributes
+
         public float IncomingAggroMul
         {
             get => (float)CalculateWithBonuses(100d, UnitAttribute.IncomingAggroMul);
@@ -184,6 +194,7 @@ namespace AAEmu.Game.Models.Game.Units
         public UnitCooldowns Cooldowns { get; set; }
         public Expedition Expedition { get; set; }
         public bool IsInBattle { get; set; }
+        public bool IsInDuel { get; set; }
         public bool IsInPatrol { get; set; } // so as not to run the route a second time
         public int SummarizeDamage { get; set; }
         public bool IsAutoAttack = false;
@@ -203,6 +214,8 @@ namespace AAEmu.Game.Models.Game.Units
 
         public UnitProcs Procs { get; set; }
         public object ChargeLock { get; set; }
+
+        public bool ConditionChance { get; set; }
 
         public Unit()
         {
@@ -253,6 +266,22 @@ namespace AAEmu.Game.Models.Game.Units
         /// <param name="killReason"></param>
         public virtual void ReduceCurrentHp(Unit attacker, int value, KillReason killReason = KillReason.Damage)
         {
+            if (attacker.CurrentTarget is Character character)
+            {
+                if (Hp <= 0 && character.IsInDuel)
+                {
+                    Hp = 1; // we don't let you die during a duel
+                    return;
+                }
+
+                if (AppConfiguration.Instance.World.GodMode)
+                {
+                    _log.Debug("{1}:{0}'s Damage disabled because of GM or Admin flag", character.Name, character.Id);
+                    return; // GodMode On : take 0 damage from Npc
+                }
+
+            }
+
             if (Hp <= 0)
                 return;
 
@@ -269,6 +298,12 @@ namespace AAEmu.Game.Models.Game.Units
             Hp = Math.Max(Hp - value, 0);
             if (Hp <= 0)
             {
+                if (attacker.CurrentTarget is Character attacked && attacked.IsInDuel)
+                {
+                    Hp = 1; // we don't let you die during a duel
+                    return;
+                }
+
                 attacker.Events.OnKill(attacker, new OnKillArgs { target = attacker });
                 DoDie(attacker, killReason);
                 //StopRegen();
@@ -283,13 +318,18 @@ namespace AAEmu.Game.Models.Game.Units
         public virtual void ReduceCurrentMp(Unit unit, int value)
         {
             if (Hp == 0)
+            {
                 return;
+            }
 
             Mp = Math.Max(Mp - value, 0);
-            if (Mp == 0)
-                StopRegen();
-            else
-                StartRegen();
+            //if (Mp == 0)
+            //{
+            //    StopRegen();
+            //}
+
+            //else
+            //StartRegen();
             BroadcastPacket(new SCUnitPointsPacket(ObjId, Hp, Mp), true);
         }
 
@@ -301,7 +341,10 @@ namespace AAEmu.Game.Models.Game.Units
             Buffs.RemoveEffectsOnDeath();
             killer.BroadcastPacket(new SCUnitDeathPacket(ObjId, killReason, killer), true);
             if (killer == this)
+            {
+                DespawMate((Character)this);
                 return;
+            }
 
             var lootDropItems = ItemManager.Instance.CreateLootDropItems(ObjId);
             if (lootDropItems.Count > 0)
@@ -319,22 +362,41 @@ namespace AAEmu.Game.Models.Game.Units
                     killer.BroadcastPacket(new SCCombatClearedPacket(killer.CurrentTarget.ObjId), true);
                 }
                 killer.BroadcastPacket(new SCCombatClearedPacket(killer.ObjId), true);
-                killer.StartRegen();
+                //killer.StartRegen();
                 killer.BroadcastPacket(new SCTargetChangedPacket(killer.ObjId, 0), true);
 
                 if (killer is Character character)
                 {
                     character.StopAutoSkill(character);
                     character.IsInBattle = false; // we need the character to be "not in battle"
+                    DespawMate(character);
                 }
                 else if (killer.CurrentTarget is Character character2)
                 {
                     character2.StopAutoSkill(character2);
                     character2.IsInBattle = false; // we need the character to be "not in battle"
                     character2.DeadTime = DateTime.UtcNow;
+                    DespawMate(character2);
                 }
 
                 killer.CurrentTarget = null;
+            }
+            else
+            {
+                this.IsInBattle = false; // we need the character to be "not in battle"
+                DespawMate((Character)this);
+            }
+        }
+
+        private void DespawMate(Character character)
+        {
+            // if we died sitting on a horse
+            if (character.Hp > 0) { return; }
+
+            var mate = MateManager.Instance.GetActiveMate(character.ObjId);
+            if (mate != null)
+            {
+                character.Mates.DespawnMate(mate.TlId);
             }
         }
 
@@ -345,7 +407,7 @@ namespace AAEmu.Game.Models.Game.Units
                 return;
             }
 
-            await character.AutoAttackTask.Cancel();
+            await character.AutoAttackTask.CancelAsync();
             character.AutoAttackTask = null;
             character.IsAutoAttack = false; // turned off auto attack
             character.BroadcastPacket(new SCSkillEndedPacket(character.TlId), true);
@@ -353,23 +415,25 @@ namespace AAEmu.Game.Models.Game.Units
             TlIdManager.Instance.ReleaseId(character.TlId);
         }
 
+        [Obsolete("This method is deprecated", false)]
         public void StartRegen()
         {
-            // if (_regenTask != null || Hp >= MaxHp && Mp >= MaxMp || Hp == 0)
-            // {
-            //     return;
-            // }
-            // _regenTask = new UnitPointsRegenTask(this);
-            // TaskManager.Instance.Schedule(_regenTask, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+            if (_regenTask != null || Hp >= MaxHp && Mp >= MaxMp || Hp == 0)
+            {
+                return;
+            }
+            _regenTask = new UnitPointsRegenTask(this);
+            TaskManager.Instance.Schedule(_regenTask, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
         }
 
+        [Obsolete("This method is deprecated", false)]
         public async void StopRegen()
         {
             if (_regenTask == null)
             {
                 return;
             }
-            await _regenTask.Cancel();
+            await _regenTask.CancelAsync();
             _regenTask = null;
         }
 
@@ -377,6 +441,11 @@ namespace AAEmu.Game.Models.Game.Units
         {
             Invisible = value;
             BroadcastPacket(new SCUnitInvisiblePacket(ObjId, Invisible), true);
+        }
+
+        public void SetGodMode(bool value)
+        {
+            AppConfiguration.Instance.World.GodMode = value;
         }
 
         public void SetCriminalState(bool criminalState)
@@ -482,6 +551,9 @@ namespace AAEmu.Game.Models.Game.Units
         /// <returns></returns>
         public float GetDistanceTo(BaseUnit baseUnit, bool includeZAxis = false)
         {
+            if (baseUnit == null)
+                return 0.0f;
+
             if (Transform.World.Position.Equals(baseUnit.Transform.World.Position))
                 return 0.0f;
 
@@ -540,8 +612,6 @@ namespace AAEmu.Game.Models.Game.Units
             }
             return defaultVal;
         }
-        
-        
 
         public string GetAttribute(uint attr) => GetAttribute((UnitAttribute)attr);
 
@@ -635,5 +705,109 @@ namespace AAEmu.Game.Models.Game.Units
             return fallDmg;
         }
 
+        /// <summary>
+        /// Set the faction of the owner
+        /// </summary>
+        /// <param name="factionId"></param>
+        public void SetFaction(uint factionId)
+        {
+            // if (this is Character) { return; } // do not change the faction for the character
+            BroadcastPacket(new SCUnitFactionChangedPacket(ObjId, Name, Faction?.Id ?? 0, factionId, false), true);
+            Faction = FactionManager.Instance.GetFaction(factionId);
+
+            // TODO added for quest Id=2486
+            if (this is not Npc npc) { return; }
+            // Npc attacks the character
+            var characters = WorldManager.Instance.GetAround<Character>(npc, 5.0f);
+            foreach (var character in characters.Where(CanAttack))
+            {
+                npc.Ai.Owner.AddUnitAggro(AggroKind.Damage, character, 1);
+                npc.Ai.OnAggroTargetChanged();
+                npc.Ai.GoToCombat();
+            }
+        }
+
+        public virtual void UseSkill(uint skillId, IUnit target)
+        {
+            var skill = new Skill(SkillManager.Instance.GetSkillTemplate((uint)skillId));
+
+            var caster = SkillCaster.GetByType(SkillCasterType.Unit);
+            caster.ObjId = ObjId;
+
+            var sct = SkillCastTarget.GetByType(SkillCastTargetType.Unit);
+            sct.ObjId = target.ObjId;
+
+            skill.Use(this, caster, sct, null, true);
+        }
+
+        public void ModelPosture(PacketStream stream, Unit unit, BaseUnitType baseUnitType, ModelPostureType modelPostureType, uint animActionId = 0xFFFFFFFF)
+        {
+            // TODO added that NPCs can be hunted to move their legs while moving, but if they sit or do anything they will just stand there
+            if (baseUnitType == BaseUnitType.Npc) // NPC
+            {
+                if (unit is Npc npc)
+                {
+                    // TODO UnitModelPosture
+                    if (npc.Faction.GuardHelp)
+                    {
+                        stream.Write((byte)modelPostureType); // оставим это для того, чтобы NPC могли заниматься своими делами // let's leave it so that the NPCs can go about their business
+                        _log.Warn($"baseUnitType={baseUnitType}, modelPostureType={modelPostureType}");
+                    }
+                    else
+                    {
+                        modelPostureType = 0; // для NPC на которых можно напасть и чтобы они шевелили ногами (для людей особенно) // for NPCs that can be attacked and that they move their legs (especially for people)
+                        stream.Write((byte)modelPostureType);
+                        _log.Warn($"baseUnitType={baseUnitType}, modelPostureType={modelPostureType}");
+                    }
+                }
+            }
+            else // other
+            {
+                stream.Write((byte)modelPostureType);
+            }
+
+            stream.Write(false); // isLooted
+
+            switch (modelPostureType)
+            {
+                case ModelPostureType.HouseState: // build
+                    for (var i = 0; i < 2; i++)
+                    {
+                        stream.Write(true); // door
+                    }
+
+                    for (var i = 0; i < 6; i++)
+                    {
+                        stream.Write(true); // window
+                    }
+
+                    break;
+                case ModelPostureType.ActorModelState: // npc
+                    var npc = (Npc)unit;
+                    stream.Write(animActionId == 0xFFFFFFFF ? npc.Template.AnimActionId : animActionId); // TODO to check for AnimActionId substitution
+                    if (animActionId == 0xFFFFFFFF)
+                    {
+                        _log.Warn($"npc.Template.AnimActionId={npc.Template.AnimActionId}");
+                    }
+                    else
+                    {
+                        _log.Warn($"npc.Template.AnimActionId={animActionId}");
+                    }
+
+                    stream.Write(true); // activate
+                    break;
+                case ModelPostureType.FarmfieldState:
+                    stream.Write(0u); // type(id)
+                    stream.Write(0f); // growRate
+                    stream.Write(0); // randomSeed
+                    stream.Write(false); // isWithered
+                    stream.Write(false); // isHarvested
+                    break;
+                case ModelPostureType.TurretState: // slave
+                    stream.Write(0f); // pitch
+                    stream.Write(0f); // yaw
+                    break;
+            }
+        }
     }
 }

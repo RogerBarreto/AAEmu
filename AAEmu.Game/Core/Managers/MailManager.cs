@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using System.IO;
 using System.Linq;
 using AAEmu.Commons.Utils;
 using AAEmu.Game.Models.Game;
@@ -9,17 +7,14 @@ using NLog;
 using AAEmu.Game.Models.Game.Mails;
 using MySql.Data.MySqlClient;
 using AAEmu.Game.Models.Game.Items;
-using AAEmu.Game.Utils.DB;
 using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models.Game.Char;
-using AAEmu.Commons.Network;
-using AAEmu.Game.Utils;
-using NLog.Targets;
-using System.ComponentModel.DataAnnotations;
+using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Core.Managers.Id;
 using AAEmu.Game.Models.Tasks.Mails;
 using AAEmu.Game.Models.Game.Features;
+using AAEmu.Game.Models.Game.Quests;
 
 namespace AAEmu.Game.Core.Managers
 {
@@ -244,7 +239,6 @@ namespace AAEmu.Game.Core.Managers
                         "@attachment6, @attachment7, @attachment8, @attachment9" +
                         ")";
 
-                    command.Prepare();
                     command.Parameters.AddWithValue("@id", mtbs.Value.Id);
                     command.Parameters.AddWithValue("@openDate", mtbs.Value.Header.OpenDate);
                     command.Parameters.AddWithValue("@type", (byte)mtbs.Value.Header.Type);
@@ -272,6 +266,7 @@ namespace AAEmu.Game.Core.Managers
                             command.Parameters.AddWithValue("@attachment" + i.ToString(), mtbs.Value.Body.Attachments[i].Id);
                     }
 
+                    command.Prepare();
                     command.ExecuteNonQuery();
                     updatedCount++;
                     mtbs.Value.IsDirty = false;
@@ -287,14 +282,16 @@ namespace AAEmu.Game.Core.Managers
         public Dictionary<long, BaseMail> GetCurrentMailList(Character character)
         {
             var tempMails = _allPlayerMails.Where(x => x.Value.Body.RecvDate <= DateTime.UtcNow && (x.Value.Header.ReceiverId == character.Id || x.Value.Header.SenderId == character.Id)).ToDictionary(x => x.Key, x => x.Value);
-            character.Mails.unreadMailCount.Received = 0;
+            character.Mails.unreadMailCount.ResetReceived();
             foreach (var mail in tempMails)
             {
                 //if ((mail.Value.Header.Status != MailStatus.Read) && (mail.Value.Header.SenderId != character.Id))
                 if (mail.Value.Header.Status != MailStatus.Read)
                 {
-                    character.Mails.unreadMailCount.Received += 1;
-                    character.SendPacket(new SCGotMailPacket(mail.Value.Header, character.Mails.unreadMailCount, false, null));
+                    character.Mails.unreadMailCount.UpdateReceived(mail.Value.MailType, 1);
+                    var addBody = (mail.Value.MailType == MailType.Charged);
+
+                    character.SendPacket(new SCGotMailPacket(mail.Value.Header, character.Mails.unreadMailCount, false, addBody ? mail.Value.Body : null));
                     mail.Value.IsDelivered = true;
                 }
             }
@@ -303,15 +300,18 @@ namespace AAEmu.Game.Core.Managers
 
         public bool NotifyNewMailByNameIfOnline(BaseMail m, string receiverName)
         {
-            _log.Trace("NotifyNewMailByNameIfOnline() - {0}", receiverName);
+            _log.Trace($"NotifyNewMailByNameIfOnline() - {receiverName}");
             // If unread and ready to deliver
             if ((m.Header.Status != MailStatus.Read) && (m.Body.RecvDate <= DateTime.UtcNow) && (m.IsDelivered == false))
             {
                 var player = WorldManager.Instance.GetCharacter(receiverName);
                 if (player != null)
                 {
-                    player.Mails.unreadMailCount.Received++;
-                    player.SendPacket(new SCGotMailPacket(m.Header, player.Mails.unreadMailCount, false, null));
+                    // TODO: Mia mail stuff
+                    var addBody = (m.MailType == MailType.Charged);
+                    player.Mails.unreadMailCount.UpdateReceived(m.MailType, 1);
+                    
+                    player.SendPacket(new SCGotMailPacket(m.Header, player.Mails.unreadMailCount, false, addBody ? m.Body : null));
                     m.IsDelivered = true;
                     return true;
                 }
@@ -321,12 +321,12 @@ namespace AAEmu.Game.Core.Managers
 
         public bool NotifyDeleteMailByNameIfOnline(BaseMail m, string receiverName)
         {
-            _log.Trace("NotifyDeleteMailByNameIfOnline() - {0}", receiverName);
+            _log.Trace($"NotifyDeleteMailByNameIfOnline() - {receiverName}");
             var player = WorldManager.Instance.GetCharacter(receiverName);
             if (player != null)
             {
                 if (m.Header.Status != MailStatus.Read)
-                    player.Mails.unreadMailCount.Received--;
+                    player.Mails.unreadMailCount.UpdateReceived(m.MailType, -1);
                 player.SendPacket(new SCMailDeletedPacket(false, m.Id, true, player.Mails.unreadMailCount));
                 return true;
             }
@@ -343,7 +343,7 @@ namespace AAEmu.Game.Core.Managers
                 if (NotifyNewMailByNameIfOnline(mail.Value, mail.Value.Header.ReceiverName))
                     delivered++;
             if (delivered > 0)
-                _log.Debug("{0}/{1} mail(s) delivered", delivered, undeliveredMails.Count);
+                _log.Debug($"{delivered}/{undeliveredMails.Count} mail(s) delivered");
 
             // TODO: Return expired mails back to owner if undelivered/unread
         }
@@ -439,10 +439,10 @@ namespace AAEmu.Game.Core.Managers
                 if (mail.Header.Status != MailStatus.Read)
                 {
                     mail.Header.Status = MailStatus.Read;
-                    character.Mails.unreadMailCount.Received--;
+                    character.Mails.unreadMailCount.UpdateReceived(mail.MailType, -1);
                 }
 
-                character.SendPacket(new SCChargeMoneyPaid(mail.Id));
+                character.SendPacket(new SCChargeMoneyPaidPacket(mail.Id));
                 character.SendPacket(new SCMailDeletedPacket(false, mail.Id, false, character.Mails.unreadMailCount));
                 DeleteMail(mail);
                 character.Mails.SendUnreadMailCount();
@@ -499,6 +499,45 @@ namespace AAEmu.Game.Core.Managers
             }
             return resultList;
         }
-        
+
+        public List<BaseMail> CreateQuestRewardMails(ICharacter character, Quest quest, List<ItemCreationDefinition> itemCreationDefinitions, int mailCopper)
+        {
+            var resultList = new List<BaseMail>();
+            
+            MailPlayerToPlayer mail = null;
+            var questName = LocalizationManager.Instance.Get("quest_contexts", "name", quest.TemplateId, quest.TemplateId.ToString());
+            foreach (var item in itemCreationDefinitions)
+            {
+                if ((mail == null) || (mail.Body.Attachments.Count >= 10))
+                {
+                    mail = new MailPlayerToPlayer(character, character.Name);
+                    mail.Header.SenderId = 0;
+                    mail.Header.SenderName = ".questReward";
+                    mail.MailType = MailType.SysExpress;
+                    // NOTE: On newer versions, this uses the .title / .body format, but this doesn't seem to work on 1.2
+                    // mail.Title = $".title('{questName}')";
+                    // mail.Body.Text = $".body('{questName}')";
+                    mail.Title = questName ;
+                    mail.Body.Text = $"Reward for quest {questName}.";
+                    mail.Body.CopperCoins = mailCopper;
+                    mailCopper = 0;
+                    resultList.Add(mail);
+                }
+                var itemTemplate = ItemManager.Instance.GetTemplate(item.TemplateId);
+                var itemGrade = itemTemplate.FixedGrade;
+                if (itemGrade <= 0)
+                    itemGrade = 0;
+                if (item.GradeId > 0)
+                    itemGrade = item.GradeId;
+                mail.Body.Attachments.Add(ItemManager.Instance.Create(item.TemplateId, item.Count, (byte)itemGrade, true));
+            }
+
+            foreach (var baseMail in resultList)
+            {
+                (baseMail as MailPlayerToPlayer)?.FinalizeAttachments();
+            }
+            
+            return resultList;
+        }
     }
 }

@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using AAEmu.Commons.Utils;
-using AAEmu.Game.Core.Managers.UnitManagers;
+using AAEmu.Commons.Utils.DB;
 using AAEmu.Game.Core.Managers.World;
-using AAEmu.Game.Core.Network.Connections;
 using AAEmu.Game.Models;
-using AAEmu.Game.Models.Game.Char;
-using AAEmu.Game.Models.Game.Housing;
 using AAEmu.Game.Models.Tasks.SaveTask;
-using AAEmu.Game.Utils.DB;
 using NLog;
 
 namespace AAEmu.Game.Core.Managers
@@ -44,7 +40,7 @@ namespace AAEmu.Game.Core.Managers
             {
                 return;
             }
-            var result = await saveTask.Cancel();
+            var result = await saveTask.CancelAsync();
             if (result)
             {
                 saveTask = null;

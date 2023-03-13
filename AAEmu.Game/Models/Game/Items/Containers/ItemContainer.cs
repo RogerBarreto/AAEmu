@@ -4,6 +4,7 @@ using System.Linq;
 using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.Id;
 using AAEmu.Game.Core.Managers.World;
+using AAEmu.Game.Core.Network.Game;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.Items.Actions;
@@ -18,13 +19,13 @@ namespace AAEmu.Game.Models.Game.Items.Containers
 
         private int _containerSize;
         private int _freeSlotCount;
-        private Character _owner;
+        private ICharacter _owner;
         private uint _ownerId;
         public bool IsDirty { get; set; }
         private SlotType _containerType;
-        private uint _containerId;
+        private ulong _containerId;
 
-        public Character Owner
+        public ICharacter Owner
         {
             get
             {
@@ -75,7 +76,7 @@ namespace AAEmu.Game.Models.Game.Items.Containers
             }
         }
 
-        public uint ContainerId
+        public ulong ContainerId
         {
             get => _containerId;
             set
@@ -321,24 +322,6 @@ namespace AAEmu.Game.Models.Game.Items.Containers
             var itemTasks = new List<ItemTask>();
             var sourceItemTasks = new List<ItemTask>();
 
-            // Only trigger when moving between container with different owners with the exception of this being move to Mail container
-            if ((sourceContainer != this) && (item.OwnerId != OwnerId) && (this.ContainerType != SlotType.Mail))
-            {
-                Owner?.Inventory.OnAcquiredItem(item, item.Count);
-            }
-            else
-            // Got attachment from Mail
-            if ((item.SlotType == SlotType.Mail) && (this.ContainerType != SlotType.Mail))
-            {
-                Owner?.Inventory.OnAcquiredItem(item, item.Count);
-            }
-            else
-            // Adding mail attachment
-            if ((item.SlotType != SlotType.Mail) && (this.ContainerType == SlotType.Mail))
-            {
-                Owner?.Inventory.OnConsumedItem(item, item.Count);
-            }
-
             if (canAddToSameSlot)
             {
                 currentPreferredSlotItem.Count += item.Count;
@@ -353,11 +336,18 @@ namespace AAEmu.Game.Models.Game.Items.Containers
                 item.OwnerId = OwnerId;
 
                 Items.Insert(0, item); // insert at front for easy buyback handling
-                                       //Items.Add(item);
+
                 UpdateFreeSlotCount();
+                
                 // Note we use SlotType.None for things like the Item BuyBack Container. Make sure to manually handle the remove for these
                 if (this.ContainerType != SlotType.None)
                     itemTasks.Add(new ItemAdd(item));
+                
+                if ((sourceContainer != null) && (sourceContainer != this))
+                {
+                    sourceContainer?.OnLeaveContainer(item, this);
+                    OnEnterContainer(item, sourceContainer);
+                }
             }
 
             // Item Tasks
@@ -378,6 +368,27 @@ namespace AAEmu.Game.Models.Game.Items.Containers
             }
 
             ApplyBindRules(taskType);
+            
+            // Moved to the end of the method so that the item is already in the inventory
+            // Only trigger when moving between container with different owners with the exception of this being move to Mail container
+            //if ((sourceContainer != this) && (item.OwnerId != OwnerId) && (this.ContainerType != SlotType.Mail))
+            if ((sourceContainer != this) && (this.ContainerType != SlotType.Mail))
+            {
+                Owner?.Inventory.OnAcquiredItem(item, item.Count);
+            }
+            else
+                // Got attachment from Mail
+            if ((item.SlotType == SlotType.Mail) && (this.ContainerType != SlotType.Mail))
+            {
+                Owner?.Inventory.OnAcquiredItem(item, item.Count);
+            }
+            else
+                // Adding mail attachment
+            if ((item.SlotType != SlotType.Mail) && (this.ContainerType == SlotType.Mail))
+            {
+                Owner?.Inventory.OnConsumedItem(item, item.Count);
+            }
+            
             return ((itemTasks.Count + sourceItemTasks.Count) > 0);
         }
 
@@ -391,6 +402,15 @@ namespace AAEmu.Game.Models.Game.Items.Containers
         public bool RemoveItem(ItemTaskType task, Item item, bool releaseIdAsWell)
         {
             Owner?.Inventory.OnConsumedItem(item, item.Count);
+            OnLeaveContainer(item, null);
+
+            // Handle items that can expire
+            GamePacket sync = null;
+            if ((item.ExpirationOnlineMinutesLeft > 0.0) || (item.ExpirationTime > DateTime.UtcNow) || (item.UnpackTime > DateTime.UtcNow))
+                sync = ItemManager.Instance.ExpireItemPacket(item);
+            if (sync != null)
+                this.Owner?.SendPacket(sync);
+            
             var res = item._holdingContainer.Items.Remove(item);
             if (res && task != ItemTaskType.Invalid)
                 item._holdingContainer?.Owner?.SendPacket(new SCItemTaskSuccessPacket(task, new List<ItemTask> { new ItemRemoveSlot(item) }, new List<ulong>()));
@@ -559,6 +579,7 @@ namespace AAEmu.Game.Models.Game.Items.Containers
                 }
             }
 
+            var syncPackets = new List<GamePacket>();
             while (amountToAdd > 0)
             {
                 var addAmount = Math.Min(amountToAdd, template.MaxCount);
@@ -573,6 +594,21 @@ namespace AAEmu.Game.Models.Game.Items.Containers
                 var prefSlot = preferredSlot;
                 if ((newItem.Template is BackpackTemplate) && (ContainerType == SlotType.Equipment))
                     prefSlot = (int)EquipmentItemSlot.Backpack;
+
+                // Timers
+                if (newItem.Template.ExpAbsLifetime > 0)
+                    syncPackets.Add(ItemManager.Instance.SetItemExpirationTime(newItem,DateTime.UtcNow.AddMinutes(newItem.Template.ExpAbsLifetime)));
+                if (newItem.Template.ExpOnlineLifetime > 0)
+                    syncPackets.Add(ItemManager.Instance.SetItemOnlineExpirationTime(newItem, newItem.Template.ExpOnlineLifetime));
+                if (newItem.Template.ExpDate > DateTime.MinValue)
+                    syncPackets.Add(ItemManager.Instance.SetItemExpirationTime(newItem, newItem.Template.ExpDate));
+
+                if ((newItem is EquipItem equipItem) && (newItem.Template is EquipItemTemplate equipItemTemplate))
+                {
+                    equipItem.ChargeCount = equipItemTemplate.ChargeCount;
+                    if ((equipItemTemplate.ChargeLifetime > 0) && (equipItemTemplate.BindType.HasFlag(ItemBindType.BindOnUnpack) == false))
+                        equipItem.ChargeStartTime = DateTime.UtcNow;
+                }
                 
                 if (AddOrMoveExistingItem(ItemTaskType.Invalid, newItem, prefSlot)) // Task set to invalid as we send our own packets inside this function
                 {
@@ -585,6 +621,12 @@ namespace AAEmu.Game.Models.Game.Items.Containers
             if (taskType != ItemTaskType.Invalid)
                 Owner?.SendPacket(new SCItemTaskSuccessPacket(taskType, itemTasks, new List<ulong>()));
             UpdateFreeSlotCount();
+            
+            // Send item expire packets if needed
+            foreach (var sync in syncPackets)
+                if (sync != null)
+                    Owner?.SendPacket(sync);
+            
             return (itemTasks.Count > 0);
         }
 
@@ -687,6 +729,11 @@ namespace AAEmu.Game.Models.Game.Items.Containers
 
         public virtual bool CanAccept(Item item, int targetSlot)
         {
+            if (item == null)
+                return true;
+            // When it's a backpack, allow only gliders by default
+            if (PartOfPlayerInventory && (item.Template is BackpackTemplate backpackTemplate))
+                return (backpackTemplate.BackpackType == BackpackType.Glider) || (backpackTemplate.BackpackType == BackpackType.ToyFlag);
             return true;
         }
 
@@ -717,6 +764,21 @@ namespace AAEmu.Game.Models.Game.Items.Containers
             if (cName.Contains("."))
                 cName = cName.Substring(cName.LastIndexOf(".",StringComparison.InvariantCulture)+1);
             return cName;
+        }
+        
+        public virtual void Delete()
+        {
+            ItemManager.Instance.DeleteItemContainer(this);
+        }
+
+        public virtual void OnEnterContainer(Item item, ItemContainer lastContainer)
+        {
+            // Do nothing
+        }
+        
+        public virtual void OnLeaveContainer(Item item, ItemContainer newContainer)
+        {
+            // Do Nothing
         }
     }
 }

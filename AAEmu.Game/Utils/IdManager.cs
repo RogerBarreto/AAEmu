@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AAEmu.Commons.Utils;
-using AAEmu.Game.Utils.DB;
+using AAEmu.Commons.Utils.DB;
 using NLog;
 
 namespace AAEmu.Game.Utils
@@ -15,6 +15,7 @@ namespace AAEmu.Game.Utils
         private BitSet _freeIds;
         private int _freeIdCount;
         private int _nextFreeId;
+        private bool _initialized = false;
 
         private readonly string _name;
         private readonly uint _firstId = 0x00000001;
@@ -38,8 +39,16 @@ namespace AAEmu.Game.Utils
             PrimeFinder.Init();
         }
 
-        public bool Initialize()
+        /// <summary>
+        /// Initializes the IdManager for use by resetting the Ids and grabbing data from the database if needed
+        /// </summary>
+        /// <param name="forceReset">When true forces the re-initialization even if it was previously initialized already</param>
+        /// <returns></returns>
+        public bool Initialize(bool forceReset = false)
         {
+            if (_initialized && (forceReset == false))
+                return true;
+            
             try
             {
                 _freeIds = new BitSet(PrimeFinder.NextPrime(100000));
@@ -83,6 +92,7 @@ namespace AAEmu.Game.Utils
                 return false;
             }
 
+            _initialized = true;
             return true;
         }
 

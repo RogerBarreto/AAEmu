@@ -14,17 +14,14 @@ using AAEmu.Game.Models.Game.Units;
 using AAEmu.Game.Models.Game.Units.Movements;
 using AAEmu.Game.Models.Game.Units.Static;
 using AAEmu.Game.Utils;
-using NLog;
 using static AAEmu.Game.Models.Game.Skills.SkillControllers.SkillController;
 
 namespace AAEmu.Game.Models.Game.NPChar
 {
     public class Npc : Unit
     {
-        private static Logger _log = LogManager.GetCurrentClassLogger();
-
         public override UnitTypeFlag TypeFlag { get; } = UnitTypeFlag.Npc;
-        public uint TemplateId { get; set; }
+        //public uint TemplateId { get; set; } // moved to BaseUnit
         public NpcTemplate Template { get; set; }
         //public Item[] Equip { get; set; }
         public NpcSpawner Spawner { get; set; }
@@ -708,6 +705,12 @@ namespace AAEmu.Game.Models.Game.NPChar
             if (killer is Character character)
             {
                 character.AddExp(KillExp, true);
+                var mate = MateManager.Instance.GetActiveMate(character.ObjId);
+                if (mate != null)
+                {
+                    mate.AddExp(KillExp);
+                    character.SendMessage($"Pet gained {KillExp} XP");
+                }
                 character.Quests.OnKill(this);
             }
 
@@ -816,25 +819,48 @@ namespace AAEmu.Game.Models.Game.NPChar
             }*/
         }
 
+        private const int decreaseMoveSpeed = 161;
+        private const int shackle = 160;
+        private const int snare = 27;
+
         public void MoveTowards(Vector3 other, float distance, byte flags = 4)
         {
-            if (ActiveSkillController != null && ActiveSkillController.State != SCState.Ended)
+            if (Buffs.HasEffectsMatchingCondition(e =>
+                    e.Template.Stun ||
+                    e.Template.Sleep ||
+                    e.Template.Root ||
+                    e.Template.Knockdown ||
+                    e.Template.Fastened))
+            {
                 return;
+            }
+
+            if ((ActiveSkillController?.State ?? SCState.Ended) == SCState.Running)
+                return;
+
+            if (Buffs.CheckBuffs(SkillManager.Instance.GetBuffsByTagId(shackle)) ||
+                Buffs.CheckBuffs(SkillManager.Instance.GetBuffsByTagId(decreaseMoveSpeed)) ||
+                Buffs.CheckBuffs(SkillManager.Instance.GetBuffsByTagId(snare)))
+            {
+                return;
+            }
 
             var oldPosition = Transform.Local.ClonePosition();
 
-            var targetDist = MathUtil.CalculateDistance(Transform.Local.Position, other);
-            if (targetDist <= 0.01f)
+            var targetDist = MathUtil.CalculateDistance(Transform.Local.Position, other, true);
+            if (targetDist <= 0.5f)
                 return;
+
             var moveType = (UnitMoveType)MoveType.GetType(MoveTypeEnum.Unit);
 
             var travelDist = Math.Min(targetDist, distance);
 
             // TODO: Implement proper use for Transform.World.AddDistanceToFront)
-            var (newX, newY) = Transform.Local.AddDistanceToFront(travelDist, targetDist, Transform.Local.Position, other);
+            var (newX, newY, newZ) = Transform.Local.AddDistanceToFront(travelDist, targetDist, Transform.Local.Position, other);
 
             // TODO: Implement Transform.World to do proper movement
-            Transform.Local.SetPosition(newX, newY, WorldManager.Instance.GetHeight(Transform));
+            //Transform.Local.SetPosition(newX, newY, WorldManager.Instance.GetHeight(Transform));
+            Transform.Local.SetPosition(newX, newY, newZ);
 
             var angle = MathUtil.CalculateAngleFrom(Transform.Local.Position, other);
             var (velX, velY) = MathUtil.AddDistanceToFront(4000, 0, 0, (float)angle.DegToRad());
@@ -930,6 +956,11 @@ namespace AAEmu.Game.Models.Game.NPChar
             CurrentTarget = other;
             SendPacket(new SCAggroTargetChangedPacket(ObjId, other?.ObjId ?? 0));
             BroadcastPacket(new SCTargetChangedPacket(ObjId, other?.ObjId ?? 0), true);
+        }
+    
+        public void DoDespawn(Npc npc)
+        {
+            Spawner.DoDespawn(npc);
         }
     }
 }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AAEmu.Commons.Utils;
 using AAEmu.Game.Models.Game.Models;
 using AAEmu.Game.Utils.DB;
@@ -12,6 +12,7 @@ namespace AAEmu.Game.Core.Managers
 
         private Dictionary<string, Dictionary<uint, Model>> _models;
         private Dictionary<uint, ModelType> _modelTypes;
+        private bool _loaded = false;
 
         // Getters
         public ModelType GetModelType(uint modelId)
@@ -55,6 +56,9 @@ namespace AAEmu.Game.Core.Managers
         
         public void Load()
         {
+            if (_loaded)
+                return;
+            
             _models = new Dictionary<string, Dictionary<uint, Model>>
             {
                 {"ActorModel", new Dictionary<uint, Model>()},
@@ -112,7 +116,13 @@ namespace AAEmu.Game.Core.Managers
                                 Accel = reader.GetFloat("accel"),
                                 ReverseAccel = reader.GetFloat("reverse_accel"),
                                 ReverseVelocity = reader.GetFloat("reverse_velocity"),
-                                TurnAccel = reader.GetFloat("turn_accel")
+                                TurnAccel = reader.GetFloat("turn_accel"),
+                                TubeLength = reader.GetFloat("tube_length"),
+                                TubeRadius = reader.GetFloat("tube_radius"),
+                                TubeOffsetZ = reader.GetFloat("tube_offset_z"),
+                                KeelLength = reader.GetFloat("keel_length"),
+                                KeelHeight = reader.GetFloat("keel_height"),
+                                KeelOffsetZ = reader.GetFloat("keel_offset_z")
                             };
 
                             _models["ShipModel"].TryAdd(model.Id, model);
@@ -140,6 +150,8 @@ namespace AAEmu.Game.Core.Managers
                     }
                 }
             }
+
+            _loaded = true;
         }
     }
 }

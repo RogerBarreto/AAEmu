@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AAEmu.Commons.Utils;
 using AAEmu.Game.Models.Game;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Utils.Scripts;
+using AAEmu.Game.Utils.Scripts.SubCommands;
+using NLog;
 
 namespace AAEmu.Game.Core.Managers
 {
     public class CommandManager : Singleton<CommandManager>
     {
         public const string CommandPrefix = "/" ;
-
+        private Logger _log = LogManager.GetCurrentClassLogger();
         private Dictionary<string, ICommand> _commands;
         private Dictionary<string, string> _commandAliases;
 
@@ -94,9 +97,10 @@ namespace AAEmu.Game.Core.Managers
 
             // Only enable the force_scripts_reload when we don't have anything loaded, this is simply a failsafe function in case
             // things aren't working out when live-editing scripts
-            if ((_commands.Count <= 0) && (words.Length == 2) && (thisCommand == "scripts") && (words[1] == "reload") && (character.AccessLevel >= 100))
+            if ((_commands.Count <= 0) && (words.Length == 3) && (thisCommand == "scripts") && (words[1] == "reload") && (words[2] == "force") && (character.AccessLevel >= 100))
             {
                 ForceScriptsReload(character);
+
                 return true;
             }
 
@@ -127,7 +131,7 @@ namespace AAEmu.Game.Core.Managers
             if (command == null)
                 return false;
 
-            if (AccessLevel.getLevel(thisCommand) > character.AccessLevel)
+            if (AccessLevelManager.Instance.GetLevel(thisCommand) > character.AccessLevel)
             {
                 character.SendMessage("|cFFFF0000Insufficient privileges.|r");
                 return true;
@@ -136,7 +140,25 @@ namespace AAEmu.Game.Core.Managers
             var args = new string[words.Length - 1];
             if (words.Length > 1)
                 Array.Copy(words, 1, args, 0, words.Length - 1);
-            command.Execute(character, args);
+
+            try
+            {
+                if (command is ICommandV2 subcommand)
+                {
+                    subcommand.PreExecute(character, thisCommand, args);
+                }
+                else
+                {
+                    command.Execute(character, args);
+                }
+            }
+            catch (Exception e)
+            {
+                character.SendMessage(Color.Red, e.Message);
+                _log.Error(e.Message);
+                _log.Error(e.StackTrace);
+            }
+            
             return true;
         }
 

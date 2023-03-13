@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Numerics;
+using AAEmu.Commons.Utils;
 using AAEmu.Game.Core.Managers.World;
+using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models.Game.AI.Utils;
 using AAEmu.Game.Models.Game.Units;
-using AAEmu.Game.Models.Game.World;
 using AAEmu.Game.Utils;
 
 namespace AAEmu.Game.Models.Game.AI.v2.Behaviors
@@ -12,9 +13,11 @@ namespace AAEmu.Game.Models.Game.AI.v2.Behaviors
     {
         private Vector3 _targetRoamPosition = Vector3.Zero;
         private DateTime _nextRoaming;
-        
+
         public override void Enter()
         {
+            Ai.Owner.InterruptSkills();
+            Ai.Owner.BroadcastPacket(new SCUnitModelPostureChangedPacket(Ai.Owner, BaseUnitType.Npc, ModelPostureType.ActorModelState, 2), false); // fixed animated
             UpdateRoaming();
         }
 
@@ -22,7 +25,7 @@ namespace AAEmu.Game.Models.Game.AI.v2.Behaviors
         {
             if (Ai.Owner.Template.Aggression)
             {
-                var nearbyUnits = WorldManager.Instance.GetAround<Unit>(Ai.Owner, 10 * Ai.Owner.Template.SightRangeScale);
+                var nearbyUnits = WorldManager.Instance.GetAround<Unit>(Ai.Owner, CheckSightRangeScale(10f));
 
                 foreach (var unit in nearbyUnits)
                 {
@@ -55,17 +58,17 @@ namespace AAEmu.Game.Models.Game.AI.v2.Behaviors
 
             if (_targetRoamPosition.Equals(Vector3.Zero) && DateTime.UtcNow > _nextRoaming)
                 UpdateRoaming();
-            
+
             if (_targetRoamPosition.Equals(Vector3.Zero))
                 return;
-            
+
             Ai.Owner.MoveTowards(_targetRoamPosition, 1.8f * (delta.Milliseconds / 1000.0f), 5);
-            var dist = MathUtil.CalculateDistance(Ai.Owner.Transform.World.Position, _targetRoamPosition);
+            var dist = MathUtil.CalculateDistance(Ai.Owner.Transform.World.Position, _targetRoamPosition, true);
             if (dist < 1.0f)
             {
                 Ai.Owner.StopMovement();
                 _targetRoamPosition = Vector3.Zero;
-                _nextRoaming = DateTime.UtcNow.AddSeconds(3); // Rand 3-6 would look nice ?
+                _nextRoaming = DateTime.UtcNow.AddSeconds(Rand.Next(3, 6)); // Rand 3-6 would look nice ?
             }
         }
 
@@ -76,14 +79,8 @@ namespace AAEmu.Game.Models.Game.AI.v2.Behaviors
         private void UpdateRoaming()
         {
             // TODO : Group member handling
-           
-            _targetRoamPosition = AIUtils.CalcNextRoamingPosition(Ai).Local.Position;
-        }
 
-        public void OnEnemySeen(Unit target)
-        {
-            Ai.Owner.AddUnitAggro(NPChar.AggroKind.Damage, target, 1);
-            Ai.GoToCombat();
+            _targetRoamPosition = AIUtils.CalcNextRoamingPosition(Ai).Local.Position;
         }
     }
 }

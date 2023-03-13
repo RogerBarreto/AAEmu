@@ -1,6 +1,7 @@
+﻿using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.NPChar;
+using AAEmu.Game.Models.Game.Quests.Static;
 using AAEmu.Game.Models.Game.Quests.Templates;
-using AAEmu.Game.Models.Game.Char;
 
 namespace AAEmu.Game.Models.Game.Quests.Acts
 {
@@ -8,13 +9,18 @@ namespace AAEmu.Game.Models.Game.Quests.Acts
     {
         public uint NpcId { get; set; }
 
-        public override bool Use(Character character, Quest quest, int objective)
+        public override bool Use(ICharacter character, Quest quest, int objective)
         {
             _log.Debug("QuestActConAcceptNpc");
-            
-            if (!(character.CurrentTarget is Npc))
+
+            if (character.CurrentTarget is null or not Npc)
                 return false;
-            return ((Npc) character.CurrentTarget).TemplateId == NpcId;
+
+            quest.QuestAcceptorType = QuestAcceptorType.Npc;
+            quest.AcceptorType = NpcId;
+
+            //CUrrent target is the expected?
+            return character.CurrentTarget.TemplateId == NpcId;
         }
     }
 }
