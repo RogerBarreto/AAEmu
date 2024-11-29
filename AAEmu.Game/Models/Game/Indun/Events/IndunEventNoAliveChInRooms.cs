@@ -7,94 +7,93 @@ using AAEmu.Game.Models.Game.World;
 
 using InstanceWorld = AAEmu.Game.Models.Game.World.World;
 
-namespace AAEmu.Game.Models.Game.Indun.Events
+namespace AAEmu.Game.Models.Game.Indun.Events;
+
+internal class IndunEventNoAliveChInRooms : IndunEvent
 {
-    internal class IndunEventNoAliveChInRooms : IndunEvent
+    public uint RoomId { get; set; }
+    private Dictionary<uint, uint> _playerRoomCount;
+    private Dictionary<uint, Doodad> _doodads;
+
+    public IndunEventNoAliveChInRooms()
     {
-        public uint RoomId { get; set; }
-        private Dictionary<uint, uint> _playerRoomCount;
-        private Dictionary<uint, Doodad> _doodads;
+        _playerRoomCount = new Dictionary<uint, uint>();
+        _doodads = new Dictionary<uint, Doodad>();
+    }
 
-        public IndunEventNoAliveChInRooms()
+    public override void Subscribe(InstanceWorld world)
+    {
+        var doodadList = new List<Doodad>();
+        var indunRoom = IndunGameData.Instance.GetRoom(RoomId);
+        foreach (var region in world.Regions)
         {
-            _playerRoomCount = new Dictionary<uint, uint>();
-            _doodads = new Dictionary<uint, Doodad>();
+            region.GetList(doodadList, 0);
         }
-
-        public override void Subscribe(InstanceWorld world)
+        doodadList = doodadList.Where(doodad => doodad.TemplateId == indunRoom.DoodadId).ToList();
+        if (doodadList.Count > 0)
         {
-            var doodadList = new List<Doodad>();
-            var indunRoom = IndunGameData.Instance.GetRoom(RoomId);
-            foreach (var region in world.Regions)
+            if (doodadList.Count > 1)
+                Logger.Warn("[IndunEvent] DoodadList returned higher than one doodad count.");
+
+            if (_doodads.TryGetValue(world.Id, out _))
             {
-                region.GetList(doodadList, 0);
+                _doodads[world.Id] = doodadList[0];
             }
-            doodadList = doodadList.Where(doodad => doodad.TemplateId == indunRoom.DoodadId).ToList();
-            if (doodadList.Count > 0)
+            else
             {
-                if (doodadList.Count > 1)
-                    Logger.Warn("[IndunEvent] DoodadList returned higher than one doodad count.");
-
-                if(_doodads.TryGetValue(world.Id, out _))
-                {
-                    _doodads[world.Id] = doodadList[0];
-                }
-                else
-                {
-                    _doodads.Add(world.Id, doodadList[0]);
-                }
-                if(_playerRoomCount.TryGetValue(world.Id, out _))
-                {
-                    _playerRoomCount[world.Id] = 0;
-                }
-                else
-                {
-                    _playerRoomCount.Add(world.Id, 0);
-                }
-                world.Events.OnAreaClear += OnAreaClear;
+                _doodads.Add(world.Id, doodadList[0]);
             }
-        }
-
-        public override void UnSubscribe(InstanceWorld world)
-        {
-            _doodads.Remove(world.Id);
-            _playerRoomCount.Remove(world.Id);
-            world.Events.OnAreaClear -= OnAreaClear;
-        }
-
-        public uint GetRoomPlayerCount(uint instanceId)
-        {
-            if (_playerRoomCount.TryGetValue(instanceId, out var value))
-                return value;
-
-            throw new KeyNotFoundException("Key not found for RoomPlayerCount.");
-        }
-
-        public void SetRoomPlayerCount(uint instanceId, uint count)
-        {
-            _playerRoomCount[instanceId] = count;
-        }
-
-        public Doodad GetRoomDoodad(uint worldId)
-        {
-            Logger.Warn($"GetRoomDoodad, world {worldId}");
-            if (_doodads.TryGetValue(worldId, out var value))
+            if (_playerRoomCount.TryGetValue(world.Id, out _))
             {
-                Logger.Warn($"RoomDoodad found templateId={value.TemplateId}");
-                return value;
+                _playerRoomCount[world.Id] = 0;
             }
+            else
+            {
+                _playerRoomCount.Add(world.Id, 0);
+            }
+            world.Events.OnAreaClear += OnAreaClear;
+        }
+    }
 
-            Logger.Warn($"RoomDoodad not found, world {worldId}");
-            return null;
+    public override void UnSubscribe(InstanceWorld world)
+    {
+        _doodads.Remove(world.Id);
+        _playerRoomCount.Remove(world.Id);
+        world.Events.OnAreaClear -= OnAreaClear;
+    }
+
+    public uint GetRoomPlayerCount(uint instanceId)
+    {
+        if (_playerRoomCount.TryGetValue(instanceId, out var value))
+            return value;
+
+        throw new KeyNotFoundException("Key not found for RoomPlayerCount.");
+    }
+
+    public void SetRoomPlayerCount(uint instanceId, uint count)
+    {
+        _playerRoomCount[instanceId] = count;
+    }
+
+    public Doodad GetRoomDoodad(uint worldId)
+    {
+        Logger.Warn($"GetRoomDoodad, world {worldId}");
+        if (_doodads.TryGetValue(worldId, out var value))
+        {
+            Logger.Warn($"RoomDoodad found templateId={value.TemplateId}");
+            return value;
         }
 
-        private void OnAreaClear(object sender, OnAreaClearArgs args)
+        Logger.Warn($"RoomDoodad not found, world {worldId}");
+        return null;
+    }
+
+    private void OnAreaClear(object sender, OnAreaClearArgs args)
+    {
+        if (sender is InstanceWorld world)
         {
-            if (sender is InstanceWorld world)
-            {
-                Logger.Warn($"OnAreaClear, world {world.Id}");
-                
-            }
+            Logger.Warn($"OnAreaClear, world {world.Id}");
+
         }
     }
 }

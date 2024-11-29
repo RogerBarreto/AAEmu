@@ -4,35 +4,34 @@ using AAEmu.Game.Models.Game.World;
 
 using InstanceWorld = AAEmu.Game.Models.Game.World.World;
 
-namespace AAEmu.Game.Models.Game.Indun.Events
+namespace AAEmu.Game.Models.Game.Indun.Events;
+
+internal class IndunEventNpcSpawneds : IndunEvent
 {
-    internal class IndunEventNpcSpawneds : IndunEvent
+    public uint NpcId { get; set; }
+
+    public override void Subscribe(InstanceWorld world)
     {
-        public uint NpcId { get; set; }
+        world.Events.OnUnitSpawn += OnUnitSpawn;
+    }
 
-        public override void Subscribe(InstanceWorld world)
+    public override void UnSubscribe(InstanceWorld world)
+    {
+        world.Events.OnUnitSpawn -= OnUnitSpawn;
+    }
+
+    private void OnUnitSpawn(object sender, OnUnitSpawnArgs args)
+    {
+        if (args.Npc is not Npc npc || sender is not InstanceWorld world) { return; }
+
+        if (npc.TemplateId != NpcId)
         {
-            world.Events.OnUnitSpawn += OnUnitSpawn;
+            Logger.Warn($"IndunEventNpcSpawneds - need npc={npc.TemplateId}, not npc={NpcId}");
+            return;
         }
 
-        public override void UnSubscribe(InstanceWorld world)
-        {
-            world.Events.OnUnitSpawn -= OnUnitSpawn;
-        }
-
-        private void OnUnitSpawn(object sender, OnUnitSpawnArgs args)
-        {
-            if (args.Npc is not Npc npc || sender is not InstanceWorld world) { return; }
-
-            if (npc.TemplateId != NpcId)
-            {
-                Logger.Warn($"IndunEventNpcSpawneds - need npc={npc.TemplateId}, not npc={NpcId}");
-                return;
-            }
-
-            Logger.Warn($"IndunEventNpcSpawneds - {NpcId}");
-            var action = IndunGameData.Instance.GetIndunActionById(StartActionId);
-            action.Execute(world);
-        }
+        Logger.Warn($"IndunEventNpcSpawneds - {NpcId}");
+        var action = IndunGameData.Instance.GetIndunActionById(StartActionId);
+        action.Execute(world);
     }
 }

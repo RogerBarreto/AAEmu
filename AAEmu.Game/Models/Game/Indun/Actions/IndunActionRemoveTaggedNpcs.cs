@@ -6,33 +6,32 @@ using AAEmu.Game.Models.Game.NPChar;
 
 using InstanceWorld = AAEmu.Game.Models.Game.World.World;
 
-namespace AAEmu.Game.Models.Game.Indun.Actions
+namespace AAEmu.Game.Models.Game.Indun.Actions;
+
+internal class IndunActionRemoveTaggedNpcs : IndunAction
 {
-    internal class IndunActionRemoveTaggedNpcs : IndunAction
+    public uint TagId { get; set; }
+
+    public override void Execute(InstanceWorld world)
     {
-        public uint TagId { get; set; }
-
-        public override void Execute(InstanceWorld world)
+        foreach (var npc in GetTaggedNpcs(world))
         {
-            foreach (var npc in GetTaggedNpcs(world))
-            {
-                npc.Delete();
-            }
-
-            Logger.Warn($"IndunActionRemoveTaggedNpcs: {TagId}");
+            npc.Delete();
         }
 
-        private List<Npc> GetTaggedNpcs(InstanceWorld world)
+        Logger.Warn($"IndunActionRemoveTaggedNpcs: {TagId}");
+    }
+
+    private List<Npc> GetTaggedNpcs(InstanceWorld world)
+    {
+        var npcList = new List<Npc>();
+
+        foreach (var region in world.Regions)
         {
-            var npcList = new List<Npc>();
-
-            foreach (var region in world.Regions)
-            {
-                region.GetList(npcList, 0);
-            }
-
-            var taggedNpcIds = TagsGameData.Instance.GetIdsByTagId(TagsGameData.TagType.Npcs, TagId);
-            return npcList.Where(npc => taggedNpcIds.Contains(npc.TemplateId)).ToList();
+            region.GetList(npcList, 0);
         }
+
+        var taggedNpcIds = TagsGameData.Instance.GetIdsByTagId(TagsGameData.TagType.Npcs, TagId);
+        return npcList.Where(npc => taggedNpcIds.Contains(npc.TemplateId)).ToList();
     }
 }

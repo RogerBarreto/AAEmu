@@ -8,146 +8,145 @@ using Microsoft.Data.Sqlite;
 
 using NLog;
 
-namespace AAEmu.Game.GameData
+namespace AAEmu.Game.GameData;
+
+[GameData]
+public class TagsGameData : Singleton<TagsGameData>, IGameDataLoader
 {
-    [GameData]
-    public class TagsGameData : Singleton<TagsGameData>, IGameDataLoader
+    public enum TagType
     {
-        public enum TagType
-        {
-            Buffs,
-            Items,
-            Npcs,
-            Skills
-        }
-        private Logger Logger = LogManager.GetCurrentClassLogger();
-        private Dictionary<TagType, Dictionary<uint, HashSet<uint>>> _tags;
+        Buffs,
+        Items,
+        Npcs,
+        Skills
+    }
+    private Logger Logger = LogManager.GetCurrentClassLogger();
+    private Dictionary<TagType, Dictionary<uint, HashSet<uint>>> _tags;
 
 
-        //Use different type if we need to ICollection/HashSet/Etc
-        public IReadOnlySet<uint> GetIdsByTagId(TagType type, uint tagId)
+    //Use different type if we need to ICollection/HashSet/Etc
+    public IReadOnlySet<uint> GetIdsByTagId(TagType type, uint tagId)
+    {
+        if (_tags.TryGetValue(type, out var temp))
         {
-            if (_tags.TryGetValue(type, out var temp))
+            if (temp.TryGetValue(tagId, out var result))
             {
-                if (temp.TryGetValue(tagId, out var result))
-                {
-                    return result;
-                }
+                return result;
             }
-
-            return new HashSet<uint>();
         }
 
-        public void Load(SqliteConnection connection)
+        return new HashSet<uint>();
+    }
+
+    public void Load(SqliteConnection connection)
+    {
+        _tags = new Dictionary<TagType, Dictionary<uint, HashSet<uint>>>();
+        #region Tag Tables
+        using (var command = connection.CreateCommand())
         {
-            _tags = new Dictionary<TagType, Dictionary<uint, HashSet<uint>>>();
-            #region Tag Tables
-            using (var command = connection.CreateCommand())
+            command.CommandText = "SELECT * FROM tagged_buffs";
+            command.Prepare();
+            using (var sqliteReader = command.ExecuteReader())
+            using (var reader = new SQLiteWrapperReader(sqliteReader))
             {
-                command.CommandText = "SELECT * FROM tagged_buffs";
-                command.Prepare();
-                using (var sqliteReader = command.ExecuteReader())
-                using (var reader = new SQLiteWrapperReader(sqliteReader))
+                var taggedBuffsDict = new Dictionary<uint, HashSet<uint>>();
+                _tags.Add(TagType.Buffs, taggedBuffsDict);
+                while (reader.Read())
                 {
-                    var taggedBuffsDict = new Dictionary<uint, HashSet<uint>>();
-                    _tags.Add(TagType.Buffs, taggedBuffsDict);
-                    while (reader.Read())
-                    {
-                        var tagId = reader.GetUInt32("tag_id");
-                        var buffId = reader.GetUInt32("buff_id");
+                    var tagId = reader.GetUInt32("tag_id");
+                    var buffId = reader.GetUInt32("buff_id");
 
-                        if (!taggedBuffsDict.ContainsKey(tagId))
-                            taggedBuffsDict.Add(tagId, new HashSet<uint>());
+                    if (!taggedBuffsDict.ContainsKey(tagId))
+                        taggedBuffsDict.Add(tagId, new HashSet<uint>());
 
-                        taggedBuffsDict[tagId].Add(buffId);
-                    }
+                    taggedBuffsDict[tagId].Add(buffId);
                 }
             }
-            using (var command = connection.CreateCommand())
+        }
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT * FROM tagged_items";
+            command.Prepare();
+            using (var sqliteReader = command.ExecuteReader())
+            using (var reader = new SQLiteWrapperReader(sqliteReader))
             {
-                command.CommandText = "SELECT * FROM tagged_items";
-                command.Prepare();
-                using (var sqliteReader = command.ExecuteReader())
-                using (var reader = new SQLiteWrapperReader(sqliteReader))
+                var taggedItemsDict = new Dictionary<uint, HashSet<uint>>();
+                _tags.Add(TagType.Items, taggedItemsDict);
+                while (reader.Read())
                 {
-                    var taggedItemsDict = new Dictionary<uint, HashSet<uint>>();
-                    _tags.Add(TagType.Items, taggedItemsDict);
-                    while (reader.Read())
-                    {
-                        var tagId = reader.GetUInt32("tag_id");
-                        var itemId = reader.GetUInt32("item_id");
+                    var tagId = reader.GetUInt32("tag_id");
+                    var itemId = reader.GetUInt32("item_id");
 
-                        if (!taggedItemsDict.ContainsKey(tagId))
-                            taggedItemsDict.Add(tagId, new HashSet<uint>());
+                    if (!taggedItemsDict.ContainsKey(tagId))
+                        taggedItemsDict.Add(tagId, new HashSet<uint>());
 
-                        taggedItemsDict[tagId].Add(itemId);
-                    }
+                    taggedItemsDict[tagId].Add(itemId);
                 }
             }
-            using (var command = connection.CreateCommand())
+        }
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT * FROM tagged_npcs";
+            command.Prepare();
+            using (var sqliteReader = command.ExecuteReader())
+            using (var reader = new SQLiteWrapperReader(sqliteReader))
             {
-                command.CommandText = "SELECT * FROM tagged_npcs";
-                command.Prepare();
-                using (var sqliteReader = command.ExecuteReader())
-                using (var reader = new SQLiteWrapperReader(sqliteReader))
+                var taggedNpcsDict = new Dictionary<uint, HashSet<uint>>();
+                _tags.Add(TagType.Npcs, taggedNpcsDict);
+                while (reader.Read())
                 {
-                    var taggedNpcsDict = new Dictionary<uint, HashSet<uint>>();
-                    _tags.Add(TagType.Npcs, taggedNpcsDict);
-                    while (reader.Read())
-                    {
-                        var tagId = reader.GetUInt32("tag_id");
-                        var npcId = reader.GetUInt32("npc_id");
+                    var tagId = reader.GetUInt32("tag_id");
+                    var npcId = reader.GetUInt32("npc_id");
 
-                        if (!taggedNpcsDict.ContainsKey(tagId))
-                            taggedNpcsDict.Add(tagId, new HashSet<uint>());
+                    if (!taggedNpcsDict.ContainsKey(tagId))
+                        taggedNpcsDict.Add(tagId, new HashSet<uint>());
 
-                        taggedNpcsDict[tagId].Add(npcId);
-                    }
+                    taggedNpcsDict[tagId].Add(npcId);
                 }
             }
-            using (var command = connection.CreateCommand())
+        }
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT * FROM tagged_skills";
+            command.Prepare();
+            using (var sqliteReader = command.ExecuteReader())
+            using (var reader = new SQLiteWrapperReader(sqliteReader))
             {
-                command.CommandText = "SELECT * FROM tagged_skills";
-                command.Prepare();
-                using (var sqliteReader = command.ExecuteReader())
-                using (var reader = new SQLiteWrapperReader(sqliteReader))
+                var taggedSkillsDict = new Dictionary<uint, HashSet<uint>>();
+                _tags.Add(TagType.Skills, taggedSkillsDict);
+                while (reader.Read())
                 {
-                    var taggedSkillsDict = new Dictionary<uint, HashSet<uint>>();
-                    _tags.Add(TagType.Skills, taggedSkillsDict);
-                    while (reader.Read())
-                    {
-                        var tagId = reader.GetUInt32("tag_id");
-                        var skillId = reader.GetUInt32("skill_id");
+                    var tagId = reader.GetUInt32("tag_id");
+                    var skillId = reader.GetUInt32("skill_id");
 
-                        if (!taggedSkillsDict.ContainsKey(tagId))
-                            taggedSkillsDict.Add(tagId, new HashSet<uint>());
+                    if (!taggedSkillsDict.ContainsKey(tagId))
+                        taggedSkillsDict.Add(tagId, new HashSet<uint>());
 
-                        taggedSkillsDict[tagId].Add(skillId);
-                    }
+                    taggedSkillsDict[tagId].Add(skillId);
                 }
             }
-            #endregion
+        }
+        #endregion
+    }
+
+    public void PostLoad()
+    {
+    }
+
+    public IReadOnlySet<uint> GetTagsByTargetId(TagType tagType, uint ownerId)
+    {
+        var res = new HashSet<uint>();
+        if (_tags.TryGetValue(tagType, out var tagDictionary))
+        {
+            foreach (var (tagKey, tagOwners) in tagDictionary)
+            {
+                if (tagOwners.Contains(ownerId))
+                {
+                    res.Add(tagKey);
+                }
+            }
         }
 
-        public void PostLoad()
-        {
-        }
-
-        public IReadOnlySet<uint> GetTagsByTargetId(TagType tagType, uint ownerId)
-        {
-            var res = new HashSet<uint>();
-            if (_tags.TryGetValue(tagType, out var tagDictionary))
-            {
-                foreach (var (tagKey, tagOwners) in tagDictionary)
-                {
-                    if (tagOwners.Contains(ownerId))
-                    {
-                        res.Add(tagKey);
-                    }
-                }
-            }
-
-            return res;
-        }
+        return res;
     }
 }
