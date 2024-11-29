@@ -433,8 +433,8 @@ public static class SkillResultHelper
             case "skill_urk_max_level": return (SkillResult)128; //	Your level is too high.
             case "skill_urk_expedition_owner": return (SkillResult)129; //	89 ?? Skill_urk_expedition_owner
             case "skill_urk_expedition_member": return (SkillResult)130; //	89 ?? Skill_urk_expedition_member
-                                                                         // case "skill_urk_progress_quest_context": return (SkillResult)131; //	89 ?? Skill_urk_progress_quest_context
-                                                                         // case "skill_urk_ready_quest_context": return (SkillResult)132; //	89 ?? Skill_urk_ready_quest_context
+            // case "skill_urk_progress_quest_context": return (SkillResult)131; //	89 ?? Skill_urk_progress_quest_context
+            // case "skill_urk_ready_quest_context": return (SkillResult)132; //	89 ?? Skill_urk_ready_quest_context
             default: return SkillResult.Failure;
         }
     }
