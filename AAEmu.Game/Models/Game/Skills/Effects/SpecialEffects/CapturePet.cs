@@ -11,7 +11,7 @@ namespace AAEmu.Game.Models.Game.Skills.Effects.SpecialEffects;
 public class CapturePet : SpecialEffectAction
 {
     protected override SpecialType SpecialEffectActionType => SpecialType.CapturePet;
-    
+
     public override void Execute(BaseUnit caster,
         SkillCaster casterObj,
         BaseUnit target,
@@ -27,7 +27,7 @@ public class CapturePet : SpecialEffectAction
     {
         // Only players are allowed to capture pets
         if (caster is not Character player)
-            return; 
+            return;
 
         Logger.Debug("Special effects: CapturePet value1 {0}, value2 {1}, value3 {2}, value4 {3}", value1, value2, value3, value4);
 
@@ -37,16 +37,16 @@ public class CapturePet : SpecialEffectAction
         {
             targetObject = castBuff.Buff.Owner;
         }
-        
+
         if (targetObject is not Npc targetNpc)
         {
             Logger.Warn($"Special effects: CapturePet {player.Name} tried to capture a non-Npc");
             return;
         }
-        
+
         // TODO: Verify Target Buffs
         // 6675 Capture-able target (tag 1304)
-        
+
         // TODO: Verify Target NPC Grade
 
         // If valid target

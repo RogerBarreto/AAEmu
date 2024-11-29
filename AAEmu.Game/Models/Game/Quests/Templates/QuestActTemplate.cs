@@ -138,7 +138,7 @@ public class QuestActTemplate(QuestComponentTemplate parentComponent)
     /// </summary>
     /// <param name="questAct"></param>
     /// <param name="value"></param>
-    protected void SetObjective(QuestAct questAct, int value) => SetObjective(questAct.QuestComponent.Parent.Parent, value); 
+    protected void SetObjective(QuestAct questAct, int value) => SetObjective(questAct.QuestComponent.Parent.Parent, value);
 
     /// <summary>
     /// Get Current Objective Count for this Act (forwarded value from Quest)
@@ -201,7 +201,7 @@ public class QuestActTemplate(QuestComponentTemplate parentComponent)
     {
         // Nothing by default
     }
-    
+
     // The handlers here are the ones that actually do something.
     // The versions in IQuestAct are the ones that get registered during Initialize/Finalize, and forward it to these 
     #region event_handlers
@@ -557,6 +557,6 @@ public class QuestActTemplate(QuestComponentTemplate parentComponent)
     {
         //
     }
-    
+
     #endregion // Event Handlers
 }

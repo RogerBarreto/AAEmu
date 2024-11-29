@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AAEmu.Commons.Network;
 using AAEmu.Game.Models.StaticValues;
 
 namespace AAEmu.Game.Models.Game.CashShop;

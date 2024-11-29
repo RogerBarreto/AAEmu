@@ -35,7 +35,7 @@ namespace AAEmu.Game.Models.Game.Indun.Events
                 if (doodadList.Count > 1)
                     Logger.Warn("[IndunEvent] DoodadList returned higher than one doodad count.");
 
-                if(_doodads.TryGetValue(world.Id, out _))
+                if (_doodads.TryGetValue(world.Id, out _))
                 {
                     _doodads[world.Id] = doodadList[0];
                 }
@@ -43,7 +43,7 @@ namespace AAEmu.Game.Models.Game.Indun.Events
                 {
                     _doodads.Add(world.Id, doodadList[0]);
                 }
-                if(_playerRoomCount.TryGetValue(world.Id, out _))
+                if (_playerRoomCount.TryGetValue(world.Id, out _))
                 {
                     _playerRoomCount[world.Id] = 0;
                 }
@@ -93,7 +93,7 @@ namespace AAEmu.Game.Models.Game.Indun.Events
             if (sender is InstanceWorld world)
             {
                 Logger.Warn($"OnAreaClear, world {world.Id}");
-                
+
             }
         }
     }

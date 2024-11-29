@@ -24,7 +24,8 @@ public class ItemAddSubCommand : SubCommandBase
         AddParameter(new NumericSubCommandParameter<int>("amount", "amount=1", false, 1, 1000) { DefaultValue = 1 });
         AddParameter(
             new NumericSubCommandParameter<byte>("grade", "item grade=0", false, (byte)ItemGrade.Crude,
-                (byte)ItemGrade.Mythic) { DefaultValue = (byte)ItemGrade.Crude });
+                (byte)ItemGrade.Mythic)
+            { DefaultValue = (byte)ItemGrade.Crude });
     }
 
     public override void Execute(ICharacter character, string triggerArgument,

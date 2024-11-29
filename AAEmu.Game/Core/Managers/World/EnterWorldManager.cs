@@ -86,7 +86,7 @@ public class EnterWorldManager : Singleton<EnterWorldManager>
                     {
                         break;
                     }
-                    
+
                     // Say goodbye if player is quitting (but not going to character select)
                     if (type == 0)
                         connection.ActiveChar?.SendMessage(ChatType.System, AppConfiguration.Instance.World.LogoutMessage);

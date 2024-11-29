@@ -1,5 +1,4 @@
-﻿using System;
-using AAEmu.Game.Core.Managers;
+﻿using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.Items;
 using AAEmu.Game.Models.Game.Items.Actions;
@@ -36,7 +35,7 @@ public class QuestActSupplyItem(QuestComponentTemplate parentComponent) : QuestA
 
         if (toAddCount < 0)
             return true;
-        
+
         if (quest.Owner is Character player)
         {
             // If a backpack, directly handle it, otherwise use the reward pool
@@ -44,14 +43,14 @@ public class QuestActSupplyItem(QuestComponentTemplate parentComponent) : QuestA
             {
                 return player.Inventory.TryEquipNewBackPack(ItemTaskType.QuestSupplyItems, ItemId, toAddCount, GradeId);
             }
-            
+
             // Add item to reward pool (pool gets distributed and reset at the end of each step)
             quest.QuestRewardItemsPool.Add(new ItemCreationDefinition(ItemId, toAddCount, GradeId));
             return true;
         }
         return false; // Not a player somehow, should never get here
     }
-    
+
     public override void QuestCleanup(Quest quest)
     {
         base.QuestCleanup(quest);
@@ -69,5 +68,5 @@ public class QuestActSupplyItem(QuestComponentTemplate parentComponent) : QuestA
 
         quest.Owner?.Inventory.ConsumeItem(null, ItemTaskType.QuestRemoveSupplies, ItemId, Count, null);
     }
-    
+
 }

@@ -121,7 +121,7 @@ public class QuestStep(QuestComponentKind step, Quest parent)
                 ? QuestStatus.Ready
                 : QuestStatus.Progress;
         }
-        
+
         // Handle Supply/Reward Distribution
         res &= Parent.DistributeRewards(true);
 
@@ -131,7 +131,7 @@ public class QuestStep(QuestComponentKind step, Quest parent)
 
         return res;
     }
-    
+
     /// <summary>
     /// Sets the RequestEvaluationFlag to true signalling the server that it should check this quest's progress again
     /// </summary>

@@ -144,9 +144,9 @@ public partial class QuestManager : Singleton<QuestManager>, IQuestManager
             var needNewTask = EvaluationQueue.Count <= 0;
             if (!EvaluationQueue.Contains(quest))
                 EvaluationQueue.Enqueue(quest);
-            
+
             Logger.Info($"EnqueueEvaluation, {quest.Owner.Name} ({quest.Owner.Id}), Quest {quest.TemplateId}");
-            
+
             if (needNewTask)
                 TaskManager.Instance.Schedule(new QuestManagerRunQueueTask(), null, TimeSpan.FromMilliseconds(1));
         }

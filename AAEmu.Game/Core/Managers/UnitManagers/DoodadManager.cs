@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -2490,7 +2490,7 @@ public class DoodadManager : Singleton<DoodadManager>
                             Logger.Warn($"DoodadFuncToD has invalid value for minutes, Id {func.Id}, ToD {func.Tod}");
                         mm %= 60;
                         func.TodAsHours = (hh * 1f) + (mm / 60f);
-                            
+
                         _phaseFuncTemplates["DoodadFuncTod"].Add(func.Id, func);
                     }
                 }

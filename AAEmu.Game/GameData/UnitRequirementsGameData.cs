@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Numerics;
 using AAEmu.Commons.Utils;
-using AAEmu.Game.Core.Managers;
 using AAEmu.Game.GameData.Framework;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.Quests;
@@ -32,7 +31,7 @@ public class UnitRequirementsGameData : Singleton<UnitRequirementsGameData>, IGa
     /// owner_type, owner_id, unit_reqs
     /// </summary>
     private Dictionary<string, List<UnitReqs>> _unitReqsByOwnerType { get; set; }
-    
+
     public void Load(SqliteConnection connection)
     {
         _unitReqs = new();
@@ -127,7 +126,7 @@ public class UnitRequirementsGameData : Singleton<UnitRequirementsGameData>, IGa
         // Used for special handling hack for AreaSphere requirement
         // Example QuestId: 5079 & 5080 - Guerilla Marketing
         var validQuestComponents = new List<uint>();
-        
+
         // For skill for "item use" for specific quests
         if ((skillCaster is SkillItem skillItem) && (ownerUnit is Character player))
         {
@@ -139,9 +138,9 @@ public class UnitRequirementsGameData : Singleton<UnitRequirementsGameData>, IGa
             }
         }
         // TODO: check if there are any other skill types that required to be used in a specific area of multiple quest spheres
-        
+
         var res = !skillTemplate.OrUnitReqs;
-        var lastFailedCheckResult = new UnitReqsValidationResult(SkillResultKeys.skill_failure,0,0);
+        var lastFailedCheckResult = new UnitReqsValidationResult(SkillResultKeys.skill_failure, 0, 0);
         foreach (var unitReq in reqs)
         {
             var reqRes = false;
@@ -162,7 +161,7 @@ public class UnitRequirementsGameData : Singleton<UnitRequirementsGameData>, IGa
             else
             {
                 var lastCheckResult = unitReq.Validate(ownerUnit);
-                reqRes = lastCheckResult.ResultKey == SkillResultKeys.ok;                
+                reqRes = lastCheckResult.ResultKey == SkillResultKeys.ok;
                 if (lastCheckResult.ResultKey != SkillResultKeys.ok)
                     lastFailedCheckResult = lastCheckResult;
             }
@@ -179,7 +178,7 @@ public class UnitRequirementsGameData : Singleton<UnitRequirementsGameData>, IGa
 
         return res ? new UnitReqsValidationResult(SkillResultKeys.ok, 0, 0) : lastFailedCheckResult;
     }
-    
+
     public bool CanTriggerSphere(Spheres sphere, BaseUnit ownerUnit)
     {
         var reqs = GetSphereRequirements(sphere.Id);
@@ -202,7 +201,7 @@ public class UnitRequirementsGameData : Singleton<UnitRequirementsGameData>, IGa
         }
         return res;
     }
-    
+
     public bool CanComponentRun(QuestComponentTemplate questComponent, BaseUnit ownerUnit)
     {
         var reqs = GetQuestComponentRequirements(questComponent.Id);

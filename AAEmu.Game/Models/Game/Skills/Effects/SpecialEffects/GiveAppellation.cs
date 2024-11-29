@@ -8,7 +8,7 @@ namespace AAEmu.Game.Models.Game.Skills.Effects.SpecialEffects;
 public class GiveAppellation : SpecialEffectAction
 {
     protected override SpecialType SpecialEffectActionType => SpecialType.GiveAppellation;
-    
+
     public override void Execute(BaseUnit caster,
         SkillCaster casterObj,
         BaseUnit target,

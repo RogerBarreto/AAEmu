@@ -37,7 +37,7 @@ public class StringExtensionsTest
 
         return Task.CompletedTask;
     }
-    
+
     [Theory]
     [InlineData("test", "Test"),
      InlineData("Test", "Test"),

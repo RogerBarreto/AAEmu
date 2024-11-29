@@ -18,7 +18,7 @@ namespace AAEmu.Game.Models.Game.Indun.Actions
             {
                 doodad.DoChangePhase(null, (int)DoodadFuncGroupId);
             }
-            Logger.Warn("IndunActionChangeDoodadPhases: Doodad " +DoodadAlmightyId + " change phase to " + DoodadFuncGroupId);
+            Logger.Warn("IndunActionChangeDoodadPhases: Doodad " + DoodadAlmightyId + " change phase to " + DoodadFuncGroupId);
         }
 
         private List<Doodad> GetDoodads(InstanceWorld world)

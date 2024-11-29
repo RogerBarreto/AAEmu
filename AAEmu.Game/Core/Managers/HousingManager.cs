@@ -1209,6 +1209,7 @@ public class HousingManager : Singleton<HousingManager>
         }
     }
 
+    /* Unused
     /// <summary>
     /// Get house design by item template
     /// </summary>
@@ -1219,6 +1220,7 @@ public class HousingManager : Singleton<HousingManager>
         var design = _housingItemHousings.FirstOrDefault(h => h.Item_Id == itemId);
         return design?.Design_Id ?? 0;
     }
+    */
 
     /// <summary>
     /// Get original item template based on house design

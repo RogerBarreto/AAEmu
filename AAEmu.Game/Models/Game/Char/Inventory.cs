@@ -534,7 +534,7 @@ public class Inventory
             case SwapAction.doEquipInEmptySlot:
                 itemInTargetSlot.SlotType = sourceContainer.ContainerType;
                 itemInTargetSlot.Slot = fromSlot;
-                
+
                 itemTasks.Add(new ItemMove(fromType, fromSlot, fromItemId, toType, toSlot, toItemId));
                 if (targetContainer != sourceContainer)
                 {

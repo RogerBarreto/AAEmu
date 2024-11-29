@@ -3,7 +3,6 @@ using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Models.Game;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Utils.Scripts;
-using NLog;
 
 namespace AAEmu.Game.Scripts.Commands;
 
@@ -39,12 +38,11 @@ public class Dloc : ICommand
             var doodad = WorldManager.Instance.GetDoodad(id);
             if (doodad != null)
             {
-                var value = 0f;
                 var x = doodad.Transform.Local.Position.X;
                 var y = doodad.Transform.Local.Position.Y;
                 var z = doodad.Transform.Local.Position.Z;
 
-                if (args[1] != "*" && args[1] != "x" && float.TryParse(args[1], out value))
+                if (args[1] != "*" && args[1] != "x" && float.TryParse(args[1], out var value))
                 {
                     x = value;
                 }

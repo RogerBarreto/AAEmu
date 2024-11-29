@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-
-using AAEmu.Game.Models.Game.Char;
-using AAEmu.Game.Models.Game.Quests.Templates;
-
-namespace AAEmu.Game.Models.Game.Quests;
+﻿namespace AAEmu.Game.Models.Game.Quests;
 
 public interface IQuestComponent
 {

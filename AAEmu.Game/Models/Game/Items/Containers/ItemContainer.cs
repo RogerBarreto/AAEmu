@@ -27,7 +27,7 @@ public class ItemContainer
     public bool IsDirty { get; set; }
     private readonly SlotType _containerType;
     private ulong _containerId;
-    
+
     public Unit ParentUnit { get; set; }
 
     public ICharacter Owner
@@ -434,13 +434,13 @@ public class ItemContainer
             Owner?.Inventory.OnAcquiredItem(item, item.Count);
         }
         else
-            // Got attachment from Mail
+        // Got attachment from Mail
         if (item.SlotType == SlotType.Mail && ContainerType != SlotType.Mail)
         {
             Owner?.Inventory.OnAcquiredItem(item, item.Count);
         }
         else
-            // Adding mail attachment
+        // Adding mail attachment
         if (item.SlotType != SlotType.Mail && ContainerType == SlotType.Mail)
         {
             Owner?.Inventory.OnConsumedItem(item, item.Count);

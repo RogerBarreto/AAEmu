@@ -9,10 +9,10 @@ using NLog;
 
 namespace AAEmu.Game.Core.Managers;
 
-public class AiPathsManager: Singleton<AiPathsManager>
+public class AiPathsManager : Singleton<AiPathsManager>
 {
-    private readonly string PathFileFolder; 
-    private const string PathFileExt = ".path"; 
+    private readonly string PathFileFolder;
+    private const string PathFileExt = ".path";
     private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
     private readonly object _lock = new();
 
@@ -20,11 +20,11 @@ public class AiPathsManager: Singleton<AiPathsManager>
     {
         PathFileFolder = Path.Combine("Data", "Path");
     }
-    
+
     /// <summary>
     /// Cache for loaded Path
     /// </summary>
-    private Dictionary<string, List<AiPathPoint>> PathsCache { get; set; } = new ();
+    private Dictionary<string, List<AiPathPoint>> PathsCache { get; set; } = new();
 
     public List<AiPathPoint> LoadAiPathPoints(string aiPathFileName)
     {
@@ -36,7 +36,7 @@ public class AiPathsManager: Singleton<AiPathsManager>
         }
 
         // Otherwise, try to load from file
-        lock(_lock)
+        lock (_lock)
         {
             var res = new List<AiPathPoint>();
             try
@@ -66,7 +66,9 @@ public class AiPathsManager: Singleton<AiPathsManager>
 
                     var newPoint = new AiPathPoint()
                     {
-                        Position = new Vector3(x, y, z), Action = action, Param = param
+                        Position = new Vector3(x, y, z),
+                        Action = action,
+                        Param = param
                     };
 
                     res.Add(newPoint);
@@ -88,9 +90,9 @@ public class AiPathsManager: Singleton<AiPathsManager>
     /// </summary>
     public void Load()
     {
-        var pathFiles = Directory.GetFiles(PathFileFolder, "*"+PathFileExt, SearchOption.TopDirectoryOnly);
+        var pathFiles = Directory.GetFiles(PathFileFolder, "*" + PathFileExt, SearchOption.TopDirectoryOnly);
         var loaded = 0;
-        foreach(var pathFile in pathFiles)
+        foreach (var pathFile in pathFiles)
         {
             var shortName = Path.GetFileNameWithoutExtension(pathFile);
             if (LoadAiPathPoints(shortName).Count > 0)

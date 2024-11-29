@@ -25,7 +25,7 @@ namespace AAEmu.Game.Core.Managers
         private Dictionary<uint, Dungeon> _sysDungeons;
         private Dictionary<uint, Dictionary<uint, int>> _attempts; // <ownerId, <zoneGroupId, attempts>> - использовано попыток прохождения данжона
         private const int FreeAttempts = 3;  // свободных попыток
-        private const int ExtraAttempts = 2; // дополнительных попыток
+        // Unused private const int ExtraAttempts = 2; // дополнительных попыток
         private Dictionary<uint, Dictionary<uint, bool>> _waitingDungeonAccessAttemptsCleared; // <ownerId, <zoneGroupId, waiting>>, откат 4 часа, + еще 4 часа, если израсходовали дополнительные попытки
 
         private object _lock = new();

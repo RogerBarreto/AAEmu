@@ -1,12 +1,10 @@
 ﻿using AAEmu.Game.Models.Game.Units;
 using AAEmu.Game.Models.Game.Char;
-using AAEmu.Game.Models.Game.Team;
 using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.World;
 using System.Collections.Generic;
-using System.Numerics;
 
-
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 
 namespace AAEmu.Game.Models.Game.NPChar
 {
@@ -52,21 +50,21 @@ namespace AAEmu.Game.Models.Game.NPChar
             _tagTeam = 0;
             _totalDamage = 0;
         }
-                public void AddTagger(Unit checkUnit, int damage)
+        public void AddTagger(Unit checkUnit, int damage)
         {
             lock (_lock)
             {
                 // Check if the character is a pet
-                
+
                 if (checkUnit is Units.Mate pm)
                 {
                     checkUnit = WorldManager.Instance.GetCharacterByObjId(pm.OwnerObjId) ?? checkUnit;
                 }
 
 
-              
 
-              
+
+
                 if (checkUnit is Character pl)
                 {
 
@@ -102,8 +100,8 @@ namespace AAEmu.Game.Models.Game.NPChar
                                         if (_taggers.ContainsKey(tm))
                                         {
                                             //Tagger is already in the list
-                                            partyDamage+=_taggers[tm];
-                                          
+                                            partyDamage += _taggers[tm];
+
                                         }
                                     }
                                 }
@@ -112,10 +110,10 @@ namespace AAEmu.Game.Models.Game.NPChar
                         //Did the party do more than 50% of the total HP in damage?
                         if (partyDamage > Owner.MaxHp * 0.5)
                         {
-                           
-                                _tagTeam = checkTeam.Id;
-                            
-                            
+
+                            _tagTeam = checkTeam.Id;
+
+
                         }
                     }
                     else
@@ -129,7 +127,7 @@ namespace AAEmu.Game.Models.Game.NPChar
                 }
                 //TODO: packet to set red-but-not-aggro HP bar for taggers, "dull red" HP bar for not-taggers
 
-                
+
             }
         }
     }

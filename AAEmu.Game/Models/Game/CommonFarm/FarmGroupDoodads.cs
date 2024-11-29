@@ -2,7 +2,7 @@
 
 namespace AAEmu.Game.Models.Game.CommonFarm;
 
-class FarmGroupDoodads
+internal class FarmGroupDoodads
 {
     public uint Id { get; set; }
     public FarmType FarmGroupId { get; set; }

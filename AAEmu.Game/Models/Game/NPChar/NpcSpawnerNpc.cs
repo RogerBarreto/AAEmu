@@ -66,7 +66,7 @@ public class NpcSpawnerNpc : Spawner<Npc>
                 Logger.Warn($"Npc {MemberId}, from spawner Id {npcSpawner.Id} not exist at db");
                 return null;
             }
-            
+
             npc.RegisterNpcEvents();
 
             Logger.Trace($"Spawn npc templateId {MemberId} objId {npc.ObjId} from spawnerId {NpcSpawnerTemplateId}");
@@ -119,7 +119,7 @@ public class NpcSpawnerNpc : Spawner<Npc>
             var world = WorldManager.Instance.GetWorld(npc.Transform.WorldId);
             world.Events.OnUnitSpawn(world, new OnUnitSpawnArgs { Npc = npc });
             npc.Simulation = new Simulation(npc);
-            
+
             if (npc.Ai != null && !string.IsNullOrWhiteSpace(npcSpawner.FollowPath))
             {
                 if (!npc.Ai.LoadAiPathPoints(npcSpawner.FollowPath, false))

@@ -22,17 +22,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Additional Files", "Additio
 		.dockerignore = .dockerignore
 		.editorconfig = .editorconfig
 		.env = .env
+		.env.example = .env.example
 		.gitignore = .gitignore
 		.gitlab-ci.yml = .gitlab-ci.yml
 		AAEmu.sln.DotSettings = AAEmu.sln.DotSettings
 		.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
 		CONTRIBUTING.md = CONTRIBUTING.md
+		Directory.Build.props = Directory.Build.props
 		docker-compose.yaml = docker-compose.yaml
 		.github\workflows\dotnetcore.yml = .github\workflows\dotnetcore.yml
 		global.json = global.json
 		README.md = README.md
 		.github\workflows\sonar.yml = .github\workflows\sonar.yml
-		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{DC5065BC-D9B9-4B81-97D9-45527C90A0B6}"
@@ -114,6 +115,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{2A4FF077-4CA2-4FB5-A16C-D98F4F30D485}"
 	ProjectSection(SolutionItems) = preProject
 		Scripts\clear-caches.sh = Scripts\clear-caches.sh
+		Scripts\docker-install-local.ps1 = Scripts\docker-install-local.ps1
+		Scripts\docker-install-local.sh = Scripts\docker-install-local.sh
+		Scripts\docker-update-local.ps1 = Scripts\docker-update-local.ps1
+		Scripts\docker-update-local.sh = Scripts\docker-update-local.sh
 		Scripts\publish.sh = Scripts\publish.sh
 		Scripts\start AAEmu.Game.bat = Scripts\start AAEmu.Game.bat
 		Scripts\start AAEmu.Login.bat = Scripts\start AAEmu.Login.bat

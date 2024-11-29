@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using AAEmu.Game.Core.Managers.UnitManagers;
 using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Models.Game.Char;
@@ -38,8 +37,8 @@ public class SpawnDoodad : SpecialEffectAction
         DateTime time,
         int doodadId,
         int delay,
-        int createTradePack, 
-        int value4 
+        int createTradePack,
+        int value4
     )
     {
         if (caster is null)
@@ -62,7 +61,7 @@ public class SpawnDoodad : SpecialEffectAction
             case SkillTargetSelection.Source:
                 doodad.Transform = caster.Transform.CloneDetached(doodad);
                 break;
-            case SkillTargetSelection.Target :
+            case SkillTargetSelection.Target:
                 doodad.Transform = target.Transform.CloneDetached(doodad);
                 break;
             case SkillTargetSelection.Line:

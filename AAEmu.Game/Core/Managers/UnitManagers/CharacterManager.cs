@@ -435,11 +435,11 @@ public class CharacterManager : Singleton<CharacterManager>
 
         // Get default access level for all users 
         var useAccessLevel = AppConfiguration.Instance.Account.AccessLevelDefault;
-        
+
         // If it's the first character created, use first character access level settings 
         if (NameManager.Instance.NoNamesRegistered())
             useAccessLevel = Math.Max(AppConfiguration.Instance.Account.AccessLevelFirstCharacter, useAccessLevel);
-        
+
         var characterId = CharacterIdManager.Instance.GetNextId();
         NameManager.Instance.AddCharacterName(characterId, name, connection.AccountId);
         var template = GetTemplate(race, gender);

@@ -1,6 +1,4 @@
-﻿using AAEmu.Game.Core.Managers;
-using AAEmu.Game.GameData;
-using AAEmu.Game.Models.Game.NPChar;
+﻿using AAEmu.Game.Models.Game.NPChar;
 using AAEmu.Game.Models.Game.World;
 
 using InstanceWorld = AAEmu.Game.Models.Game.World.World;
@@ -30,7 +28,7 @@ namespace AAEmu.Game.Models.Game.Indun.Events
 
             //var action = IndunGameData.Instance.GetIndunActionById(StartActionId);
             //action.Execute(world);
-            
+
             //IndunManager.DoIndunActions(StartActionId, world);
         }
     }

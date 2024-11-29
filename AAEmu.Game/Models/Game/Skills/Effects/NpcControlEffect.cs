@@ -3,12 +3,10 @@
 using AAEmu.Game.Core.Packets;
 using AAEmu.Game.GameData;
 using AAEmu.Game.Models.Game.AI.Enums;
-using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.NPChar;
 using AAEmu.Game.Models.Game.Skills.Templates;
 using AAEmu.Game.Models.Game.Units;
 using AAEmu.Game.Models.StaticValues;
-using AAEmu.Game.Scripts.Commands;
 
 namespace AAEmu.Game.Models.Game.Skills.Effects;
 
@@ -35,7 +33,7 @@ public class NpcControlEffect : EffectTemplate
 
         fileName = string.Empty;
         fileName2 = string.Empty;
-        
+
         if (target is Npc targetNpc)
         {
             switch (CategoryId)
@@ -65,7 +63,7 @@ public class NpcControlEffect : EffectTemplate
                         if (cmds is { Count: > 0 })
                         {
                             targetNpc.Ai?.EnqueueAiCommands(cmds);
-                            
+
                             foreach (var aiCommands in cmds)
                             {
                                 switch (aiCommands.CmdId)

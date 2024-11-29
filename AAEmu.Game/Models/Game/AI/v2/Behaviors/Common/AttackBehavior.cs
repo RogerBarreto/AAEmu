@@ -19,7 +19,7 @@ public class AttackBehavior : BaseCombatBehavior
         Ai.Owner.CurrentGameStance = GameStanceType.Combat;
         Ai.Owner.CurrentAlertness = MoveTypeAlertness.Combat;
         Ai.Owner.BroadcastPacket(new SCUnitModelPostureChangedPacket(Ai.Owner, Ai.Owner.AnimActionId, false), false);
-        
+
         Ai.Owner.IsInBattle = true;
         if (Ai.Owner is { } npc)
         {

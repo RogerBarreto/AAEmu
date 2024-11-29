@@ -41,10 +41,10 @@ public class QuestActObjExpressFire(QuestComponentTemplate parentComponent) : Qu
     {
         if (questAct.Id != ActId)
             return;
-        
+
         if (args.EmotionId != ExpressKeyId)
             return;
-      
+
         if (QuestManager.Instance.CheckGroupNpc(NpcGroupId, args.NpcId))
         {
             Logger.Debug($"QuestActObjExpressFire({DetailId}).OnExpressFire: Quest: {questAct.QuestComponent.Parent.Parent.TemplateId}, Owner {questAct.QuestComponent.Parent.Parent.Owner.Name} ({questAct.QuestComponent.Parent.Parent.Owner.Id}), ExpressKeyId {ExpressKeyId}, NpcGroupId {NpcGroupId}");

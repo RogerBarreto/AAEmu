@@ -101,7 +101,7 @@ public partial class QuestManager
         var itemGroupsForThisItem = _groupItems.Where(x => x.Value.Contains(templateId)).Select(x => x.Key);
         foreach (var itemGroup in itemGroupsForThisItem)
         {
-            owner?.Events?.OnItemGroupGather(owner, new OnItemGroupGatherArgs { ItemId = templateId, Count = count, ItemGroupId = itemGroup});
+            owner?.Events?.OnItemGroupGather(owner, new OnItemGroupGatherArgs { ItemId = templateId, Count = count, ItemGroupId = itemGroup });
         }
     }
 

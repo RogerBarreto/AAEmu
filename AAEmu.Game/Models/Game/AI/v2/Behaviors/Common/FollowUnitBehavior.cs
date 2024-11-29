@@ -7,7 +7,7 @@ namespace AAEmu.Game.Models.Game.AI.v2.Behaviors.Common;
 public class FollowUnitBehavior : BaseCombatBehavior
 {
     private bool _enter;
-    
+
     public override void Enter()
     {
         Ai.Owner.CurrentGameStance = GameStanceType.Relaxed;
@@ -39,7 +39,7 @@ public class FollowUnitBehavior : BaseCombatBehavior
         var targetDistance = Ai.Owner.GetDistanceTo(Ai.AiFollowUnitObj, true);
 
         var followSpeedMultiplier = (float)Math.Min(5.0, targetDistance / 1.5);
-        
+
         var moveSpeed = Ai.GetRealMovementSpeed(Ai.Owner.BaseMoveSpeed) * followSpeedMultiplier;
         var moveFlags = Ai.GetRealMovementFlags(moveSpeed);
         moveSpeed *= (delta.Milliseconds / 1000.0);

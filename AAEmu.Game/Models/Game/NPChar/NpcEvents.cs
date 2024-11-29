@@ -361,7 +361,7 @@ public partial class Npc
             skill.Use(npc, skillCaster, skillTarget, null, true, out _);
         }
     }
-    
+
     private void InDead(object sender, InDeadArgs args)
     {
         Logger.Trace($"Npc={args.Npc.ObjId} : {args.Npc.TemplateId} is in death state.");

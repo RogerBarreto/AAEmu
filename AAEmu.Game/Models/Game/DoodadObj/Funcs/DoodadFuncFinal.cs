@@ -37,7 +37,7 @@ public class DoodadFuncFinal : DoodadPhaseFuncTemplate
                 owner.OverridePhaseTime = DateTime.MinValue;
                 afterTimerDelay = owner.TimeLeft;
             }
-            
+
             // Отменяем текущую задачу, если она существует
             // Cancel the current task if it exists
             if (owner.FuncTask != null)

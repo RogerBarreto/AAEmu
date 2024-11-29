@@ -8,15 +8,11 @@ using AAEmu.Game.Utils.DB;
 
 using Microsoft.Data.Sqlite;
 
-using NLog;
-
 namespace AAEmu.Game.GameData;
 
 [GameData]
 public class AchievementGameData : Singleton<AchievementGameData>, IGameDataLoader
 {
-    private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
-
     private Dictionary<uint, CharRecords> _charRecords;
     private Dictionary<uint, Achievements> _achievements;
     private Dictionary<uint, List<AchievementObjectives>> _achievementObjectives;

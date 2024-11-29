@@ -1,4 +1,4 @@
-using AAEmu.Game.Core.Managers;
+﻿using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.NPChar;
 using AAEmu.Game.Models.Game.Quests.Templates;
@@ -60,11 +60,11 @@ public class QuestActObjZoneKill(QuestComponentTemplate parentComponent) : Quest
             return;
 
         var player = questAct.QuestComponent.Parent.Parent.Owner;
-        
+
         // If Party kills is not allowed, only allow kills from self
         if (!IsParty && (args.Killer.Id == player.Id))
             return;
-        
+
         // Ignore if victim is the killer (e.g. death from fall-damage)
         // TODO: Verify if DoT debuff effects apply the killer setting correctly
         if (args.Killer.ObjId == args.Victim.ObjId)
@@ -74,7 +74,7 @@ public class QuestActObjZoneKill(QuestComponentTemplate parentComponent) : Quest
         var victimNpc = args.Victim as Npc;
 
         var valid = false;
-        
+
         if ((CountNpc > 0) && (victimNpc != null))
         {
             // NPC kills
@@ -89,7 +89,7 @@ public class QuestActObjZoneKill(QuestComponentTemplate parentComponent) : Quest
             if ((victimNpc.Level < LvlMinNpc) || (victimNpc.Level > LvlMaxNpc))
                 valid = false;
         }
-        
+
         if ((CountPlayerKill > 0) && (victimPc != null))
         {
             if (PcFactionId > 0)
@@ -109,7 +109,7 @@ public class QuestActObjZoneKill(QuestComponentTemplate parentComponent) : Quest
         {
             // TODO: Check if this would actually need 2 objective counters or not
             AddObjective((QuestAct)questAct, 1);
-            
+
             // Handle Team sharing (if needed)
             if (TeamShare)
             {

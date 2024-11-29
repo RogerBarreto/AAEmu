@@ -58,7 +58,7 @@ public class AuctionLot : PacketMarshaler
         stream.Write((byte)Duration);
 
         stream.Write(Item);
-        
+
         stream.Write(WorldId);
         stream.Write(ClientId);
         stream.Write(ClientName);

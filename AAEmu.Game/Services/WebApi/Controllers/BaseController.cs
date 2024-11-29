@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Net;
 using System.Text.Json;
 using System.Web;
@@ -40,7 +39,7 @@ internal class BaseController : IController
 
         return response;
     }
-    
+
     public NameValueCollection ParseQueryString(string url)
     {
         var queryStartIndex = url.IndexOf('?');

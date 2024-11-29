@@ -33,7 +33,7 @@ public class LoginProtocolHandler : BaseProtocolHandler
         LoginNetwork.Instance.SetConnection(con);
 
         _loadTask = new LoadTask();
-        TaskManager.Instance.Schedule(_loadTask,null,TimeSpan.FromMinutes(1));
+        TaskManager.Instance.Schedule(_loadTask, null, TimeSpan.FromMinutes(1));
     }
 
     public override void OnDisconnect(ISession session)

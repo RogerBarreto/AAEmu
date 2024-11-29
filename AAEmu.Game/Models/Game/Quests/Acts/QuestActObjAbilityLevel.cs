@@ -1,5 +1,4 @@
-﻿using System.Security.Policy;
-using AAEmu.Game.Core.Managers;
+﻿using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Models.Game.Quests.Templates;
 using AAEmu.Game.Models.Game.Skills;
 
@@ -33,7 +32,7 @@ public class QuestActObjAbilityLevel(QuestComponentTemplate parentComponent) : Q
         }
 
         // All abilities check
-        for (var i = AbilityType.General+1; i < AbilityType.None; i++)
+        for (var i = AbilityType.General + 1; i < AbilityType.None; i++)
         {
             var ability = quest.Owner.Abilities.Abilities[i];
             int abLevel = ExperienceManager.Instance.GetLevelFromExp(ability.Exp);

@@ -3,20 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using AAEmu.Commons.Utils;
-using AAEmu.Game.Core.Managers.UnitManagers;
 using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Core.Network.Connections;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models;
-using AAEmu.Game.Models.Game.DoodadObj;
-using AAEmu.Game.Models.Game.DoodadObj.Funcs;
-using NLog;
 
 namespace AAEmu.Game.Core.Managers;
 
 public class TimeManager : Singleton<TimeManager>, IObservable<float>
 {
-    private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
     private readonly List<IObserver<float>> _observers;
     private bool _work;
     private const float MaxTime = 86400f;
@@ -118,14 +113,14 @@ public class TimeManager : Singleton<TimeManager>, IObservable<float>
         {
             if (npc.Template.NpcPostureSets.Count <= 1)
                 continue;
-            
+
             var oldAnim = npc.Template.NpcPostureSets.FirstOrDefault(x => x.StartTodTime <= oldTime)?.AnimActionId ?? 0;
             var newAnim = npc.Template.NpcPostureSets.FirstOrDefault(x => x.StartTodTime <= newTime)?.AnimActionId ?? 0;
 
             if (oldAnim != newAnim)
                 npc.BroadcastPacket(new SCUnitModelPostureChangedPacket(npc, newAnim, true), false);
         }
-        
+
         // check all doodad of they have a ToD trigger in the current active group, and try to run it again
         foreach (var doodad in WorldManager.Instance.GetAllDoodads())
         {

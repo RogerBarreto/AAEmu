@@ -274,7 +274,7 @@ public class SubZoneManager : Singleton<SubZoneManager>
                         }
                     }
                 }
- 
+
                 #endregion housing_area
             }
         }
@@ -294,7 +294,7 @@ public class SubZoneManager : Singleton<SubZoneManager>
 
         foreach (var housezoneTemplate in world.HousingZones[zoneId])
         {
-            if (Point.isInside(housezoneTemplate._points.ToArray(), housezoneTemplate._points.Count, new Point(x, y, 0)))
+            if (Point.IsInside(housezoneTemplate._points, housezoneTemplate._points.Count, new Point(x, y, 0)))
             {
                 Logger.Debug("Is in zone {0} housezone name {2}", zoneId, housezoneTemplate.Id, housezoneTemplate.Name);
                 found = true;
@@ -319,7 +319,7 @@ public class SubZoneManager : Singleton<SubZoneManager>
     {
         return GetSubZoneByPosition(worldId, pos.X, pos.Y);
     }
- 
+
     public List<uint> GetSubZoneByPosition(uint worldId, float x, float y)
     {
         var zoneId = WorldManager.Instance.GetZoneId(worldId, x, y);
@@ -333,7 +333,7 @@ public class SubZoneManager : Singleton<SubZoneManager>
         {
             foreach (var subzoneTemplate in subZoneList)
             {
-                if (Point.isInside(subzoneTemplate._points.ToArray(), subzoneTemplate._points.Count, new Point(x, y, 0)))
+                if (Point.IsInside(subzoneTemplate._points, subzoneTemplate._points.Count, new Point(x, y, 0)))
                 {
                     //Logger.Debug("Is in zone {0} in subzone {1} subzone name {2}", zoneId, subzoneTemplate.Id, subzoneTemplate.Name);
                     found = true;

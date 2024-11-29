@@ -94,7 +94,7 @@ public class QuestActCheckTimer(QuestComponentTemplate parentComponent) : QuestA
     {
         if (questAct.Id != ActId)
             return;
-        
+
         Logger.Debug($"{QuestActTemplateName}({DetailId}).OnTimerExpired Quest {args.QuestId}, Owner {questAct.QuestComponent.Parent.Parent.Owner.Name} ({questAct.QuestComponent.Parent.Parent.Owner.Id})");
 
         // NOTE: All the still active quests don't use any of the special parameters that are possible
@@ -112,7 +112,7 @@ public class QuestActCheckTimer(QuestComponentTemplate parentComponent) : QuestA
     {
         if (questAct.Id != ActId)
             return;
-        
+
         Logger.Debug($"{QuestActTemplateName}({DetailId}).OnTimerExpired Quest {questAct.QuestComponent.Parent.Parent.TemplateId}, Owner {questAct.QuestComponent.Parent.Parent.Owner.Name} ({questAct.QuestComponent.Parent.Parent.Owner.Id})");
         switch (args.Step)
         {

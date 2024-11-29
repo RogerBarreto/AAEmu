@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AAEmu.Commons.Utils;
 using AAEmu.Game.Models.Game;
 using AAEmu.Game.Utils.DB;
@@ -28,7 +28,7 @@ public class ExperienceManager : Singleton<ExperienceManager>
         foreach (var (level, levelTemplate) in _levels)
         {
             if (exp < (mate ? levelTemplate.TotalMateExp : levelTemplate.TotalExp))
-                return (byte)(level-1);
+                return (byte)(level - 1);
         }
         return 0;
     }

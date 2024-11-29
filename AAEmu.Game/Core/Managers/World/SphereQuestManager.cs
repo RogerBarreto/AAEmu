@@ -66,15 +66,15 @@ public class SphereQuestManager : Singleton<SphereQuestManager>, ISphereQuestMan
             var sphereIdToAdd = SphereGameData.Instance.GetSphereIdFromQuest(questComponent.ParentQuestTemplate.Id);
             if (sphereIdToAdd <= 0)
                 continue;
-            
+
             foreach (var sphereQuest in sphereQuestList)
             {
                 var newSphere = new SphereQuestStarter();
                 newSphere.Sphere = sphereQuest;
                 newSphere.QuestTemplateId = questComponent.ParentQuestTemplate.Id;
                 newSphere.SphereId = sphereIdToAdd;
-                _questSpheresBasic.Add(newSphere);            
-                
+                _questSpheresBasic.Add(newSphere);
+
                 foreach (var actTemplate in questComponent.ActTemplates)
                 {
                     if (actTemplate is QuestActConAcceptSphere _)
@@ -181,7 +181,7 @@ public class SphereQuestManager : Singleton<SphereQuestManager>, ISphereQuestMan
 
                 _removeQueue = new List<SphereQuestTrigger>();
             }
-            
+
             // Handle Global triggers for quest starters
             foreach (var questStartingSphere in _questStartingSpheres)
             {
@@ -191,7 +191,7 @@ public class SphereQuestManager : Singleton<SphereQuestManager>, ISphereQuestMan
                 if (!questStartingSphere.Region?.HasPlayerActivity() ?? true)
                     continue;
 
-                var playersInNearbyRegion = new Dictionary<uint ,Character>();
+                var playersInNearbyRegion = new Dictionary<uint, Character>();
                 foreach (var region in questStartingSphere.Region.GetNeighbors())
                 {
                     var playersInRegion = new List<Character>();
@@ -206,7 +206,7 @@ public class SphereQuestManager : Singleton<SphereQuestManager>, ISphereQuestMan
                     var isNew = lastCheckLocation == Vector3.Zero;
                     var oldInside = questStartingSphere.Sphere.Contains(lastCheckLocation);
                     var newInside = questStartingSphere.Sphere.Contains(character?.Transform?.World?.Position ?? Vector3.Zero);
-                    
+
                     if (!oldInside && newInside)
                     {
                         if (questStartingSphere.Sphere.DbSphere == null ||

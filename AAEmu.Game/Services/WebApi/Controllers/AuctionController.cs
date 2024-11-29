@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Models.Game.Auction;
 using NetCoreServer;
@@ -9,8 +7,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using NLog;
 using System.Web;
-using AAEmu.Game.Models.Game.Items;
-using System.Numerics;
 using AAEmu.Game.Core.Managers.World;
 
 namespace AAEmu.Game.Services.WebApi.Controllers
@@ -27,13 +23,13 @@ namespace AAEmu.Game.Services.WebApi.Controllers
         {
             // Deserialize the JSON body of the request
             var jsonBody = JsonSerializer.Deserialize<JsonElement>(request.Body);
-            
+
             // Validate and extract required parameters
-            if (!jsonBody.TryGetProperty("itemId", out var itemIdElement) || 
-                !jsonBody.TryGetProperty("quantity", out var quantityElement) || 
-                !jsonBody.TryGetProperty("price", out var priceElement) || 
-                !jsonBody.TryGetProperty("duration", out var durationElement) || 
-                !jsonBody.TryGetProperty("clientId", out var clientIdElement) || 
+            if (!jsonBody.TryGetProperty("itemId", out var itemIdElement) ||
+                !jsonBody.TryGetProperty("quantity", out var quantityElement) ||
+                !jsonBody.TryGetProperty("price", out var priceElement) ||
+                !jsonBody.TryGetProperty("duration", out var durationElement) ||
+                !jsonBody.TryGetProperty("clientId", out var clientIdElement) ||
                 !jsonBody.TryGetProperty("clientName", out var clientNameElement))
             {
                 return BadRequestJson(new { error = "Invalid parameters" });

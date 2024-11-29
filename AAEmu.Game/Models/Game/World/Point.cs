@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AAEmu.Game.Models.Game.World;
 
@@ -51,7 +52,7 @@ public class Point
         return new Point(WorldId, ZoneId, X, Y, Z, RotationX, RotationY, RotationZ);
     }
 
-    static bool onSegment(Point p, Point q, Point r)
+    internal static bool OnSegment(Point p, Point q, Point r)
     {
         if (q.X <= Math.Max(p.X, r.X) &&
             q.X >= Math.Min(p.X, r.X) &&
@@ -68,7 +69,7 @@ public class Point
     // 0 --> p, q and r are colinear
     // 1 --> Clockwise
     // 2 --> Counterclockwise
-    static int orientation(Point p, Point q, Point r)
+    internal static int FindTripletOrientation(Point p, Point q, Point r)
     {
         float val = (q.Y - p.Y) * (r.X - q.X) -
                 (q.X - p.X) * (r.Y - q.Y);
@@ -82,14 +83,16 @@ public class Point
 
     // The function that returns true if
     // line segment 'p1q1' and 'p2q2' intersect.
-    static bool doIntersect(Point p1, Point q1, Point p2, Point q2)
+    internal static bool IsLineIntersection(
+        (Point p, Point q) line1,
+        (Point p, Point q) line2)
     {
         // Find the four orientations needed for
         // general and special cases
-        int o1 = orientation(p1, q1, p2);
-        int o2 = orientation(p1, q1, q2);
-        int o3 = orientation(p2, q2, p1);
-        int o4 = orientation(p2, q2, q1);
+        int o1 = FindTripletOrientation(line1.p, line1.q, line2.p);
+        int o2 = FindTripletOrientation(line1.p, line1.q, line2.q);
+        int o3 = FindTripletOrientation(line2.p, line2.q, line1.p);
+        int o4 = FindTripletOrientation(line2.p, line2.q, line1.q);
 
         // General case
         if (o1 != o2 && o3 != o4)
@@ -100,28 +103,28 @@ public class Point
         // Special Cases
         // p1, q1 and p2 are colinear and
         // p2 lies on segment p1q1
-        if (o1 == 0 && onSegment(p1, p2, q1))
+        if (o1 == 0 && OnSegment(line1.p, line2.p, line1.q))
         {
             return true;
         }
 
         // p1, q1 and p2 are colinear and
         // q2 lies on segment p1q1
-        if (o2 == 0 && onSegment(p1, q2, q1))
+        if (o2 == 0 && OnSegment(line1.p, line2.q, line1.q))
         {
             return true;
         }
 
         // p2, q2 and p1 are colinear and
         // p1 lies on segment p2q2
-        if (o3 == 0 && onSegment(p2, p1, q2))
+        if (o3 == 0 && OnSegment(line2.p, line1.p, line2.q))
         {
             return true;
         }
 
         // p2, q2 and q1 are colinear and
         // q1 lies on segment p2q2
-        if (o4 == 0 && onSegment(p2, q1, q2))
+        if (o4 == 0 && OnSegment(line2.p, line1.q, line2.q))
         {
             return true;
         }
@@ -132,7 +135,7 @@ public class Point
 
     // Returns true if the point p lies
     // inside the polygon[] with n vertices
-    public static bool isInside(Point[] polygon, int n, Point p)
+    public static bool IsInside(IReadOnlyList<Point> polygon, int n, Point p)
     {
         // There must be at least 3 vertices in polygon[]
         if (n < 3)
@@ -153,15 +156,16 @@ public class Point
             // Check if the line segment from 'p' to
             // 'extreme' intersects with the line
             // segment from 'polygon[i]' to 'polygon[next]'
-            if (doIntersect(polygon[i],
-                            polygon[next], p, extreme))
+            if (IsLineIntersection(
+                line1: (polygon[i], polygon[next]),
+                line2: (p, extreme)))
             {
                 // If the point 'p' is colinear with line
                 // segment 'i-next', then check if it lies
                 // on segment. If it lies, return true, otherwise false
-                if (orientation(polygon[i], p, polygon[next]) == 0)
+                if (FindTripletOrientation(polygon[i], p, polygon[next]) == 0)
                 {
-                    return onSegment(polygon[i], p,
+                    return OnSegment(polygon[i], p,
                                     polygon[next]);
                 }
                 count++;

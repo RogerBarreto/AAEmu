@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -526,7 +526,7 @@ namespace AAEmu.Game.Models.Game.Indun
             args.Player.Events.OnDungeonLeave -= OnDungeonLeave;
             args.Player.Events.OnDisconnect -= OnDisconnect;
         }
-        
+
         /// <summary>
         /// Return true if the team Id matches to the team that owns the dungeon instance, false if not.
         /// </summary>

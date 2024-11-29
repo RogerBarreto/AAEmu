@@ -46,11 +46,11 @@ public class QuestActConReportNpc(QuestComponentTemplate parentComponent) : Ques
         // need to be turned in at the same NPC
         var minimumProgress = questAct.Template.ParentComponent.ParentQuestTemplate.LetItDone
             ? QuestObjectiveStatus.CanEarlyComplete
-            : QuestObjectiveStatus.QuestComplete; 
+            : QuestObjectiveStatus.QuestComplete;
         var isReady = questAct.QuestComponent.Parent.Parent.GetQuestObjectiveStatus() >= minimumProgress;
 
         Logger.Debug($"QuestActConReportNpc({DetailId}).OnReportNpc: Quest: {questAct.QuestComponent.Parent.Parent.TemplateId}, Owner {questAct.QuestComponent.Parent.Parent.Owner.Name} ({questAct.QuestComponent.Parent.Parent.Owner.Id}), NpcId {args.NpcId}, Selected {args.Selected}, isReady {isReady}");
-        
+
         if (!isReady)
             return;
 

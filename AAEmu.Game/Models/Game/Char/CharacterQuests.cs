@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -9,13 +9,11 @@ using AAEmu.Game.Core.Managers.Id;
 using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.GameData;
-using AAEmu.Game.Models.Game.Faction;
 using AAEmu.Game.Models.Game.Items;
 using AAEmu.Game.Models.Game.Quests;
 using AAEmu.Game.Models.Game.Quests.Acts;
 using AAEmu.Game.Models.Game.Quests.Static;
 using AAEmu.Game.Models.Game.Quests.Templates;
-using AAEmu.Game.Models.StaticValues;
 using MySql.Data.MySqlClient;
 
 using NLog;
@@ -81,7 +79,7 @@ public class CharacterQuests
             Logger.Error($"Failed to start new Quest {questId}, invalid Id");
             return false;
         }
-        
+
         // Check if start step components are active
         var startComponentTemplate = template.GetComponents(QuestComponentKind.Start);
         foreach (var questComponentTemplate in startComponentTemplate)
@@ -288,7 +286,7 @@ public class CharacterQuests
             // From what I think needs to happen is that the DropOnDestroy setting from the last used/active
             // is the only one that counts. If you encounter any setting, stop looking and evaluate that one.
 
-            for(var step = quest.Step; step >= QuestComponentKind.Start; step--)
+            for (var step = quest.Step; step >= QuestComponentKind.Start; step--)
             {
                 var currentComponents = quest.Template.GetComponents(step);
                 foreach (var currentComponent in currentComponents)
@@ -511,7 +509,7 @@ public class CharacterQuests
                 {
                     var questId = reader.GetUInt32("id");
                     var templateId = reader.GetUInt32("template_id");
-                    
+
                     var template = QuestManager.Instance.GetTemplate(templateId);
                     if (template == null)
                     {
@@ -619,7 +617,7 @@ public class CharacterQuests
     public void ResetDailyQuests(bool sendPacketsIfChanged)
     {
         ResetQuests(
-            new []
+            new[]
             {
                 QuestDetail.Daily, QuestDetail.DailyGroup, QuestDetail.DailyHunt,
                 QuestDetail.DailyLivelihood
@@ -634,7 +632,7 @@ public class CharacterQuests
 
         if (quest.Template.LetItDone == false)
             return; // Quest doesn't have early complete function
-        
+
         if (quest.GetQuestObjectiveStatus() < QuestObjectiveStatus.CanEarlyComplete)
             return; // Quest not ready to turn in yet
 

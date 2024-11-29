@@ -61,7 +61,7 @@ services:
                 - path: ./AAEmu.Login
                   action: rebuild
         healthcheck:
-            test: ["CMD-SHELL", "mysql aaemu_login -h db -u root -p${DB_PASSWORD}"]
+            test: ["CMD-SHELL", "ping -c 1 db || exit 1"]
             interval: 5s
             timeout: 5s
             retries: 20

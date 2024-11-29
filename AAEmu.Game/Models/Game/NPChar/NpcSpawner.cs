@@ -18,8 +18,6 @@ using Newtonsoft.Json;
 
 using NLog;
 
-using static System.String;
-
 namespace AAEmu.Game.Models.Game.NPChar;
 
 public class NpcSpawner : Spawner<Npc>

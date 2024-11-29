@@ -526,7 +526,7 @@ public class MailManager : Singleton<MailManager>
         }
 
         // Distribute the quest rewards
-        foreach(var item in totalRewardsItemsList)
+        foreach (var item in totalRewardsItemsList)
         {
             if ((mail == null) || (mail.Body.Attachments.Count >= 10))
             {
@@ -543,7 +543,7 @@ public class MailManager : Singleton<MailManager>
                 mailCopper = 0;
                 resultList.Add(mail);
             }
-            
+
             mail.Body.Attachments.Add(item);
         }
 

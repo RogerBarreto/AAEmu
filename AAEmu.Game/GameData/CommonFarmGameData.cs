@@ -90,8 +90,8 @@ public class CommonFarmGameData : Singleton<CommonFarmGameData>, IGameDataLoader
     public List<uint> GetAllowedDoodads(FarmType farmType)
     {
         return (from item in _farmGroupDoodads
-            where item.Value.FarmGroupId == farmType
-            select item.Value.DoodadId).ToList();
+                where item.Value.FarmGroupId == farmType
+                select item.Value.DoodadId).ToList();
     }
 
     public void PostLoad()

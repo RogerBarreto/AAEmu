@@ -14,7 +14,7 @@ public class AccountPayment
 
     public DateTime StartTime { get; set; } = DateTime.MinValue;
     public DateTime EndTime { get; set; } = new DateTime(2030, 1, 1);
-    
+
     /// <summary>
     /// Checks if Premium is currently active
     /// </summary>

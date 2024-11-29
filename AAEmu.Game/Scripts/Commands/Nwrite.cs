@@ -5,7 +5,6 @@ using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.DoodadObj;
 using AAEmu.Game.Models.Game.NPChar;
 using AAEmu.Game.Models.Json;
-using NLog;
 using System;
 using System.Collections.Generic;
 using AAEmu.Commons.IO;
@@ -115,7 +114,9 @@ public class Nwrite : ICommand
 
                                 var newEntry = new JsonDoodadSpawns
                                 {
-                                    Id = newId, UnitId = doodad.TemplateId, Position = pos
+                                    Id = newId,
+                                    UnitId = doodad.TemplateId,
+                                    Position = pos
                                 };
                                 spawners.Add(newEntry);
 

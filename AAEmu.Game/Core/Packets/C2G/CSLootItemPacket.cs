@@ -24,7 +24,7 @@ public class CSLootItemPacket : GamePacket
         var lootDropItem = lootDropItems.Find(a => a.Id == iid);
         if (lootDropItem != null)
         {
-            var freeSpace = Connection.ActiveChar.Inventory.Bag.SpaceLeftForItem(lootDropItem, out _); 
+            var freeSpace = Connection.ActiveChar.Inventory.Bag.SpaceLeftForItem(lootDropItem, out _);
             if (freeSpace < lootDropItem.Count)
             {
                 Connection.ActiveChar.SendErrorMessage(ErrorMessageType.BagFull);
