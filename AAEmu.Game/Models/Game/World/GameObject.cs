@@ -11,7 +11,7 @@ namespace AAEmu.Game.Models.Game.World;
 
 public class GameObject : IGameObject
 {
-    protected static Logger Logger => LogManager.GetCurrentClassLogger();
+    protected static Logger Logger = LogManager.GetCurrentClassLogger();
 
     public Guid Guid { get; set; } = Guid.NewGuid();
     public uint ObjId { get; set; }
