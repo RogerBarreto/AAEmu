@@ -9,7 +9,7 @@ public class GLGameServerLoadPacket(byte load) : LoginPacket(GLOffsets.GLGameSer
 
     public override PacketStream Write(PacketStream stream)
     {
-        
+
         stream.Write(Load);
         return stream;
     }

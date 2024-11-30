@@ -4,6 +4,8 @@ using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.NPChar;
 using AAEmu.Game.Models.Game.Quests.Templates;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
+
 namespace AAEmu.Game.Models.Game.Quests.Acts;
 
 /// <summary>

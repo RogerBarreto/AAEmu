@@ -45,7 +45,7 @@ public class RoamingAiCharacter : NpcAi
     // {
     //     SetCurrentBehavior(BehaviorKind.Roaming);
     // }
-    
+
     public override void GoToCombat()
     {
         SetCurrentBehavior(BehaviorKind.Attack);

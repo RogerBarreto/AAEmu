@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Numerics;
 
-using AAEmu.Commons.Utils;
-using AAEmu.Game.Core.Managers;
-using AAEmu.Game.Models.Game.AI.v2.Controls;
 using AAEmu.Game.Models.Game.AI.v2.Params.Almighty;
 using AAEmu.Game.Models.Game.Models;
-using AAEmu.Game.Models.Game.Skills;
 using AAEmu.Game.Models.Game.Units;
 using AAEmu.Game.Models.Game.Units.Movements;
-using AAEmu.Game.Utils;
 
 namespace AAEmu.Game.Models.Game.AI.v2.Behaviors.Common;
 
@@ -61,7 +54,7 @@ public class FollowPathBehavior : BaseCombatBehavior
 
         if (CheckAlert())
             return;
-        
+
         //var targetDist = Ai.Owner.GetDistanceTo(Ai.Owner.CurrentTarget);
         //PickSkillAndUseIt(SkillUseConditionKind.InIdle, Ai.Owner, targetDist);
 
@@ -137,6 +130,7 @@ public class FollowPathBehavior : BaseCombatBehavior
         _enter = false;
     }
 
+    /* Unused Code (May be removed later)
     private bool RefreshSkillQueue(List<AiSkillList> skillLists)
     {
         var targetDist = Ai.Owner.GetDistanceTo(Ai.Owner.CurrentTarget);
@@ -207,7 +201,7 @@ public class FollowPathBehavior : BaseCombatBehavior
         return true;
 
     }
-
+    
     private List<AiSkillList> RequestAvailableAiSkillList(List<AiSkillList> aiSkillLists)
     {
         var healthRatio = (int)((float)Ai.Owner.Hp / Ai.Owner.MaxHp * 100);
@@ -293,4 +287,6 @@ public class FollowPathBehavior : BaseCombatBehavior
 
         return availableSkillLists;
     }
+    */
+
 }

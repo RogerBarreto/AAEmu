@@ -19,7 +19,7 @@ public class SCUnitModelPostureChangedPacket : GamePacket
         _animActionId = animActionId;
         _activateAnimation = activateAnimation;
     }
-    
+
     public override PacketStream Write(PacketStream stream)
     {
         stream.WriteBc(_unit.ObjId);

@@ -365,7 +365,8 @@ public class FamilyManager : Singleton<FamilyManager>
     /// <returns></returns>
     private static FamilyMember GetMemberForCharacter(Character character, byte owner, string title)
     {
-        return new FamilyMember {
+        return new FamilyMember
+        {
             Character = character,
             Id = character.Id,
             Name = character.Name,
@@ -382,9 +383,9 @@ public class FamilyManager : Singleton<FamilyManager>
     public uint GetFamilyOfCharacter(uint characterId)
     {
         foreach (var family in _families.Values)
-        foreach (var member in family.Members)
-            if (member.Id == characterId)
-                return family.Id;
+            foreach (var member in family.Members)
+                if (member.Id == characterId)
+                    return family.Id;
 
         return 0;
     }

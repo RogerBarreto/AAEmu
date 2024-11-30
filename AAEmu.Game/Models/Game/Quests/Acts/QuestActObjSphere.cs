@@ -51,7 +51,7 @@ public class QuestActObjSphere(QuestComponentTemplate parentComponent) : QuestAc
         Logger.Debug($"{QuestActTemplateName}({DetailId}).OnEnterSphere: Quest: {questAct.QuestComponent.Parent.Parent.TemplateId}, Owner {questAct.QuestComponent.Parent.Parent.Owner.Name} ({questAct.QuestComponent.Parent.Parent.Owner.Id}), ComponentId {args.SphereQuest.ComponentId}");
         SetObjective((QuestAct)questAct, 1);
     }
-    
+
     public override void OnExitSphere(QuestAct questAct, object sender, OnExitSphereArgs args)
     {
         if ((questAct.Id != ActId) || (args.SphereQuest.ComponentId != questAct.QuestComponent.Template.Id))
@@ -60,5 +60,5 @@ public class QuestActObjSphere(QuestComponentTemplate parentComponent) : QuestAc
         Logger.Debug($"{QuestActTemplateName}({DetailId}).OnExitSphere: Quest: {questAct.QuestComponent.Parent.Parent.TemplateId}, Owner {questAct.QuestComponent.Parent.Parent.Owner.Name} ({questAct.QuestComponent.Parent.Parent.Owner.Id}), ComponentId {args.SphereQuest.ComponentId}");
         SetObjective((QuestAct)questAct, 0);
     }
-   
+
 }

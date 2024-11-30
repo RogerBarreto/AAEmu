@@ -101,12 +101,12 @@ public class ShutdownTask : Task
         var remainingSeconds = (int)Math.Ceiling(remainingTime.TotalSeconds);
         if (DateTime.UtcNow < _nextTriggerTime)
             return;
-        
+
         _nextTriggerTime = CalculateLargestNextTrigger();
 
         var showSeconds = remainingSeconds <= 100;
         var showMinutes = remainingSeconds <= 3600 && !showSeconds;
-        var showHours = remainingSeconds > 3600 && !showSeconds;;
+        var showHours = remainingSeconds > 3600 && !showSeconds; ;
 
         var shutdownText = "The server is shutting down soon!";
         var popupTime = 3000;
@@ -128,9 +128,9 @@ public class ShutdownTask : Task
         }
 
         WorldManager.Instance.BroadcastPacketToServer(
-            new SCNoticeMessagePacket(3, 
-                Color.Red, 
-                popupTime, 
+            new SCNoticeMessagePacket(3,
+                Color.Red,
+                popupTime,
                 shutdownText));
     }
 }

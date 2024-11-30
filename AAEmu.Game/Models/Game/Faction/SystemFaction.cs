@@ -33,7 +33,7 @@ public class SystemFaction : PacketMarshaler
         // Handle Root Factions
         switch (factionId)
         {
-            case FactionsEnum.Neutral: 
+            case FactionsEnum.Neutral:
                 return RelationState.Neutral;
             case FactionsEnum.Friendly:
                 return RelationState.Friendly;
@@ -44,14 +44,14 @@ public class SystemFaction : PacketMarshaler
         // Handle Target Root Factions
         switch (otherFactionId)
         {
-            case FactionsEnum.Neutral: 
+            case FactionsEnum.Neutral:
                 return RelationState.Neutral;
             case FactionsEnum.Friendly:
                 return RelationState.Friendly;
             case FactionsEnum.Hostile:
                 return RelationState.Hostile;
         }
-        
+
         if (factionId == otherFactionId)
             return RelationState.Friendly;
 

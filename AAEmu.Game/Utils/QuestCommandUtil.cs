@@ -52,7 +52,7 @@ public class QuestCommandUtil
                 }
                 else
                 {
-                    CommandManager.SendErrorText(command, messageOutput,"Proper usage: /quest add <questId> [<questAcceptorType> <acceptorId>]\nYou can also target the quest giver instead of providing the acceptor type and id");
+                    CommandManager.SendErrorText(command, messageOutput, "Proper usage: /quest add <questId> [<questAcceptorType> <acceptorId>]\nYou can also target the quest giver instead of providing the acceptor type and id");
                 }
                 break;
             case "list":
@@ -213,7 +213,7 @@ public class QuestCommandUtil
                     activeQuest.Objectives[4] = para5;
                     activeQuest.Status = status;
                     activeQuest.ComponentId = comp;
-                    character.SendPacket(new SCQuestContextUpdatedPacket(activeQuest,  activeQuest.ComponentId));
+                    character.SendPacket(new SCQuestContextUpdatedPacket(activeQuest, activeQuest.ComponentId));
                 }
                 else
                 {
@@ -241,7 +241,7 @@ public class QuestCommandUtil
                         if (!res)
                             activeQuest.GoToNextStep();
                     }
-                    
+
                     activeQuest.Objectives[0] = 0;
                     activeQuest.Objectives[1] = 0;
                     activeQuest.Objectives[2] = 0;
@@ -250,7 +250,7 @@ public class QuestCommandUtil
                     activeQuest.Status = QuestStatus.Progress;
                     activeQuest.ComponentId = 0;
                     activeQuest.RequestEvaluation();
-                    character.SendPacket(new SCQuestContextUpdatedPacket(activeQuest,  activeQuest.ComponentId));
+                    character.SendPacket(new SCQuestContextUpdatedPacket(activeQuest, activeQuest.ComponentId));
                     CommandManager.SendNormalText(command, messageOutput, $"Reset objectives of quest @QUEST_NAME({activeQuest.TemplateId}) ({activeQuest.TemplateId}) and moved to {activeQuest.Step} step");
                 }
                 else
@@ -281,7 +281,7 @@ public class QuestCommandUtil
                         }
                     }
                     character.SendMessage($"[Quest] {questVal} -- End of Template");
-                    
+
                     if (character.Quests.ActiveQuests.TryGetValue(questVal, out var activeQuest))
                     {
                         character.SendMessage($"[Quest] {questVal} -- Active");

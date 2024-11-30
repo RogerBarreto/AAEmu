@@ -5,7 +5,6 @@ using AAEmu.Game.Models.Game.AI.Enums;
 using AAEmu.Game.Models.Game.AI.v2.AiCharacters;
 using AAEmu.Game.Models.Game.AI.v2.Framework;
 using AAEmu.Game.Models.Game.NPChar;
-using AAEmu.Game.Models.Game.World.Transform;
 
 namespace AAEmu.Game.Models.Game.AI.Utils;
 

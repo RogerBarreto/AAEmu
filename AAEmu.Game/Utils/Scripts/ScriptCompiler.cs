@@ -118,7 +118,7 @@ public static class ScriptCompiler
         var assemblyName = Path.GetRandomFileName();
 
         var compileOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
-        
+
         var compilation = CSharpCompilation.Create(
             assemblyName,
             syntaxTrees,

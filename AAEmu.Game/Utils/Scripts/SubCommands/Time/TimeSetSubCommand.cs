@@ -20,7 +20,7 @@ public class TimeSetSubCommand : SubCommandBase
     public override void Execute(ICharacter character, string triggerArgument, IDictionary<string, ParameterValue> parameters, IMessageOutput messageOutput)
     {
         var oldTime = TimeManager.Instance.GetTime;
-        var hour = (int)oldTime ;
+        var hour = (int)oldTime;
         if (parameters.ContainsKey("hour"))
             hour = (int)parameters["hour"];
         var minute = (int)Math.Floor((oldTime - Math.Truncate(oldTime)) * 60f);

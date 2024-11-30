@@ -73,12 +73,12 @@ public class CharacterMails
 
     public MailResult SendMailToPlayer(MailType mailType, string receiverName, string title, string text, byte attachments, int money0, int money1, int money2, long extra, List<(SlotType, byte)> itemSlots)
     {
-        
+
         if (string.IsNullOrWhiteSpace(receiverName) || NameManager.Instance.GetCharacterId(receiverName) == 0)
         {
             return MailResult.UnableToFindRecipient;
         }
-        
+
         var mail = new MailPlayerToPlayer(Self, receiverName);
 
         mail.MailType = mailType;

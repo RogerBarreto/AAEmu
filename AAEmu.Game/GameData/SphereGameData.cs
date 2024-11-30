@@ -317,7 +317,7 @@ public class SphereGameData : Singleton<SphereGameData>, IGameDataLoader
     public uint GetSphereIdFromQuest(uint questId)
     {
         var validQuestSpheres = _sphereQuests.Values.Where(x => x.QuestId == questId);
-        
+
         foreach (var validQuestSphere in validQuestSpheres)
         {
             var res = _spheres.Values.FirstOrDefault(x => x.SphereDetailId == validQuestSphere.Id && x.SphereDetailType == "SphereQuest");
@@ -331,7 +331,7 @@ public class SphereGameData : Singleton<SphereGameData>, IGameDataLoader
     {
         return _spheres.GetValueOrDefault(sphereId);
     }
-    
+
     /// <summary>
     /// Checks if a position is inside the given SphereId
     /// </summary>

@@ -41,9 +41,8 @@ public class AddGold : ICommand
         var argGold = 0;
         var argSilver = 0;
         var argCopper = 0;
-        var amount = 0;
 
-        if (args.Length > firstarg && int.TryParse(args[firstarg], out amount))
+        if (args.Length > firstarg && int.TryParse(args[firstarg], out var amount))
         {
             argGold = amount;
         }

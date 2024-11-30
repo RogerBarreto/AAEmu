@@ -65,7 +65,7 @@ public class AccountManager : Singleton<AccountManager>
         return _accounts.ContainsKey(id);
     }
 
-    public int Count() => _accounts.Count; 
+    public int Count() => _accounts.Count;
 
     private AccountDetails GetAccountDetailsInternal(uint accountId)
     {
@@ -187,7 +187,7 @@ public class AccountManager : Singleton<AccountManager>
     }
 
     public bool RemoveCredits(uint accountId, int credits) => AddCredits(accountId, -credits);
-    
+
     public bool AddLoyalty(uint accountId, int loyaltyAmount)
     {
         object accLock;
@@ -418,5 +418,5 @@ public class AccountManager : Singleton<AccountManager>
         return (timeElapsed, timesTaken);
     }
 
-    
+
 }

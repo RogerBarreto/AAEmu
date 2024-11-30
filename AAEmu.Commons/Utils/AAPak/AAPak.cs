@@ -1076,7 +1076,7 @@ public class AAPak
         _gpFileStream.Seek(-_header.Size, SeekOrigin.End);
 
         // Mark correct location as header offset location
-        _gpFileStream.Read(_header.rawData, 0, _header.Size); // We don't need to read the entire thing, just the first 32 bytes contain data
+        _gpFileStream.ReadExactly(_header.rawData, 0, _header.Size); // We don't need to read the entire thing, just the first 32 bytes contain data
         // _gpFileStream.Read(_header.rawData, 0, _header.Size);
 
         _header.DecryptHeaderData();

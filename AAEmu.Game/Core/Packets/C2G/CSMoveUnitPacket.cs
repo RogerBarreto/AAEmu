@@ -201,7 +201,7 @@ public class CSMoveUnitPacket : GamePacket
                             $"@ x{dmt.X:F1} y{dmt.Y:F1} z{dmt.Z:F1} || World: {targetUnit.Transform.World}|r");
                     }
                     else if ((targetUnit.Transform.Parent != null) &&
-                             (targetUnit.Transform.Parent.GameObject != null) && 
+                             (targetUnit.Transform.Parent.GameObject != null) &&
                              (parentObject != null) &&
                              (targetUnit.Transform.Parent.GameObject.ObjId != parentObject.ObjId))
                     {

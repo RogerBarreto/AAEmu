@@ -11,7 +11,7 @@ public interface IQuestAct
     /// Same as Template.ActId
     /// </summary>
     uint Id { get; }
-    
+
     /// <summary>
     /// Actual Template for this Act
     /// </summary>
@@ -55,7 +55,7 @@ public interface IQuestAct
     /// Sets the RequestEvaluationFlag to true signalling the server that it should check this quest's progress again
     /// </summary>
     void RequestEvaluation();
-    
+
     #region event_handlers
     void OnMonsterGroupHunt(object sender, OnMonsterGroupHuntArgs args);
     void OnMonsterHunt(object sender, OnMonsterHuntArgs args);

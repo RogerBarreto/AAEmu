@@ -24,7 +24,7 @@ public class FlytrapAttackBehavior : Behavior
         Ai.Owner.CurrentGameStance = GameStanceType.Combat;
         Ai.Owner.CurrentAlertness = MoveTypeAlertness.Combat;
         Ai.Owner.BroadcastPacket(new SCUnitModelPostureChangedPacket(Ai.Owner, Ai.Owner.AnimActionId, false), false);
-        
+
         if (Ai.Owner is { } npc)
         {
             npc.Events.OnCombatStarted(this, new OnCombatStartedArgs { Owner = npc, Target = npc });

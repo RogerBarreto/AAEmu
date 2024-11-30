@@ -43,7 +43,7 @@ public class FishingLoot : SpecialEffectAction
 
         if ((pack == null) || (pack.Loots.Count <= 0))
             return;
-        
+
         if (!pack.GiveLootPack(character, ItemTaskType.SkillEffectGainItem))
             character.SendErrorMessage(ErrorMessageType.BagFull);
     }

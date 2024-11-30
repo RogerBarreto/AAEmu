@@ -11,7 +11,6 @@ using AAEmu.Game.Core.Network.Game;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.GameData;
 using AAEmu.Game.Models.Game;
-using AAEmu.Game.Models.Game.Auction;
 using AAEmu.Game.Models.Game.Auction.Templates;
 using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.Formulas;
@@ -182,7 +181,7 @@ public class ItemManager : Singleton<ItemManager>
         // Check all people with a claim on the NPC
 
         var eligiblePlayers = new HashSet<Character>();
-        if ( unit.CharacterTagging.TagTeam != 0)
+        if (unit.CharacterTagging.TagTeam != 0)
         {
             //A team has tagging rights
             var team = TeamManager.Instance.GetActiveTeam(unit.CharacterTagging.TagTeam);
@@ -244,7 +243,7 @@ public class ItemManager : Singleton<ItemManager>
             lootGoldRate *= (100f + player.LootGoldMul) / 100f;
             Logger.Info($"Unit killed without aggro: {unit.ObjId} ({unit.TemplateId}) by {player.Name}");
         }
-      
+
         // Base ID used for identifying the loot
         var baseId = ((ulong)unit.ObjId << 32) + 65536;
 
@@ -290,8 +289,8 @@ public class ItemManager : Singleton<ItemManager>
                 {
                     var item = new Item
                     {
-                        TemplateId = lootPacks.Loots[uii].ItemId, 
-                        CreateTime = DateTime.UtcNow, 
+                        TemplateId = lootPacks.Loots[uii].ItemId,
+                        CreateTime = DateTime.UtcNow,
                         Id = Instance.GetNewId(),
                         MadeUnitId = templateId,
                         Count = Rand.Next(lootPacks.Loots[uii].MinAmount, lootPacks.Loots[uii].MaxAmount)
@@ -688,7 +687,7 @@ public class ItemManager : Singleton<ItemManager>
                     {
                         var template = new ItemLookConvert
                         {
-                            Id = reader.GetUInt32("item_look_convert_id"), 
+                            Id = reader.GetUInt32("item_look_convert_id"),
                             RequiredItemId = reader.GetUInt32("item_id"),
                             RequiredItemCount = reader.GetInt32("item_count")
                         };
@@ -1226,8 +1225,8 @@ public class ItemManager : Singleton<ItemManager>
                             template.AuctionCategoryA,
                             template.AuctionCategoryB,
                             template.AuctionCategoryC
-                            //reader.GetUInt32("auction_charge"), // added in 3+
-                            //reader.GetBoolean("auction_charge_default") // added in 3+
+                        //reader.GetUInt32("auction_charge"), // added in 3+
+                        //reader.GetBoolean("auction_charge_default") // added in 3+
                         );
 
                         _templates.TryAdd(template.Id, template);
@@ -1570,13 +1569,13 @@ public class ItemManager : Singleton<ItemManager>
                             KindId = reader.GetUInt32("kind_id"),
                             Name = reader.GetString("name")
                         };
-                        
+
                         if (!_itemSets.TryAdd(entry.Id, entry))
                             Logger.Warn($"Duplicate entry for item_sets {entry.Id}");
                     }
                 }
             }
-            
+
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = "SELECT * FROM item_set_items";
@@ -1601,11 +1600,11 @@ public class ItemManager : Singleton<ItemManager>
                         {
                             Logger.Warn($"Missing item set entry for item_set_items {entry.Id}");
                         }
-                            
+
                     }
                 }
             }
-            
+
             // Search and Translation Help Items, as well as naming missing items names (has other templates, but not in items? Removed items maybe ?)
             var invalidItemCount = 0;
             foreach (var i in _templates)

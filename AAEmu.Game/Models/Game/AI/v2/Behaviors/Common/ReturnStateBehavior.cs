@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models.Game.Models;
 using AAEmu.Game.Models.Game.Skills;
@@ -28,7 +27,7 @@ public class ReturnStateBehavior : BaseCombatBehavior
         Ai.Owner.CurrentGameStance = GameStanceType.Relaxed;
         Ai.Owner.CurrentAlertness = MoveTypeAlertness.Idle;
         Ai.Owner.BroadcastPacket(new SCUnitModelPostureChangedPacket(Ai.Owner, Ai.Owner.AnimActionId, false), false);
-        
+
         // Ai.AiPathPointsRemaining.Clear(); // Remove whatever path we're on
         // Ai.Owner.Simulation.TargetPosition = Vector3.Zero; // And reset expected target
 

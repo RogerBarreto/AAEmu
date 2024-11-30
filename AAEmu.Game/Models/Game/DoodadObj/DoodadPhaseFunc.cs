@@ -8,7 +8,7 @@ public class DoodadPhaseFunc
     public uint GroupId { get; set; }
     public uint FuncId { get; set; }
     public string FuncType { get; set; }
-    
+
     /// <summary>
     /// Helper property for DoodadFuncPulseTrigger
     /// </summary>

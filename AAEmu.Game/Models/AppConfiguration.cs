@@ -34,7 +34,7 @@ public partial class AppConfiguration : Singleton<AppConfiguration>
     public ScriptsConfig Scripts { get; set; } = new ScriptsConfig();
     public string DefaultLanguage { get; set; } = "en_us";
 
-    
+
     public class NetworkConfig
     {
         public string Host { get; set; }

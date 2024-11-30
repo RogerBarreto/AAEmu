@@ -51,7 +51,7 @@ public class CommandManager : Singleton<CommandManager>
             return aliasName;
         return "";
     }
-    
+
     public void Register(string name, ICommand command)
     {
         if (_commands.ContainsKey(name.ToLower()))

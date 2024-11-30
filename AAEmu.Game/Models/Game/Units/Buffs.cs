@@ -13,8 +13,6 @@ using AAEmu.Game.Models.Game.Skills.Static;
 using AAEmu.Game.Models.Game.Skills.Templates;
 using AAEmu.Game.Models.StaticValues;
 
-using SQLitePCL;
-
 namespace AAEmu.Game.Models.Game.Units;
 
 public class Buffs : IBuffs

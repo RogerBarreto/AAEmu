@@ -121,7 +121,7 @@ public class MathUtil
 
         if (fovScale <= 0.0)
             return false; // if it's 0 or below, it's always false
-        
+
         var degree = ClampDegAngle(CalculateAngleFrom(obj1, obj2));
         return degree >= (-90.0 * fovScale) && degree <= (90.0 * fovScale);
     }

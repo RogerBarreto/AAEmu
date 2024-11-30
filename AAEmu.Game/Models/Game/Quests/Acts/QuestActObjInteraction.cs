@@ -41,7 +41,7 @@ public class QuestActObjInteraction(QuestComponentTemplate parentComponent) : Qu
         quest.Owner.Events.OnInteraction -= questAct.OnInteraction;
         base.FinalizeAction(quest, questAct);
     }
-    
+
     public override void OnInteraction(QuestAct questAct, object sender, OnInteractionArgs args)
     {
         if (questAct.Id != ActId)
@@ -52,13 +52,13 @@ public class QuestActObjInteraction(QuestComponentTemplate parentComponent) : Qu
 
         Logger.Debug($"{QuestActTemplateName}({DetailId}).OnInteraction: Quest: {questAct.QuestComponent.Parent.Parent.TemplateId}, Owner {questAct.QuestComponent.Parent.Parent.Owner.Name} ({questAct.QuestComponent.Parent.Parent.Owner.Id}), WorldInteractionId {WorldInteractionId}, DoodadId {DoodadId}, TeamShare {TeamShare}, Phase {Phase}.");
         AddObjective((QuestAct)questAct, 1);
-        
+
         var player = questAct.QuestComponent.Parent.Parent.Owner;
         if (player.Id == args.SourcePlayer.Id)
         {
             // Handle interaction that only apply to source player
             // TODO Verify: Is Phase here what is actually used to move the Doodad to that phase, or is it the WI that causes the change
-            
+
             // Handle Team sharing (if needed)
             if (TeamShare)
             {

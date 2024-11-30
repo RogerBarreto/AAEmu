@@ -1,7 +1,4 @@
 ﻿using System;
-
-using AAEmu.Game.Core.Managers;
-using AAEmu.Game.Models.Game.Char;
 using AAEmu.Game.Models.Game.Quests.Static;
 using AAEmu.Game.Models.Game.Quests.Templates;
 using AAEmu.Game.Models.Game.Units;
@@ -42,7 +39,7 @@ public class QuestAct : IComparable<QuestAct>, IQuestAct
         QuestComponent = parentComponent;
         Template = template;
     }
-    
+
     /// <summary>
     /// Get Current Objective Count for this Act (forwarded value from Quest)
     /// </summary>
@@ -69,7 +66,7 @@ public class QuestAct : IComparable<QuestAct>, IQuestAct
     {
         return Id.CompareTo(other.Id);
     }
-    
+
     #region event_handlers
 
     /// <summary>
@@ -231,7 +228,7 @@ public class QuestAct : IComparable<QuestAct>, IQuestAct
     {
         Template.OnEnterSphere(this, sender, args);
     }
-    
+
     /// <summary>
     /// OnExitSphere 
     /// </summary>
@@ -376,14 +373,14 @@ public class QuestAct : IComparable<QuestAct>, IQuestAct
     {
         Template.OnTimerExpired(this, sender, args);
     }
-    
+
     public void OnQuestStepChanged(object sender, OnQuestStepChangedArgs args)
     {
         Template.OnQuestStepChanged(this, sender, args);
     }
 
     #endregion // Event Handlers
-    
+
     /// <summary>
     /// Sets the RequestEvaluationFlag to true signalling the server that it should check this quest's progress again
     /// </summary>

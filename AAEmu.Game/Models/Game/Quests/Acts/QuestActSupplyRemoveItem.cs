@@ -20,7 +20,7 @@ public class QuestActSupplyRemoveItem(QuestComponentTemplate parentComponent) : 
     public override bool RunAct(Quest quest, QuestAct questAct, int currentObjectiveCount)
     {
         Logger.Debug($"{QuestActTemplateName}({DetailId}).RunAct: Quest: {quest.TemplateId}, Owner {quest.Owner.Name} ({quest.Owner.Id}), ItemId {ItemId}, Count {Count}");
-        
+
         if (quest.Owner is Character player)
         {
             _ = player.Inventory.GetAllItemsByTemplate(new[] { SlotType.Inventory }, ItemId, -1, out _, out var unitsCount);

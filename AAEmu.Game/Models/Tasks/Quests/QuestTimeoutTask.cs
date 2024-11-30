@@ -1,7 +1,5 @@
 ﻿using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Models.Game.Char;
-using AAEmu.Game.Models.Game.Quests;
-using AAEmu.Game.Models.Game.Units;
 
 namespace AAEmu.Game.Models.Tasks.Quests;
 

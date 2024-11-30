@@ -14,7 +14,6 @@ using AAEmu.Game.Models.Game.Quests.Static;
 using AAEmu.Game.Models.Game.Skills;
 using AAEmu.Game.Models.Game.Skills.Static;
 using AAEmu.Game.Models.Game.Units.Static;
-using AAEmu.Game.Models.Game.World.Zones;
 
 namespace AAEmu.Game.Models.Game.Units;
 
@@ -38,21 +37,21 @@ public class UnitReqs
                 ? new UnitReqsValidationResult(SkillResultKeys.ok, 0, 0)
                 : new UnitReqsValidationResult(errorKey, 0, 0);
         }
-        
+
         UnitReqsValidationResult RetWithValue(SkillResultKeys errorKey, uint value, bool success)
         {
             return success
                 ? new UnitReqsValidationResult(SkillResultKeys.ok, 0, 0)
                 : new UnitReqsValidationResult(errorKey, 0, value);
         }
-        
+
         var unit = owner as Unit;
         var targetUnit = unit?.CurrentTarget as Unit;
         var player = owner as Character;
         switch (KindType)
         {
             case UnitReqsKindType.Level:
-                return Ret(SkillResultKeys.skill_urk_level,unit != null && (unit.Level >= Value1 && (Value2 == 0 || unit.Level <= Value2)));
+                return Ret(SkillResultKeys.skill_urk_level, unit != null && (unit.Level >= Value1 && (Value2 == 0 || unit.Level <= Value2)));
 
             case UnitReqsKindType.Ability:
                 return Ret(SkillResultKeys.skill_urk_ability, player != null && player.Abilities.GetAbilityLevel((AbilityType)Value1) >= Value2);
@@ -101,7 +100,7 @@ public class UnitReqs
 
             case UnitReqsKindType.DoodadRange:
                 if (owner == null)
-                    return new UnitReqsValidationResult(SkillResultKeys.skill_urk_doodad_range,0,Value1);
+                    return new UnitReqsValidationResult(SkillResultKeys.skill_urk_doodad_range, 0, Value1);
                 var rangeCheck = Value2 / 1000f;
                 var doodads = WorldManager.GetAround<Doodad>(owner, rangeCheck * 2f, true);
                 return RetWithValue(SkillResultKeys.skill_urk_doodad_range, Value1,
@@ -109,7 +108,7 @@ public class UnitReqs
 
             case UnitReqsKindType.EquipShield:
                 // TODO: Validate shield type (value2)
-                return Ret(SkillResultKeys.skill_urk_equip_shield, 
+                return Ret(SkillResultKeys.skill_urk_equip_shield,
                     (unit != null) &&
                     (unit.Equipment.GetItemBySlot((int)EquipmentItemSlot.Offhand) is { } item) &&
                     (item.Template is WeaponTemplate weaponTemplate) &&
@@ -127,7 +126,7 @@ public class UnitReqs
 
             case UnitReqsKindType.TargetHealthLessThan:
                 return Ret(SkillResultKeys.skill_urk_target_health_less_than,
-                    targetUnit?.Hpp >= Value1 && targetUnit.Hpp <= Value2); 
+                    targetUnit?.Hpp >= Value1 && targetUnit.Hpp <= Value2);
 
             case UnitReqsKindType.TargetNpc:
                 return RetWithValue(SkillResultKeys.skill_urk_target_npc, Value1,
@@ -144,7 +143,7 @@ public class UnitReqs
                     targetDoodad = WorldManager.GetAround<Doodad>(unit, 5f, true)?.Where(x => x.TemplateId == Value1).FirstOrDefault();
                 }
                 return Ret(SkillResultKeys.skill_urk_target_doodad, (targetDoodad != null) && (targetDoodad.TemplateId == Value1));
-            
+
             case UnitReqsKindType.EquipRanged:
                 return Ret(SkillResultKeys.skill_urk_equip_ranged,
                     unit?.Equipment.GetItemBySlot((int)(Value1 == 1
@@ -224,11 +223,11 @@ public class UnitReqs
                 // No specific key for this?
                 return Ret(SkillResultKeys.skill_failure, player?.JuryPoint >= Value1);
 
-            case UnitReqsKindType.SourceOwnerType: 
+            case UnitReqsKindType.SourceOwnerType:
                 // TODO: Not sure if this is supposed the unit itself, or it's owner/summoner
                 // No specific type for this?
                 return Ret(SkillResultKeys.skill_failure, unit?.BaseUnitType == (BaseUnitType)Value1);
-            
+
             case UnitReqsKindType.Appellation:
                 // Unused
                 // No specific key for this?
@@ -242,7 +241,7 @@ public class UnitReqs
             case UnitReqsKindType.InZone:
                 var inZone = ZoneManager.Instance.GetZoneByKey(owner.Transform.ZoneId);
                 return RetWithValue(SkillResultKeys.skill_urk_in_zone, Value1, inZone?.Id == Value1);
-                
+
             case UnitReqsKindType.OutZone:
                 // Unused
                 var outZone = ZoneManager.Instance.GetZoneByKey(owner.Transform.ZoneId);
@@ -258,11 +257,11 @@ public class UnitReqs
             case UnitReqsKindType.FactionMatchOnly:
                 // Is this the same as UnitReqsKindType.FactionMatch ? 
                 return RetWithValue(SkillResultKeys.skill_urk_faction_match_only, Value1, (uint)(unit?.Faction?.Id ?? 0) == Value1);
-            
+
             case UnitReqsKindType.MotherFactionOnly:
                 // Is this the same as UnitReqsKindType.MotherFaction ? 
                 return Ret(SkillResultKeys.skill_urk_mother_faction_only, (uint)(unit?.Faction?.MotherId ?? 0) == Value1);
-            
+
             // case UnitReqsKindType.NationOwner:
 
             case UnitReqsKindType.FactionMatchOnlyNot:
@@ -289,7 +288,7 @@ public class UnitReqs
                 // Just return true for now
                 // This requires checking parents and bindings
                 // No specific key for this?
-                return Ret(SkillResultKeys.skill_failure, true); 
+                return Ret(SkillResultKeys.skill_failure, true);
 
             case UnitReqsKindType.MaxLevel:
                 return Ret(SkillResultKeys.skill_urk_max_level, player?.Level <= Value1);
@@ -306,14 +305,14 @@ public class UnitReqs
                 // No specific key for this?
                 var exceptProgressActiveQuest = player?.Quests.ActiveQuests.GetValueOrDefault(Value1);
                 return Ret(SkillResultKeys.skill_failure,
-                    (!player?.Quests.HasQuestCompleted(Value1) ?? false) && 
+                    (!player?.Quests.HasQuestCompleted(Value1) ?? false) &&
                     exceptProgressActiveQuest is not { Step: QuestComponentKind.Progress });
 
             case UnitReqsKindType.ExceptReadyQuestContext:
                 // No specific key for this?
                 var exceptReadyActiveQuest = player?.Quests.ActiveQuests.GetValueOrDefault(Value1);
                 return Ret(SkillResultKeys.skill_failure,
-                    (!player?.Quests.HasQuestCompleted(Value1) ?? false) && 
+                    (!player?.Quests.HasQuestCompleted(Value1) ?? false) &&
                     exceptReadyActiveQuest is not { Step: QuestComponentKind.Ready });
 
             // --- Below is not used in 1.2 ---
@@ -345,7 +344,7 @@ public class UnitReqs
             // case UnitReqsKindType.BuffTag:
             // case UnitReqsKindType.LaborPowerMarginLocal:
             default:
-                return new UnitReqsValidationResult(SkillResultKeys.ok,0,0);
+                return new UnitReqsValidationResult(SkillResultKeys.ok, 0, 0);
         }
     }
 }

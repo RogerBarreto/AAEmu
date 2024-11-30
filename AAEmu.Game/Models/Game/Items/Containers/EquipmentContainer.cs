@@ -203,7 +203,7 @@ public class EquipmentContainer : ItemContainer
 
     public override void OnEnterContainer(Item item, ItemContainer lastContainer, byte previousSlot)
     {
-        base.OnEnterContainer(item, lastContainer, previousSlot); 
+        base.OnEnterContainer(item, lastContainer, previousSlot);
         ParentUnit?.BroadcastPacket(new SCUnitEquipmentsChangedPacket(ParentUnit.ObjId, (byte)item.Slot, item), false);
         ParentUnit?.UpdateGearBonuses(item, null);
     }

@@ -1,6 +1,4 @@
 ﻿using AAEmu.Commons.Network;
-using AAEmu.Game.Core.Managers;
-using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Models.Game.Items.Templates;
 
 namespace AAEmu.Game.Models.Game.Items;
@@ -36,7 +34,7 @@ public class SummonMate : Item
         stream.Write((byte)0);
         stream.Write(DetailLevel); // level
     }
-    
+
     public override void OnManuallyDestroyingItem()
     {
         base.OnManuallyDestroyingItem();

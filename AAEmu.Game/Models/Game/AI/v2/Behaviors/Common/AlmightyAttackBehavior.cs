@@ -104,7 +104,9 @@ public class AlmightyAttackBehavior : BaseCombatBehavior
             Ai.Owner.CurrentGameStance = GameStanceType.Combat;
             Ai.PathHandler.AiPathPointsRemaining.Enqueue(new AiPathPoint()
             {
-                Action = AiPathPointAction.Speed, Param = "3", Position = Ai.HomePosition
+                Action = AiPathPointAction.Speed,
+                Param = "3",
+                Position = Ai.HomePosition
             });
             Ai.GoToFollowPath();
         }

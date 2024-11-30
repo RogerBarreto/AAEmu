@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using AAEmu.Game.Core.Managers;
+﻿using System.Collections.Generic;
 using AAEmu.Game.Models.Game.AI.Enums;
-using AAEmu.Game.Models.Game.Char;
-using AAEmu.Game.Models.Game.Quests.Acts;
 using AAEmu.Game.Models.Game.Quests.Static;
 using AAEmu.Game.Models.Game.Quests.Templates;
+
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 
 namespace AAEmu.Game.Models.Game.Quests;
 

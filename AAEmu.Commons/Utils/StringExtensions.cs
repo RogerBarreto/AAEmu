@@ -26,7 +26,7 @@ public static class StringExtensions
     public static string NormalizeName(this string input)
     {
         var trimmed = input.AsSpan().Trim();
-        
+
         // Ignore if it's just whitespace and return the original
         if (trimmed.Length == 0)
         {

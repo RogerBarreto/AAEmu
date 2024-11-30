@@ -17,7 +17,7 @@ public class FlytrapAlertBehavior : Behavior
         Ai.Owner.CurrentGameStance = GameStanceType.Combat;
         Ai.Owner.CurrentAlertness = MoveTypeAlertness.Alert;
         Ai.Owner.BroadcastPacket(new SCUnitModelPostureChangedPacket(Ai.Owner, Ai.Owner.AnimActionId, false), false);
-        
+
         if (Ai.Owner is { } npc)
         {
             npc.Events.InAlert(this, new InAlertArgs { Npc = npc });

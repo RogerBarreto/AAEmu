@@ -13,7 +13,7 @@ public class ModelsJsonConverterTests
         //Arrange
         var spawnsList = new JsonNpcSpawns[]
         {
-            new JsonNpcSpawns
+            new()
             {
                 UnitId = 1,
                 Id = 1,
@@ -42,7 +42,7 @@ public class ModelsJsonConverterTests
         //Arrange
         var spawnsList = new JsonNpcSpawns[]
         {
-            new JsonNpcSpawns
+            new()
             {
                 UnitId = 1,
                 Id = 1,

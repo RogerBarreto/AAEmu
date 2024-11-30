@@ -23,13 +23,13 @@ public class Escape : SpecialEffectAction
         int value3,
         int value4)
     {
-        
+
         if (caster is Character character)
         {
             Logger.Debug("Special effects: Escape value1 {0}, value2 {1}, value3 {2}, value4 {3}", value1, value2, value3, value4);
-            
+
             var portal = new Portal();
-            
+
             if (WorldManager.DefaultInstanceId != character.InstanceId)
             {
                 // var portal = PortalManager.Instance.GetClosestReturnPortal(character);
@@ -46,9 +46,9 @@ public class Escape : SpecialEffectAction
             }
             else
             {
-                portal = PortalManager.Instance.GetClosestReturnPortal(character); 
+                portal = PortalManager.Instance.GetClosestReturnPortal(character);
             }
-            
+
             // force transported out
             character.BroadcastPacket(
                 new SCCharacterResurrectedPacket(

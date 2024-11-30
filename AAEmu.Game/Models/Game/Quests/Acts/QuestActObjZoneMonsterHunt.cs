@@ -1,5 +1,4 @@
-﻿using AAEmu.Game.Models.Game.Char;
-using AAEmu.Game.Models.Game.NPChar;
+﻿using AAEmu.Game.Models.Game.NPChar;
 using AAEmu.Game.Models.Game.Quests.Templates;
 using AAEmu.Game.Models.Game.Units;
 
@@ -41,7 +40,7 @@ public class QuestActObjZoneMonsterHunt(QuestComponentTemplate parentComponent) 
     {
         if ((questAct.Id != ActId) || (args.ZoneGroupId != ZoneId))
             return;
-        
+
         if (args.Victim is not Npc npc)
             return;
 

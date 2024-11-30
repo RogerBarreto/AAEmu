@@ -226,7 +226,7 @@ public class Doodad : BaseUnit
     public VehicleSeat Seat { get; set; }
     private List<uint> ListGroupId { get; set; }
     public List<AreaTrigger> AttachAreaTriggers { get; set; } = new();
-    
+
     public Doodad()
     {
         _scale = 1f;
@@ -563,7 +563,7 @@ public class Doodad : BaseUnit
         // Skip if moving to self.
         //if (nextPhase == FuncGroupId)
         //    return true;
-            
+
 
         if (caster is Character)
         {

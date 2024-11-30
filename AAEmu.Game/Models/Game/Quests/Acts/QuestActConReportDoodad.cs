@@ -44,10 +44,10 @@ public class QuestActConReportDoodad(QuestComponentTemplate parentComponent) : Q
         // need to be turned in at the same Doodad
         var minimumProgress = questAct.Template.ParentComponent.ParentQuestTemplate.LetItDone
             ? QuestObjectiveStatus.CanEarlyComplete
-            : QuestObjectiveStatus.QuestComplete; 
+            : QuestObjectiveStatus.QuestComplete;
         var isReady = questAct.QuestComponent.Parent.Parent.GetQuestObjectiveStatus() >= minimumProgress;
         // TODO: Check doodad range?
-        
+
         if (!isReady)
             return;
 

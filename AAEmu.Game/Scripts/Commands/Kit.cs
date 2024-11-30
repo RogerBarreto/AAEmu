@@ -12,7 +12,6 @@ using AAEmu.Game.Models.Game.Chat;
 using Newtonsoft.Json;
 using NLog;
 using AAEmu.Game.Utils.Scripts;
-using NLog.Targets;
 
 namespace AAEmu.Game.Scripts.Commands;
 

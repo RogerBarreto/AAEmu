@@ -22,12 +22,14 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --configuration Release --no-restore
-      - name: Scripts Compile
-        run: dotnet run --project AAEmu.Game/AAEmu.Game.csproj compiler-check
+      - name: Scripts Compile Net 8
+        run: dotnet run --project AAEmu.Game/AAEmu.Game.csproj --framework net8.0 compiler-check
+      - name: Scripts Compile Net 9
+        run: dotnet run --project AAEmu.Game/AAEmu.Game.csproj --framework net9.0 compiler-check
       - name: Test
         run: dotnet test --filter FullyQualifiedName!~AAEmu.IntegrationTests /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
       - name: Coveralls GitHub Action
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ./AAEmu.UnitTests/TestResults/coverage.info
+          path-to-lcov: ./AAEmu.UnitTests/TestResults/coverage.net9.0.info

@@ -22,7 +22,7 @@ public class CropHarvest : IWorldInteraction
             {
                 if (PublicFarmManager.IsProtected(doodad) && doodad.OwnerId != 0)
                 {
-                    if(caster is Character character && doodad.OwnerId != character.Id)
+                    if (caster is Character character && doodad.OwnerId != character.Id)
                     {
                         character.SendErrorMessage(ErrorMessageType.CannotHarvestYet);
                         Logger.Debug($"This should never happen character {character.Name} attempted to bypass harvest protection (clienthacks?)");

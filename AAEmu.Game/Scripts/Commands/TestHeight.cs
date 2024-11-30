@@ -60,26 +60,26 @@ public class TestHeight : ICommand
             rY = rY - rY % 2;
             uint unitId = 5622; // Pillar
             for (var y = rY - 10; y <= rY + 10; y += 2)
-            for (var x = rX - 10; x <= rX + 10; x += 2)
-            {
-                if (!DoodadManager.Instance.Exist(unitId))
+                for (var x = rX - 10; x <= rX + 10; x += 2)
                 {
-                    return;
-                }
+                    if (!DoodadManager.Instance.Exist(unitId))
+                    {
+                        return;
+                    }
 
-                var doodadSpawner = new DoodadSpawner();
-                doodadSpawner.Id = 0;
-                doodadSpawner.UnitId = unitId;
-                doodadSpawner.Position = character.Transform.CloneAsSpawnPosition();
-                doodadSpawner.Position.X = x;
-                doodadSpawner.Position.Y = y;
-                doodadSpawner.Position.Z =
-                    WorldManager.Instance.GetWorldByZone(targetPlayer.Transform.ZoneId).GetHeight(x, y);
-                doodadSpawner.Position.Yaw = 0;
-                doodadSpawner.Position.Pitch = 0;
-                doodadSpawner.Position.Roll = 0;
-                doodadSpawner.Spawn(0);
-            }
+                    var doodadSpawner = new DoodadSpawner();
+                    doodadSpawner.Id = 0;
+                    doodadSpawner.UnitId = unitId;
+                    doodadSpawner.Position = character.Transform.CloneAsSpawnPosition();
+                    doodadSpawner.Position.X = x;
+                    doodadSpawner.Position.Y = y;
+                    doodadSpawner.Position.Z =
+                        WorldManager.Instance.GetWorldByZone(targetPlayer.Transform.ZoneId).GetHeight(x, y);
+                    doodadSpawner.Position.Yaw = 0;
+                    doodadSpawner.Position.Pitch = 0;
+                    doodadSpawner.Position.Roll = 0;
+                    doodadSpawner.Spawn(0);
+                }
         }
         else if (args.Length > firstarg && args[firstarg] == "line")
         {

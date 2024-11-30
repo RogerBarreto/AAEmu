@@ -222,7 +222,7 @@ public class ChatManager : Singleton<ChatManager>
         var channel = new ChatChannel() { ChatType = ChatType.Family, SubType = (short)familyId, InternalId = familyId, InternalName = $"Family {familyId}" };
         return _familyChannels.TryAdd(familyId, channel);
     }
-    
+
     public ChatChannel GetFamilyChat(uint familyId)
     {
         // create it if it's not there

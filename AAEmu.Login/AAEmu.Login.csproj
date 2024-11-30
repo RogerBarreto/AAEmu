@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>$(TargetFramework)</TargetFramework>
+    <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
     <UserSecretsId>68f0c4f8-94e8-45b8-b1a0-03a4ccf61ed2</UserSecretsId>
     <ApplicationIcon>Resources\icon_login.ico</ApplicationIcon>
   </PropertyGroup>
@@ -26,6 +26,7 @@
     <None Include="Config.json" Condition="Exists('Config.json')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Dockerfile" />
     <None Include="ExampleConfig.json" Condition="!Exists('Config.json')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

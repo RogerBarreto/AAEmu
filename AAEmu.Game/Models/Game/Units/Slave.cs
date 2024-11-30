@@ -40,7 +40,7 @@ public class Slave : Unit
     // public Character Driver { get; set; }
     public Character Summoner { get; set; }
     public BaseUnitType OwnerType { get; set; }
-    
+
     public Item SummoningItem { get; set; }
     public List<Doodad> AttachedDoodads { get; set; }
     public List<Slave> AttachedSlaves { get; set; }
@@ -857,7 +857,7 @@ public class Slave : Unit
         }
 
         // Also save its children if needed
-        foreach(var child in AttachedSlaves)
+        foreach (var child in AttachedSlaves)
             if (child.Id > 0)
                 child.Save(connection, transaction);
 
@@ -899,7 +899,7 @@ public class Slave : Unit
     public override void OnZoneChange(uint lastZoneKey, uint newZoneKey)
     {
         base.OnZoneChange(lastZoneKey, newZoneKey); // Unit
-        
+
         foreach (var passenger in AttachedCharacters)
         {
             passenger.Value?.OnZoneChange(lastZoneKey, newZoneKey);
