@@ -161,9 +161,7 @@ public class PlotCondition
         {
             //Super hacky way to do combat dice....
             var hitType = skill.RollCombatDice(caster, trg);
-            if (!skill.HitTypes.ContainsKey(trg.ObjId))
-                skill.HitTypes.Add(trg.ObjId, hitType);
-            else
+            if (!skill.HitTypes.TryAdd(trg.ObjId, hitType))
                 skill.HitTypes[trg.ObjId] = hitType;
 
             return hitType == SkillHitType.MeleeDodge

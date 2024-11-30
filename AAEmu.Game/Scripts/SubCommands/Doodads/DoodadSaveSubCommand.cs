@@ -86,13 +86,9 @@ public class DoodadSaveSubCommand : SubCommandBase
             }
         };
 
-        if (fileSpawners.ContainsKey(spawn.Id))
+        if (!fileSpawners.TryAdd(spawn.Id, spawn))
         {
             fileSpawners[spawn.Id] = spawn;
-        }
-        else
-        {
-            fileSpawners.Add(spawn.Id, spawn);
         }
 
         var serialized = JsonConvert.SerializeObject(fileSpawners.Values.ToArray(), Formatting.Indented,

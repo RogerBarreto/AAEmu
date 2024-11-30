@@ -153,8 +153,7 @@ public class MusicManager : Singleton<MusicManager>
 
     public void CacheMidi(uint playerId, byte[] midiData)
     {
-        if (_midiCache.ContainsKey(playerId))
-            _midiCache.Remove(playerId);
+        _midiCache.Remove(playerId);
         _midiCache.Add(playerId, midiData);
     }
 

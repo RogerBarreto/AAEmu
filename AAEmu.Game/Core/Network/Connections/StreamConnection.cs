@@ -42,8 +42,7 @@ public class StreamConnection
 
     public void RemoveRequest(int requestId)
     {
-        if (_requests.ContainsKey(requestId))
-            _requests.Remove(requestId);
+        _requests.Remove(requestId);
     }
 
     public void SendPacket(StreamPacket packet)

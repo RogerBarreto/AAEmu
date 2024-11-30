@@ -196,13 +196,13 @@ public class LoginController : Singleton<LoginController>
             }
         }
 
-        if (!_tokens[gsId].ContainsKey(token))
+        if (!_tokens[gsId].TryGetValue(token, out var value))
         {
             // TODO ...
             return;
         }
 
-        if (_tokens[gsId][token] == accountId)
+        if (value == accountId)
         {
             connection.AccountId = accountId;
             connection.SendPacket(new ACJoinResponsePacket(0, 6));

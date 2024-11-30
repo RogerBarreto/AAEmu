@@ -73,10 +73,10 @@ public class PortalManager : Singleton<PortalManager>
 
     public Portal GetRecallById(uint returnPointId)
     {
-        if (_recallsKey == null || !_recallsKey.ContainsKey(returnPointId)) { return null; }
-        if (!_recalls.ContainsKey(_recallsKey[returnPointId])) { return null; }
+        if (_recallsKey == null || !_recallsKey.TryGetValue(returnPointId, out var key)) { return null; }
+        if (!_recalls.TryGetValue(key, out var portals)) { return null; }
 
-        return _recalls[_recallsKey[returnPointId]].FirstOrDefault(portal => portal.Id == returnPointId);
+        return portals.FirstOrDefault(portal => portal.Id == returnPointId);
     }
 
     public Portal GetRespawnBySubZoneId(uint subZoneId)
@@ -88,10 +88,9 @@ public class PortalManager : Singleton<PortalManager>
 
     public Portal GetRespawnById(uint id)
     {
-        return _respawnsKey != null && _respawnsKey.ContainsKey(id)
-            ? _respawns.ContainsKey(_respawnsKey[id])
-                ? _respawns[_respawnsKey[id]]
-                : null
+        return _respawnsKey != null && _respawnsKey.TryGetValue(id, out var key)
+            ? _respawns.TryGetValue(key, out var portal)
+                ? portal : null
             : null;
     }
 
@@ -104,10 +103,9 @@ public class PortalManager : Singleton<PortalManager>
 
     public Portal GetWorldgatesById(uint id)
     {
-        return _worldgatesKey != null && _worldgatesKey.ContainsKey(id)
-            ? _worldgates.ContainsKey(_worldgatesKey[id])
-                ? _worldgates[_worldgatesKey[id]]
-                : null
+        return _worldgatesKey != null && _worldgatesKey.TryGetValue(id, out var key)
+            ? _worldgates.TryGetValue(key, out var portal)
+                ? portal : null
             : null;
     }
 
@@ -201,14 +199,14 @@ public class PortalManager : Singleton<PortalManager>
                 recall.Name = LocalizationManager.Instance.Get("return_points", "name", recall.Id, recall.Name);
 
                 var rp = new List<Portal>();
-                if (!_recalls.ContainsKey(recall.SubZoneId))
+                if (!_recalls.TryGetValue(recall.SubZoneId, out var value))
                 {
                     rp.Add(recall);
                     _recalls.Add(recall.SubZoneId, rp);
                 }
                 else
                 {
-                    _recalls[recall.SubZoneId].Add(recall);
+                    value.Add(recall);
                 }
 
                 if (!_recallsKey.ContainsKey(recall.Id))
@@ -329,8 +327,7 @@ public class PortalManager : Singleton<PortalManager>
                         FactionId = (FactionsEnum)reader.GetUInt32("faction_id"),
                         ReturnPointId = reader.GetUInt32("return_point_id")
                     };
-                    if (!_districtReturnPoints.ContainsKey(template.Id))
-                        _districtReturnPoints.Add(template.Id, template);
+                    _districtReturnPoints.TryAdd(template.Id, template);
                 }
             }
         }

@@ -595,10 +595,7 @@ public class ItemManager : Singleton<ItemManager>
 
     public bool AddItem(Item item)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(item));
-        }
+        ArgumentNullException.ThrowIfNull(item);
 
         if (!_allItems.TryAdd(item.Id, item))
         {
@@ -1485,22 +1482,20 @@ public class ItemManager : Singleton<ItemManager>
                 {
                     while (reader.Read())
                     {
-                        var template = new ItemDoodadTemplate();
-                        var key = reader.GetUInt32("doodad_id");
-                        if (_itemDoodadTemplates.ContainsKey(key))
+                        var doodadId = reader.GetUInt32("doodad_id");
+                        var itemId = reader.GetUInt32("item_id");
+
+                        if (_itemDoodadTemplates.TryGetValue(doodadId, out var template))
                         {
-                            var itemId = reader.GetUInt32("item_id");
-                            template = _itemDoodadTemplates[key];
                             template.ItemIds.Add(itemId);
-                            _itemDoodadTemplates[key] = template;
                         }
                         else
                         {
-                            template.ItemIds = new List<uint>();
-                            var itemId = reader.GetUInt32("item_id");
-                            template.ItemIds.Add(itemId);
-                            template.DoodadId = reader.GetUInt32("doodad_id");
-                            _itemDoodadTemplates.Add(template.DoodadId, template);
+                            _itemDoodadTemplates.Add(doodadId, new()
+                            {
+                                ItemIds = [itemId],
+                                DoodadId = doodadId
+                            });
                         }
                     }
                 }
@@ -1549,8 +1544,7 @@ public class ItemManager : Singleton<ItemManager>
                         if (!_armorGradeBuffs.ContainsKey(armorGradeBuff.ArmorType))
                             _armorGradeBuffs.Add(armorGradeBuff.ArmorType, new Dictionary<ItemGrade, ArmorGradeBuff>());
 
-                        if (!_armorGradeBuffs[armorGradeBuff.ArmorType].ContainsKey(armorGradeBuff.ItemGrade))
-                            _armorGradeBuffs[armorGradeBuff.ArmorType].Add(armorGradeBuff.ItemGrade, armorGradeBuff);
+                        _armorGradeBuffs[armorGradeBuff.ArmorType].TryAdd(armorGradeBuff.ItemGrade, armorGradeBuff);
                     }
                 }
             }
@@ -2114,8 +2108,7 @@ public class ItemManager : Singleton<ItemManager>
         }
         lock (_allItems)
         {
-            if (_allItems.ContainsKey(itemId))
-                _allItems.Remove(itemId);
+            _allItems.Remove(itemId);
         }
         // This should be the only place where ItemId ReleaseId should be called directly
         ItemIdManager.Instance.ReleaseId((uint)itemId);

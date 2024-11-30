@@ -182,7 +182,7 @@ public class CashShopManager : Singleton<CashShopManager>
         var thisTabItems = MenuItems.Where(t => t.MainTab == mainTabId && t.SubTab == subTabId).ToList();
         var isLimitedTab = (mainTabId == 1) && (subTabId == 1);
         var itemsPerPage = isLimitedTab ? 4 : 8;
-        var numberOfPages = (ushort)Math.Ceiling((float)thisTabItems.Count() / itemsPerPage);
+        var numberOfPages = (ushort)Math.Ceiling((float)thisTabItems.Count / itemsPerPage);
         var thisPageItems = thisTabItems.Skip(itemsPerPage * (page - 1)).Take(itemsPerPage).ToList();
 
         for (var i = 0; i < thisPageItems.Count; i++)

@@ -61,10 +61,7 @@ public abstract class SubCommandBase : ICommandV2
     {
         foreach (var alias in aliases.Select(a => a.ToLower()))
         {
-            if (_subCommands.ContainsKey(alias))
-            {
-                _subCommands.Remove(alias);
-            }
+            _subCommands.Remove(alias);
             _subCommands.Add(alias, command);
         }
     }
@@ -77,7 +74,7 @@ public abstract class SubCommandBase : ICommandV2
             var firstArgument = args.FirstOrDefault();
             if (firstArgument is not null)
             {
-                if (firstArgument.ToLower() == "help")
+                if (firstArgument.Equals("help", StringComparison.CurrentCultureIgnoreCase))
                 {
                     SendHelpMessage(messageOutput);
                 }
@@ -307,9 +304,9 @@ public abstract class SubCommandBase : ICommandV2
 
     protected static T GetOptionalParameterValue<T>(IDictionary<string, ParameterValue> parameters, string parameterName, T defaultArgumentValue)
     {
-        if (!parameters.ContainsKey(parameterName))
+        if (!parameters.TryGetValue(parameterName, out var value))
             return defaultArgumentValue;
 
-        return parameters[parameterName].As<T>();
+        return value.As<T>();
     }
 }

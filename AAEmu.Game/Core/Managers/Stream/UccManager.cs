@@ -259,10 +259,8 @@ public class UccManager : Singleton<UccManager>
             uccId = uccIdVal;
         }
 
-        if (!_uccs.ContainsKey(uccId))
+        if (!_uccs.TryGetValue(uccId, out var ucc))
             return;
-
-        var ucc = _uccs[uccId];
         if (!(ucc is CustomUcc customUcc))
             return;
 
@@ -291,9 +289,8 @@ public class UccManager : Singleton<UccManager>
     public void DownloadStatus(StreamConnection connection, ulong id, byte status, int count)
     {
         Logger.Warn("DownloadStatus Id:{0}, Status: {1}, Count:{2}", id, status, count);
-        if (!_uccs.ContainsKey(id))
+        if (!_uccs.TryGetValue(id, out var ucc))
             return;
-        var ucc = _uccs[id];
 
         // status 4 == I'm ready to begin download of the image ?
         if ((status == 4) && (ucc is CustomUcc customUcc) && (customUcc.Data.Count > 0))

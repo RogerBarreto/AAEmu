@@ -306,11 +306,11 @@ public class SphereQuestManager : Singleton<SphereQuestManager>, ISphereQuestMan
                                 var sphereZ = float.Parse(posString[2], NumberStyles.Float, CultureInfo.InvariantCulture);
                                 sphere.Xyz = new Vector3(sphereX, sphereY, sphereZ);
                             }
-                            sphere.Radius = float.Parse(l4.Substring(7), NumberStyles.Float, CultureInfo.InvariantCulture);
+                            sphere.Radius = float.Parse(l4.AsSpan(7), NumberStyles.Float, CultureInfo.InvariantCulture);
                             // конвертируем координаты из локальных в мировые, сразу при считывании из файла пути
                             // convert coordinates from local to world, immediately when reading the path from the file
                             sphere.Xyz = ZoneManager.ConvertToWorldCoordinates(zoneId, sphere.Xyz);
-                            if (!sphereQuests.ContainsKey(sphere.ComponentId))
+                            if (!sphereQuests.TryGetValue(sphere.ComponentId, out var value))
                             {
                                 var sphereList = new List<SphereQuest>();
                                 sphereList.Add(sphere);
@@ -318,7 +318,7 @@ public class SphereQuestManager : Singleton<SphereQuestManager>, ISphereQuestMan
                             }
                             else
                             {
-                                sphereQuests[sphere.ComponentId].Add(sphere);
+                                value.Add(sphere);
                             }
                             i += 4;
                         }

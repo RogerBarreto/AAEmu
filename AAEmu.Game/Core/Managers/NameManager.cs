@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using AAEmu.Commons.Utils;
 using AAEmu.Commons.Utils.DB;
@@ -11,43 +10,55 @@ using NLog;
 
 namespace AAEmu.Game.Core.Managers;
 
-public class NameManager : Singleton<NameManager>
+public partial class NameManager : Singleton<NameManager>
 {
     private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
-
+    private CharacterManager _characterManager;
     private Regex _characterNameRegex;
-    private Dictionary<uint, string> _characterNames;
+    private Dictionary<uint, string> _characterIds;
+    private Dictionary<string, uint> _characterNames;
     private Dictionary<uint, uint> _characterAccounts;
 
     public string GetCharacterName(uint characterId)
+        => _characterIds.TryGetValue(characterId, out var characterName)
+        ? characterName
+        : null;
+
+    public uint GetCharacterId(string normalizedCharacterName)
+        => _characterNames.TryGetValue(normalizedCharacterName, out var characterId)
+        ? characterId
+        : 0u;
+
+    public uint GetCharacterAccount(uint characterId)
+        => _characterAccounts.TryGetValue(characterId, out var accountId)
+        ? accountId
+        : 0;
+
+    public NameManager() : this(null)
     {
-        if (_characterNames.ContainsKey(characterId))
-            return _characterNames[characterId].NormalizeName();
-        return null;
     }
 
-    public uint GetCharacterId(string characterName)
+    public NameManager(CharacterManager characterManager = null)
     {
-        var res = (from x in _characterNames where (x.Value.ToLower() == characterName.ToLower()) select x.Key).FirstOrDefault(0u);
-        return res;
+        _characterIds = [];
+        _characterNames = [];
+        _characterAccounts = [];
+        _characterManager = characterManager ?? CharacterManager.Instance;
     }
 
-    public uint GetCharaterAccount(uint characterId)
-    {
-        if (_characterAccounts.TryGetValue(characterId, out var accountId))
-            return accountId;
-        return 0;
-    }
-
-    public NameManager()
-    {
-        _characterNames = new Dictionary<uint, string>();
-        _characterAccounts = new Dictionary<uint, uint>();
-    }
+    [GeneratedRegex("^[a-zA-Z0-9а-яА-Я]{1,18}$")]
+    private static partial Regex DefaultCharacterNameRegex();
 
     public void Load()
     {
-        _characterNameRegex = new Regex(AppConfiguration.Instance.CharacterNameRegex, RegexOptions.Compiled);
+        const string DefaultCharacterNameRegex = "^[a-zA-Z0-9а-яА-Я]{1,18}$";
+        if (AppConfiguration.Instance.CharacterNameRegex is not null
+            && AppConfiguration.Instance.CharacterNameRegex != DefaultCharacterNameRegex)
+        {
+            _characterNameRegex = new Regex(AppConfiguration.Instance.CharacterNameRegex, RegexOptions.Compiled);
+        }
+
+
         using (var connection = MySQL.CreateConnection())
         {
             using (var command = connection.CreateCommand())
@@ -61,43 +72,85 @@ public class NameManager : Singleton<NameManager>
                         var id = reader.GetUInt32("id");
                         var name = reader.GetString("name").ToLower();
                         var account = reader.GetUInt32("account_id");
-                        _characterNames.Add(id, name.NormalizeName());
+                        var normalizedName = name.NormalizeName();
+                        _characterIds.Add(id, normalizedName);
+                        _characterNames.Add(normalizedName, id);
                         _characterAccounts.Add(id, account);
                     }
                 }
             }
         }
 
-        Logger.Info($"Loaded {_characterNames.Count} character names");
+        Logger.Info($"Loaded {_characterIds.Count} character names");
     }
 
-    public CharacterCreateError ValidationCharacterName(string name)
+    /// <summary>
+    /// For testing purposes
+    /// </summary>
+    /// <param name="characterIds">Initial character ids</param>
+    /// <param name="characterNames">Initial character names</param>
+    /// <param name="characterAccounts">Initial character accounts</param>
+    internal void Load(
+        Dictionary<uint, string> characterIds,
+        Dictionary<string, uint> characterNames,
+        Dictionary<uint, uint> characterAccounts)
     {
-        if (_characterNames.ContainsValue(name))
+        const string DefaultCharacterNameRegex = "^[a-zA-Z0-9а-яА-Я]{1,18}$";
+        if (AppConfiguration.Instance.CharacterNameRegex is not null
+            && AppConfiguration.Instance.CharacterNameRegex != DefaultCharacterNameRegex)
         {
-            if (CharacterManager.Instance.IsCharacterPendingDeletion(name))
+            _characterNameRegex = new Regex(AppConfiguration.Instance.CharacterNameRegex, RegexOptions.Compiled);
+        }
+
+        _characterIds = characterIds;
+        _characterNames = characterNames;
+        _characterAccounts = characterAccounts;
+    }
+
+    public CharacterCreateError ValidateCharacterName(string name)
+    {
+        if (_characterNames.TryGetValue(name, out var existingId))
+        {
+            if (_characterManager.IsCharacterPendingDeletion(name))
                 return CharacterCreateError.Failed;
 
             return CharacterCreateError.NameAlreadyExists;
         }
 
-        if (string.IsNullOrWhiteSpace(name) || !_characterNameRegex.IsMatch(name))
+
+        if (string.IsNullOrWhiteSpace(name) || !ValidatesName(name.AsSpan()))
             return CharacterCreateError.InvalidCharacters;
 
         return CharacterCreateError.Ok;
     }
 
-    public void AddCharacterName(uint characterId, string name, uint accountId)
+    private bool ValidatesName(ReadOnlySpan<char> name) =>
+        (_characterNameRegex ?? DefaultCharacterNameRegex())
+        .IsMatch(name);
+
+    public void AddCharacter(uint characterId, string name, uint accountId)
     {
-        if (!_characterNames.TryAdd(characterId, name.NormalizeName()))
+        var normalizedName = name.NormalizeName();
+        if (!_characterIds.TryAdd(characterId, name.NormalizeName()))
         {
-            var oldName = _characterNames.GetValueOrDefault(characterId) ?? string.Empty;
+            var oldName = _characterIds.GetValueOrDefault(characterId) ?? string.Empty;
             if (string.Compare(name, oldName, StringComparison.InvariantCultureIgnoreCase) != 0)
                 Logger.Error($"AddCharacterName, failed to register name for {name} ({characterId}), Account {accountId}, OldName {oldName}");
         }
         else
         {
             Logger.Info($"AddCharacterName, Registered character name {name} ({characterId})");
+        }
+
+        if (!_characterNames.TryAdd(normalizedName, characterId))
+        {
+            uint oldId = _characterNames.GetValueOrDefault(normalizedName);
+            if (characterId != oldId)
+                Logger.Error($"AddCharacterName, failed to register id for {name} ({characterId}), Account {accountId}, OldId {oldId}");
+        }
+        else
+        {
+            Logger.Info($"AddCharacterName, Registered character id {name} ({characterId})");
         }
 
         if (!_characterAccounts.TryAdd(characterId, accountId))
@@ -112,21 +165,21 @@ public class NameManager : Singleton<NameManager>
         }
     }
 
-    public void RemoveCharacterName(uint characterId)
+    public void RemoveCharacterId(uint characterId)
     {
-        if (_characterNames.ContainsKey(characterId))
+        if (_characterIds.TryGetValue(characterId, out var characterName))
         {
-            _characterNames.Remove(characterId);
-            Logger.Info($"AddCharacterName, Remove name registration for character Id {characterId}");
+            _characterIds.Remove(characterId);
+            _characterNames.Remove(characterName);
+            Logger.Info($"AddCharacterName, Remove name and id registrations for character Id {characterId}");
         }
         else
         {
             Logger.Error($"AddCharacterName, No name was registered for character Id {characterId}");
         }
 
-        if (_characterAccounts.ContainsKey(characterId))
+        if (_characterAccounts.Remove(characterId))
         {
-            _characterAccounts.Remove(characterId);
             Logger.Info($"AddCharacterName, Removed account registration for character Id {characterId}");
         }
         else
@@ -137,6 +190,6 @@ public class NameManager : Singleton<NameManager>
 
     public bool NoNamesRegistered()
     {
-        return _characterNames.Count <= 0;
+        return _characterIds.Count <= 0;
     }
 }

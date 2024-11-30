@@ -123,7 +123,7 @@ public abstract class NpcAi
 
     protected void SetCurrentBehavior(BehaviorKind kind)
     {
-        if (!_behaviors.ContainsKey(kind))
+        if (!_behaviors.TryGetValue(kind, out var value))
         {
             Logger.Trace(
                 $"Trying to set Npc {Owner.TemplateId}:{Owner.ObjId} current behavior, but it is not valid. Missing behavior: {kind}");
@@ -131,7 +131,7 @@ public abstract class NpcAi
         }
 
         Logger.Trace($"Set Npc {Owner.TemplateId}:{Owner.ObjId} current behavior: {kind}");
-        SetCurrentBehavior(_behaviors[kind]);
+        SetCurrentBehavior(value);
     }
 
     public Behavior AddTransition(Behavior source, Transition target)

@@ -416,28 +416,24 @@ public class NpcManager : Singleton<NpcManager>
                         bp.SlotTypeId = reader.GetUInt32("slot_type_id");
                         bodyParts.Add(bp);
 
-                        if (!slotBodyParts.ContainsKey(bp.SlotTypeId))
+                        if (!slotBodyParts.TryGetValue(bp.SlotTypeId, out var slotBodyTemplates))
                         {
                             slotBodyParts.Add(bp.SlotTypeId, bodyParts);
                         }
                         else
                         {
-                            slotBodyParts[bp.SlotTypeId].Add(bp);
+                            slotBodyTemplates.Add(bp);
                         }
 
-                        if (!_itemBodyParts.ContainsKey(bp.ModelId))
+                        if (!_itemBodyParts.TryAdd(bp.ModelId, slotBodyParts))
                         {
-                            _itemBodyParts.Add(bp.ModelId, slotBodyParts);
-                        }
-                        else
-                        {
-                            if (!_itemBodyParts[bp.ModelId].ContainsKey(bp.SlotTypeId))
+                            if (!_itemBodyParts[bp.ModelId].TryGetValue(bp.SlotTypeId, out var itemBodyTemplate))
                             {
                                 _itemBodyParts[bp.ModelId].Add(bp.SlotTypeId, bodyParts);
                             }
                             else
                             {
-                                _itemBodyParts[bp.ModelId][bp.SlotTypeId].Add(bp);
+                                itemBodyTemplate.Add(bp);
                             }
                         }
                     }
@@ -829,9 +825,8 @@ public class NpcManager : Singleton<NpcManager>
 
     public void BindSkillsToTemplate(uint templateId, List<NpcSkill> skills)
     {
-        if (!_templates.ContainsKey(templateId))
+        if (!_templates.TryGetValue(templateId, out var value))
             return;
-
-        _templates[templateId].BindSkills(skills);
+        value.BindSkills(skills);
     }
 }

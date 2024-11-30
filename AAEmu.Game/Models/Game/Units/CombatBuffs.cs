@@ -37,17 +37,15 @@ public class CombatBuffs
 
         foreach (var buffToRemove in buffsToRemove)
         {
-            if (_cbuffsByHitType.ContainsKey(buffToRemove.HitType))
-                _cbuffsByHitType[buffToRemove.HitType].Remove(buffToRemove);
+            if (_cbuffsByHitType.TryGetValue(buffToRemove.HitType, out var value))
+                value.Remove(buffToRemove);
         }
     }
 
     public void TriggerCombatBuffs(BaseUnit attacker, BaseUnit receiver, SkillHitType type, bool isHeal)
     {
-        if (!_cbuffsByHitType.ContainsKey(type))
+        if (!_cbuffsByHitType.TryGetValue(type, out var buffs))
             return;
-        var buffs = _cbuffsByHitType[type];
-
         if (!(_owner is Unit unit))
             return;
         foreach (var cb in buffs)

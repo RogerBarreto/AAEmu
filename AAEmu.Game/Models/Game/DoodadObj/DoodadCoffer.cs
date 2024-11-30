@@ -45,7 +45,7 @@ public class DoodadCoffer : Doodad
                     return (character.Id == OwnerId) && base.AllowedToInteract(character);
                 else
                 {
-                    var ownerAccountId = NameManager.Instance.GetCharaterAccount(OwnerId);
+                    var ownerAccountId = NameManager.Instance.GetCharacterAccount(OwnerId);
                     return (character.AccountId == ownerAccountId) && base.AllowedToInteract(character);
                 }
             case HousingPermission.Family:

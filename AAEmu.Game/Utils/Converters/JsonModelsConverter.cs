@@ -20,7 +20,7 @@ public class JsonModelsConverter : JsonConverter
     {
         if (!_converters.ContainsKey(typeof(T)))
         {
-            _converters.Add(typeof(Y), (T)Activator.CreateInstance(typeof(T)));
+            _converters.Add(typeof(Y), Activator.CreateInstance<T>());
         }
     }
 

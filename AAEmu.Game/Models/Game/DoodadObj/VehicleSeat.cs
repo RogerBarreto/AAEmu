@@ -50,17 +50,16 @@ public class VehicleSeat
                 _seats[seatObjId][i] = 0; // free up space
                 character.Transform.StickyParent = null;
                 if (_parent is Transfer transfer)
-                    if (transfer.AttachedCharacters.Contains(character))
-                        transfer.AttachedCharacters.Remove(character);
+                    transfer.AttachedCharacters.Remove(character);
             }
         }
     }
 
     private int GetFreeSeat(uint seatObjId)
     {
-        if (!_seats.ContainsKey(seatObjId)) { return -1; }
+        if (!_seats.TryGetValue(seatObjId, out var value)) { return -1; }
 
-        for (var i = 0; i < _seats[seatObjId].Count; i++)
+        for (var i = 0; i < value.Count; i++)
         {
             if (_seats[seatObjId][i] == 0)
             {

@@ -39,11 +39,9 @@ public class SpawningBehavior : BaseCombatBehavior
             return; // not initialized yet Enter()
 
         // TODO: Figure out how to do this on spawn
-        if (Ai.Owner.Template.Skills.ContainsKey(SkillUseConditionKind.OnSpawn) && !_usedSpawnSkills)
+        if (Ai.Owner.Template.Skills.TryGetValue(SkillUseConditionKind.OnSpawn, out var skills) && !_usedSpawnSkills)
         {
             _usedSpawnSkills = true;
-            var skills = Ai.Owner.Template.Skills[SkillUseConditionKind.OnSpawn];
-
             foreach (var npcSkill in skills)
             {
                 var skillTemplate = SkillManager.Instance.GetSkillTemplate(npcSkill.SkillId);

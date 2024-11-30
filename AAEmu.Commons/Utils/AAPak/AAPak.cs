@@ -815,11 +815,11 @@ public class AAPak
     public string _gpFilePath { get; private set; }
     public FileStream _gpFileStream { get; private set; }
     /// <summary>
-    /// points to this pakfile's header
+    /// points to this Pak file's header
     /// </summary>
     public AAPakFileHeader _header;
     /// <summary>
-    /// Checks if current pakfile information is loaded into memory
+    /// Checks if current Pak file information is loaded into memory
     /// </summary>
     public bool isOpen = false;
     /// <summary>
@@ -843,7 +843,7 @@ public class AAPak
     /// </summary>
     public List<string> folders = new();
     /// <summary>
-    /// Show if this pakfile is opened in read-only mode
+    /// Show if this Pak file is opened in read-only mode
     /// </summary>
     public bool readOnly { get; private set; }
     /// <summary>
@@ -914,7 +914,7 @@ public class AAPak
     /// <summary>
     /// Opens a pak file, can only be used if no other file is currently loaded
     /// </summary>
-    /// <param name="filePath">Filename of the pakfile to open</param>
+    /// <param name="filePath">Filename of the Pak file to open</param>
     /// <param name="openAsReadOnly">Set to true to open the pak in read-only mode</param>
     /// <returns>Returns true on success, or false if something failed</returns>
     public bool OpenPak(string filePath, bool openAsReadOnly)
@@ -967,10 +967,10 @@ public class AAPak
     }
 
     /// <summary>
-    /// Creates a new pakfile with name filename, will overwrite a existing file if it exists
+    /// Creates a new Pak file with name filename, will overwrite a existing file if it exists
     /// </summary>
-    /// <param name="filePath">Filename of the new pakfile</param>
-    /// <returns>Returns true on success, or false if something went wrong, or if you still have a pakfile open</returns>
+    /// <param name="filePath">Filename of the new Pak file</param>
+    /// <returns>Returns true on success, or false if something went wrong, or if you still have a Pak file open</returns>
     public bool NewPak(string filePath)
     {
         // Fail if already open
@@ -1030,7 +1030,7 @@ public class AAPak
     }
 
     /// <summary>
-    /// Closes the currently opened pakfile (if open)
+    /// Closes the currently opened Pak file (if open)
     /// </summary>
     public void ClosePak()
     {
@@ -1065,7 +1065,7 @@ public class AAPak
     /// <summary>
     /// Read Pak Header and FAT
     /// </summary>
-    /// <returns>Returns true if the read information makes a valid pakfile</returns>
+    /// <returns>Returns true if the read information makes a valid Pak file</returns>
     protected bool ReadHeader()
     {
         files.Clear();
@@ -1175,7 +1175,7 @@ public class AAPak
             csvHead += ";dummy1";
             csvHead += ";dummy2";
 
-            if (lines[0].ToLower() != csvHead)
+            if (!lines[0].Equals(csvHead, StringComparison.CurrentCultureIgnoreCase))
             {
                 _header.isValid = true;
             }
@@ -1409,7 +1409,7 @@ public class AAPak
             newHash.CopyTo(file.md5, 0);
             isDirty = true;
         }
-        return BitConverter.ToString(file.md5).Replace("-", ""); // Return the (updated) md5 as a string
+        return Convert.ToHexString(file.md5).Replace("-", ""); // Return the (updated) md5 as a string
     }
 
     /// <summary>
@@ -1429,7 +1429,7 @@ public class AAPak
 
 
     /// <summary>
-    /// Try to find a file inside the pakfile base on a offset position inside the pakfile.
+    /// Try to find a file inside the Pak file base on a offset position inside the Pak file.
     /// Note: this only checks inside the used files and does not account for "deleted" files
     /// </summary>
     /// <param name="offset">Offset to check against</param>
@@ -1543,9 +1543,9 @@ public class AAPak
     }
 
     /// <summary>
-    /// Delete a file from pak. Behaves differenly depending on the paddingDeleteMode setting
+    /// Delete a file from pak. Behaves differently depending on the paddingDeleteMode setting
     /// </summary>
-    /// <param name="filename">Filename of the file to delete from the pakfile</param>
+    /// <param name="filename">Filename of the file to delete from the Pak file</param>
     /// <returns>Returns true on success or if the file didn't exist</returns>
     public bool DeleteFile(string filename)
     {
@@ -1567,7 +1567,7 @@ public class AAPak
     /// <summary>
     /// Adds a new file into the pak
     /// </summary>
-    /// <param name="filename">Filename of the file inside the pakfile</param>
+    /// <param name="filename">Filename of the file inside the Pak file</param>
     /// <param name="sourceStream">Source Stream containing the file data</param>
     /// <param name="CreateTime">Time to use as initial file creation timestamp</param>
     /// <param name="ModifyTime">Time to use as last modified timestamp</param>
@@ -1692,10 +1692,10 @@ public class AAPak
     }
 
     /// <summary>
-    /// Adds a file into the pakfile with a given name
+    /// Adds a file into the Pak file with a given name
     /// </summary>
     /// <param name="sourceFileName">Filename of the source file to be added</param>
-    /// <param name="asFileName">Filename inside the pakfile to use</param>
+    /// <param name="asFileName">Filename inside the Pak file to use</param>
     /// <param name="autoSpareSpace">When set, tries to pre-allocate extra free space at the end of the file, this will be 25% of the filesize if used. If a "deleted file" is used, this parameter is ignored</param>
     /// <returns>Returns true on success</returns>
     public bool AddFileFromFile(string sourceFileName, string asFileName, bool autoSpareSpace)

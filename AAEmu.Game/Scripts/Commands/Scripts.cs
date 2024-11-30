@@ -76,11 +76,11 @@ public class Scripts : ICommand
                 var doCancel = false;
                 if (args.Length > 1)
                 {
-                    if (args[1].ToLower() == "cancel")
+                    if (args[1].Equals("cancel", StringComparison.CurrentCultureIgnoreCase))
                     {
                         doCancel = true;
                     }
-                    else if (args[1].ToLower() == "now")
+                    else if (args[1].Equals("now", StringComparison.CurrentCultureIgnoreCase))
                     {
                         shutdownTime = DateTime.UtcNow;
                     }

@@ -31,7 +31,7 @@ public class TestChatChannel : ICommand
 
     public void Execute(Character character, string[] args, IMessageOutput messageOutput)
     {
-        if (args.Length == 1 && args[0].ToLower() == "list")
+        if (args.Length == 1 && args[0].Equals("list", StringComparison.CurrentCultureIgnoreCase))
         {
             CommandManager.SendNormalText(this, messageOutput, $"List all channels");
             var channels = ChatManager.Instance.ListAllChannels();
@@ -45,7 +45,7 @@ public class TestChatChannel : ICommand
             return;
         }
 
-        if (args.Length == 1 && args[0].ToLower() == "clean")
+        if (args.Length == 1 && args[0].Equals("clean", StringComparison.CurrentCultureIgnoreCase))
         {
             var removed = ChatManager.Instance.CleanUpChannels();
             CommandManager.SendNormalText(this, messageOutput, $"{removed} empty channel(s) removed");
@@ -67,12 +67,12 @@ public class TestChatChannel : ICommand
             return;
         }
 
-        if (args[0].ToLower() == "join")
+        if (args[0].Equals("join", StringComparison.CurrentCultureIgnoreCase))
         {
             character.SendPacket(new SCJoinedChatChannelPacket(chatType, chatSubType, chatFaction));
         }
 
-        if (args[0].ToLower() == "leave")
+        if (args[0].Equals("leave", StringComparison.CurrentCultureIgnoreCase))
         {
             character.SendPacket(new SCLeavedChatChannelPacket(chatType, chatSubType, chatFaction));
         }

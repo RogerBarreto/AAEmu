@@ -68,11 +68,13 @@ public class AchievementGameData : Singleton<AchievementGameData>, IGameDataLoad
                     template.OrUnitReqs = reader.GetBoolean("or_unit_reqs");
                     template.RecordId = reader.GetUInt32("record_id");
 
-                    if (!_achievementObjectives.ContainsKey(template.AchievementId))
+                    if (!_achievementObjectives.TryGetValue(template.AchievementId, out var value))
                     {
-                        _achievementObjectives.Add(template.AchievementId, new List<AchievementObjectives>());
+                        value = new List<AchievementObjectives>();
+                        _achievementObjectives.Add(template.AchievementId, value);
                     }
-                    _achievementObjectives[template.AchievementId].Add(template);
+
+                    value.Add(template);
                 }
             }
         }
@@ -91,11 +93,13 @@ public class AchievementGameData : Singleton<AchievementGameData>, IGameDataLoad
                     template.CompletedAchievementId = reader.GetUInt32("completed_achievement_id");
                     template.MyAchievementId = reader.GetUInt32("my_achievement_id");
 
-                    if (!_preCompletedAchievements.ContainsKey(template.CompletedAchievementId))
+                    if (!_preCompletedAchievements.TryGetValue(template.CompletedAchievementId, out var value))
                     {
-                        _preCompletedAchievements.Add(template.CompletedAchievementId, new List<PreCompletedAchievements>());
+                        value = new List<PreCompletedAchievements>();
+                        _preCompletedAchievements.Add(template.CompletedAchievementId, value);
                     }
-                    _preCompletedAchievements[template.CompletedAchievementId].Add(template);
+
+                    value.Add(template);
                 }
             }
         }

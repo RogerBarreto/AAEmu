@@ -315,28 +315,27 @@ public class Buffs : IBuffs
             var buffTolerance = buffIds
                 .Select(buffId => BuffGameData.Instance.GetBuffToleranceForBuffTag(buffId))
                 .FirstOrDefault(t => t != null);
-            if (buffTolerance != null && _toleranceCounters.ContainsKey(buffTolerance.Id) && !CheckBuff(buffTolerance.FinalStepBuffId))
+            if (buffTolerance != null && _toleranceCounters.TryGetValue(buffTolerance.Id, out var toleranceCounter) && !CheckBuff(buffTolerance.FinalStepBuffId))
             {
-                var counter = _toleranceCounters[buffTolerance.Id];
-                if (DateTime.UtcNow > counter.LastStep + TimeSpan.FromSeconds(buffTolerance.StepDuration))
-                    counter.CurrentStep = buffTolerance.GetFirstStep();
+                if (DateTime.UtcNow > toleranceCounter.LastStep + TimeSpan.FromSeconds(buffTolerance.StepDuration))
+                    toleranceCounter.CurrentStep = buffTolerance.GetFirstStep();
                 else
                 {
-                    var nextStep = buffTolerance.GetStepAfter(counter.CurrentStep);
-                    if (nextStep.TimeReduction <= counter.CurrentStep.TimeReduction)
+                    var nextStep = buffTolerance.GetStepAfter(toleranceCounter.CurrentStep);
+                    if (nextStep.TimeReduction <= toleranceCounter.CurrentStep.TimeReduction)
                     {
                         // Apply immune buff
-                        finalToleranceBuffId = counter.Tolerance.FinalStepBuffId;
+                        finalToleranceBuffId = toleranceCounter.Tolerance.FinalStepBuffId;
                         // reset to first
-                        counter.CurrentStep = buffTolerance.GetFirstStep();
+                        toleranceCounter.CurrentStep = buffTolerance.GetFirstStep();
                     }
                     else
                     {
-                        counter.CurrentStep = nextStep;
+                        toleranceCounter.CurrentStep = nextStep;
                     }
                 }
 
-                counter.LastStep = DateTime.UtcNow;
+                toleranceCounter.LastStep = DateTime.UtcNow;
             }
             else if (buffTolerance != null)
             {
@@ -356,8 +355,8 @@ public class Buffs : IBuffs
 
             if (buffTolerance != null)
             {
-                var counter = _toleranceCounters[buffTolerance.Id];
-                buff.Duration = (int)(buff.Duration * ((100 - counter.CurrentStep.TimeReduction) / 100.0));
+                var buffCounter = _toleranceCounters[buffTolerance.Id];
+                buff.Duration = (int)(buff.Duration * ((100 - buffCounter.CurrentStep.TimeReduction) / 100.0));
 
                 if (buff.Caster is Character && buff.Owner is Character)
                     buff.Duration = (int)(buff.Duration * ((100 - buffTolerance.CharacterTimeReduction) / 100.0));

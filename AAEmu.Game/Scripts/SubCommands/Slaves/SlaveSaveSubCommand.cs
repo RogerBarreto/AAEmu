@@ -153,13 +153,9 @@ public class SlaveSaveSubCommand : SubCommandBase
             spawnersFromFile.TryAdd(spawnerFromFile.Id, spawnerFromFile);
         }
 
-        if (spawnersFromFile.ContainsKey(spawn.Id))
+        if (!spawnersFromFile.TryAdd(spawn.Id, spawn))
         {
             spawnersFromFile[spawn.Id] = spawn;
-        }
-        else
-        {
-            spawnersFromFile.Add(spawn.Id, spawn);
         }
 
         var jsonPathOut = Path.Combine(FileManager.AppPath, "Data", "Worlds", world.Name, "slave_spawns_new.json");

@@ -53,7 +53,7 @@ public class GetAttribute : ICommand
 
         CommandManager.SendNormalText(this, messageOutput, $"Stats for target {target.Name} ({target.ObjId})");
 
-        if (args[argsIdx].ToLower() == "all")
+        if (args[argsIdx].Equals("all", StringComparison.CurrentCultureIgnoreCase))
         {
             foreach (var attr in Enum.GetValues(typeof(UnitAttribute)))
             {
@@ -61,7 +61,7 @@ public class GetAttribute : ICommand
                 character.SendPacket(new SCChatMessagePacket(ChatType.System, $"{(UnitAttribute)attr}: {value}"));
             }
         }
-        else if (args[argsIdx].ToLower() == "used")
+        else if (args[argsIdx].Equals("used", StringComparison.CurrentCultureIgnoreCase))
         {
             foreach (var attr in Enum.GetValues(typeof(UnitAttribute)))
             {

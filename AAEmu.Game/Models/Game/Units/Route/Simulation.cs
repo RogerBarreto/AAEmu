@@ -139,7 +139,7 @@ public class Simulation : Patrol
             i = s.IndexOf('|');
             if (i >= 0)
             {
-                s = s.Substring(i + 1, s.Length - (i + 1));
+                s = s.Substring(i + 1);
                 j++;
             }
             else

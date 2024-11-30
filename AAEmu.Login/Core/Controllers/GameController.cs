@@ -107,7 +107,7 @@ public class GameController : Singleton<GameController>
 
     public void Add(byte gsId, List<byte> mirrorsId, InternalConnection connection)
     {
-        if (!_gameServers.ContainsKey(gsId))
+        if (!_gameServers.TryGetValue(gsId, out var gameServer))
         {
             Logger.Error($"GameServer connection from {connection.Ip} is requesting an invalid WorldId {gsId}");
 
@@ -116,7 +116,6 @@ public class GameController : Singleton<GameController>
             return;
         }
 
-        var gameServer = _gameServers[gsId];
         gameServer.Connection = connection;
         gameServer.MirrorsId.AddRange(mirrorsId);
         connection.GameServer = gameServer;
@@ -133,10 +132,8 @@ public class GameController : Singleton<GameController>
 
     public void Remove(byte gsId)
     {
-        if (!_gameServers.ContainsKey(gsId))
+        if (!_gameServers.TryGetValue(gsId, out var gameServer))
             return;
-
-        var gameServer = _gameServers[gsId];
         gameServer.Connection = null;
 
         foreach (var mirrorId in gameServer.MirrorsId)
@@ -193,9 +190,8 @@ public class GameController : Singleton<GameController>
 
     public void RequestEnterWorld(LoginConnection connection, byte gsId)
     {
-        if (!_gameServers.ContainsKey(gsId))
+        if (!_gameServers.TryGetValue(gsId, out var gs))
             return;
-        var gs = _gameServers[gsId];
         if (!gs.Active)
             return;
         gs.SendPacket(new LGPlayerEnterPacket(connection.AccountId, connection.Id));

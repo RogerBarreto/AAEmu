@@ -114,10 +114,10 @@ public class BuffModifiers
 
     public void RemoveModifier(BuffModifier modifier)
     {
-        if (_modifiersByBuffId.ContainsKey(modifier.BuffId))
-            _modifiersByBuffId[modifier.BuffId].Remove(modifier);
+        if (_modifiersByBuffId.TryGetValue(modifier.BuffId, out var buffsById))
+            buffsById.Remove(modifier);
 
-        if (_modifiersByTagId.ContainsKey(modifier.TagId))
-            _modifiersByTagId[modifier.TagId].Remove(modifier);
+        if (_modifiersByTagId.TryGetValue(modifier.TagId, out var buffsByTag))
+            buffsByTag.Remove(modifier);
     }
 }

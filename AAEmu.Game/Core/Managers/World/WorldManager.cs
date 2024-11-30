@@ -606,8 +606,8 @@ public class WorldManager : Singleton<WorldManager>, IWorldManager
 
     public List<uint> GetZonesByWorldId(uint worldId)
     {
-        if (_zonesByWorldId.ContainsKey(worldId))
-            return _zonesByWorldId[worldId];
+        if (_zonesByWorldId.TryGetValue(worldId, out var value))
+            return value;
         return new List<uint>();
     }
 

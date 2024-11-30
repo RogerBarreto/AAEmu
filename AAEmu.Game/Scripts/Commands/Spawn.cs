@@ -43,7 +43,7 @@ public class Spawn : ICommand
 
         var unitId = 0u;
 
-        if (args[1].ToLower() == "dummy" && args[0] == "npc")
+        if (args[1].Equals("dummy", System.StringComparison.CurrentCultureIgnoreCase) && args[0] == "npc")
         {
             unitId = DUMMY_NPC_TEMPLATE_ID;
         }

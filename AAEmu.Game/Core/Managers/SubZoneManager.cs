@@ -137,12 +137,13 @@ public class SubZoneManager : Singleton<SubZoneManager>
                                         }
                                     }
 
-                                    if (!world.SubZones.ContainsKey(zoneId))
+                                    if (!world.SubZones.TryGetValue(zoneId, out var value))
                                     {
-                                        world.SubZones.Add(zoneId, new List<Area>());
+                                        value = new List<Area>();
+                                        world.SubZones.Add(zoneId, value);
                                     }
 
-                                    world.SubZones[zoneId].Add(template);
+                                    value.Add(template);
                                 }
                             }
                         }
@@ -263,12 +264,13 @@ public class SubZoneManager : Singleton<SubZoneManager>
                                         }
                                     }
 
-                                    if (!world.HousingZones.ContainsKey(zoneId))
+                                    if (!world.HousingZones.TryGetValue(zoneId, out var value))
                                     {
-                                        world.HousingZones.Add(zoneId, new List<Area>());
+                                        value = new List<Area>();
+                                        world.HousingZones.Add(zoneId, value);
                                     }
 
-                                    world.HousingZones[zoneId].Add(template);
+                                    value.Add(template);
                                 }
                             }
                         }

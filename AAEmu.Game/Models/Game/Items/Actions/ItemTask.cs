@@ -20,10 +20,7 @@ public abstract class ItemTask : PacketMarshaler
 
     protected virtual void WriteDetails(PacketStream stream, Item item)
     {
-        if (item == null)
-        {
-            throw new ArgumentNullException(nameof(item));
-        }
+        ArgumentNullException.ThrowIfNull(item);
 
         stream.Write(item.TemplateId);      // type
         stream.Write(item.Id);              // id

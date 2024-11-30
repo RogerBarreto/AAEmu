@@ -42,13 +42,13 @@ public class CharacterFriends
     public void RemoveFriend(string name)
     {
         var friend = FriendMananger.GetFriendInfo(name);
-        if (friend == null || !FriendsIdList.ContainsKey(friend.CharacterId))
+        if (friend == null || !FriendsIdList.TryGetValue(friend.CharacterId, out var value))
         {
             // TODO - ERROR MESSAGE NOT FRIEND
             return;
         }
 
-        FriendMananger.Instance.RemoveFromAllFriends(FriendsIdList[friend.CharacterId].Id);
+        FriendMananger.Instance.RemoveFromAllFriends(value.Id);
         FriendsIdList.Remove(friend.CharacterId);
         _removedFriends.Add(friend.CharacterId);
         Owner.SendPacket(new SCDeleteFriendPacket(friend.CharacterId, true, name, 0));

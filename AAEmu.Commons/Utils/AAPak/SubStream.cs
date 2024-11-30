@@ -16,9 +16,9 @@ public class SubStream : Stream
 
     public SubStream(Stream baseStream, long offset, long length)
     {
-        if (baseStream == null) throw new ArgumentNullException(nameof(baseStream));
+        ArgumentNullException.ThrowIfNull(baseStream);
         if (!baseStream.CanRead) throw new ArgumentException("can't read base stream", nameof(baseStream));
-        if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+        ArgumentOutOfRangeException.ThrowIfNegative(offset);
 
         this.baseStream = baseStream;
         this.baseOffset = offset;

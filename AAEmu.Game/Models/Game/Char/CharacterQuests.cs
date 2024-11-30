@@ -118,9 +118,9 @@ public class CharacterQuests
         // If there's still a timer running for this quest, remove it
         if (QuestManager.Instance.QuestTimeoutTask.Count != 0)
         {
-            if (QuestManager.Instance.QuestTimeoutTask.ContainsKey(quest.Owner.Id) && QuestManager.Instance.QuestTimeoutTask[quest.Owner.Id].ContainsKey(questId))
+            if (QuestManager.Instance.QuestTimeoutTask.TryGetValue(quest.Owner.Id, out var value) && value.ContainsKey(questId))
             {
-                QuestManager.Instance.QuestTimeoutTask[quest.Owner.Id].Remove(questId);
+                value.Remove(questId);
             }
         }
 

@@ -32,16 +32,14 @@ public class UnitProcs
     {
         var procTemplate = ItemManager.Instance.GetItemProcTemplate(procId);
 
-        if (_procsByChanceKind.ContainsKey(procTemplate.ChanceKind))
-            _procsByChanceKind[procTemplate.ChanceKind].RemoveAll(p => p.TemplateId == procId);
+        if (_procsByChanceKind.TryGetValue(procTemplate.ChanceKind, out var value))
+            value.RemoveAll(p => p.TemplateId == procId);
     }
 
     public void RollProcsForKind(ProcChanceKind kind)
     {
-        if (!_procsByChanceKind.ContainsKey(kind))
+        if (!_procsByChanceKind.TryGetValue(kind, out var procs))
             return;
-        var procs = _procsByChanceKind[kind];
-
         foreach (var proc in procs)
         {
             if (proc.LastProc.AddSeconds(proc.Template.CooldownSec) <= DateTime.UtcNow)

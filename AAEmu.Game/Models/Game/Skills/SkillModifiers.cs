@@ -112,10 +112,10 @@ public class SkillModifiers
 
     public void RemoveModifier(SkillModifier modifier)
     {
-        if (_modifiersBySkillId.ContainsKey(modifier.SkillId))
-            _modifiersBySkillId[modifier.SkillId].Remove(modifier);
+        if (_modifiersBySkillId.TryGetValue(modifier.SkillId, out var skillsById))
+            skillsById.Remove(modifier);
 
-        if (_modifiersByTagId.ContainsKey(modifier.TagId))
-            _modifiersByTagId[modifier.TagId].Remove(modifier);
+        if (_modifiersByTagId.TryGetValue(modifier.TagId, out var skillsByTag))
+            skillsByTag.Remove(modifier);
     }
 }

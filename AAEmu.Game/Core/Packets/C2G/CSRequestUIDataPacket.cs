@@ -15,9 +15,9 @@ public class CSRequestUIDataPacket : GamePacket
         var uiDataType = stream.ReadUInt16();
         var id = stream.ReadUInt32();
 
-        if (Connection.Characters.ContainsKey(id))
+        if (Connection.Characters.TryGetValue(id, out var value))
             Connection.SendPacket(
-                new SCResponseUIDataPacket(id, uiDataType, Connection.Characters[id].GetOption(uiDataType))
+                new SCResponseUIDataPacket(id, uiDataType, value.GetOption(uiDataType))
             );
     }
 }

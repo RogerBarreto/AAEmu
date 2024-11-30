@@ -69,10 +69,7 @@ public class DuelManager : Singleton<DuelManager>
 
     public void DuelAccepted(Character challenged, uint challengerId)
     {
-        if (challenged == null)
-        {
-            throw new ArgumentNullException(nameof(challenged));
-        }
+        ArgumentNullException.ThrowIfNull(challenged);
         // приходит ID того, кто вызвал на дуэль
         try
         {

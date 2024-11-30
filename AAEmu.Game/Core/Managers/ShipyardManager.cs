@@ -45,7 +45,7 @@ public class ShipyardManager : Singleton<ShipyardManager>
 
     public Shipyard Create(Character owner, ShipyardData shipyardData)
     {
-        if (!_shipyardsTemplate.ContainsKey(shipyardData.TemplateId))
+        if (!_shipyardsTemplate.TryGetValue(shipyardData.TemplateId, out var template))
             return null;
 
         var pos = owner.Transform.CloneAsSpawnPosition();
@@ -56,8 +56,6 @@ public class ShipyardManager : Singleton<ShipyardManager>
 
         var objId = ObjectIdManager.Instance.GetNextId();
         var shipId = ShipyardIdManager.Instance.GetNextId();
-
-        var template = _shipyardsTemplate[shipyardData.TemplateId];
         var shipyard = new Shipyard();
         shipyard.TemplateId = shipyardData.TemplateId; // duplicate Id
         shipyard.Id = shipyardData.TemplateId;
@@ -342,9 +340,9 @@ public class ShipyardManager : Singleton<ShipyardManager>
                             NumActions = reader.GetInt32("num_actions"),
                             MaxHp = reader.GetInt32("max_hp")
                         };
-                        if (_shipyardsTemplate.ContainsKey(template.ShipyardId))
+                        if (_shipyardsTemplate.TryGetValue(template.ShipyardId, out var value))
                         {
-                            _shipyardsTemplate[template.ShipyardId].ShipyardSteps.Add(template.Step, template);
+                            value.ShipyardSteps.Add(template.Step, template);
                         }
                     }
                 }

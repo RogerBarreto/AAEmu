@@ -345,7 +345,7 @@ public sealed class House : Unit
             case HousingPermission.Private:
                 if (player.Id == OwnerId)
                     return base.AllowedToInteract(player);
-                var ownerAccount = NameManager.Instance.GetCharaterAccount(OwnerId);
+                var ownerAccount = NameManager.Instance.GetCharacterAccount(OwnerId);
                 return (player.AccountId == ownerAccount) && base.AllowedToInteract(player);
             case HousingPermission.Family when (player.Family > 0):
                 return FamilyManager.Instance.GetFamily(player.Family).Members.Any(x => x.Id == OwnerId);

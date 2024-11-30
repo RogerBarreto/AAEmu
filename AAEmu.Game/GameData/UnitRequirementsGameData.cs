@@ -13,15 +13,12 @@ using AAEmu.Game.Models.Game.Units.Static;
 using AAEmu.Game.Models.Spheres;
 using AAEmu.Game.Utils.DB;
 using Microsoft.Data.Sqlite;
-using NLog;
 
 namespace AAEmu.Game.GameData;
 
 [GameData]
 public class UnitRequirementsGameData : Singleton<UnitRequirementsGameData>, IGameDataLoader
 {
-    private Logger Logger = LogManager.GetCurrentClassLogger();
-
     /// <summary>
     /// Id, unit_reqs
     /// </summary>

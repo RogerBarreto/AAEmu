@@ -93,7 +93,7 @@ public class ClientSource
                     {
                         foreach (var pfi in GamePak.files)
                         {
-                            if (pfi.name.ToLower().StartsWith(rootDir))
+                            if (pfi.name.StartsWith(rootDir, System.StringComparison.CurrentCultureIgnoreCase))
                             {
                                 if ((string.IsNullOrWhiteSpace(searchPattern) ||
                                      (Regex.Match(pfi.name.ToLower(), wildCard).Success)))

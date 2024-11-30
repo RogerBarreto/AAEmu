@@ -772,16 +772,16 @@ public class SlaveManager : Singleton<SlaveManager>
     {
         if (_attachPoints.ContainsKey(slave.ModelId))
         {
-            if (_attachPoints[slave.ModelId].ContainsKey(attachPoint))
+            if (_attachPoints[slave.ModelId].TryGetValue(attachPoint, out var value))
             {
                 baseUnit.Transform = slave.Transform.CloneAttached(baseUnit);
                 baseUnit.Transform.Parent = slave.Transform;
-                baseUnit.Transform.Local.Translate(_attachPoints[slave.ModelId][attachPoint].AsPositionVector());
+                baseUnit.Transform.Local.Translate(value.AsPositionVector());
                 baseUnit.Transform.Local.SetRotation(
-                    _attachPoints[slave.ModelId][attachPoint].Roll,
-                    _attachPoints[slave.ModelId][attachPoint].Pitch,
-                    _attachPoints[slave.ModelId][attachPoint].Yaw);
-                Logger.Debug($"Model id: {slave.ModelId} attachment {attachPoint} => pos {_attachPoints[slave.ModelId][attachPoint]} = {baseUnit.Transform}");
+value.Roll,
+value.Pitch,
+value.Yaw);
+                Logger.Debug($"Model id: {slave.ModelId} attachment {attachPoint} => pos {value} = {baseUnit.Transform}");
                 return;
             }
 
@@ -982,9 +982,9 @@ public class SlaveManager : Singleton<SlaveManager>
                             SlaveId = reader.GetUInt32("slave_id"),
                             BuffId = reader.GetUInt32("buff_id")
                         };
-                        if (_slaveTemplates.ContainsKey(template.SlaveId))
+                        if (_slaveTemplates.TryGetValue(template.SlaveId, out var value))
                         {
-                            _slaveTemplates[template.SlaveId].InitialBuffs.Add(template);
+                            value.InitialBuffs.Add(template);
                         }
                     }
                 }
@@ -1006,9 +1006,9 @@ public class SlaveManager : Singleton<SlaveManager>
                             OwnerType = reader.GetString("owner_type"),
                             PassiveBuffId = reader.GetUInt32("passive_buff_id")
                         };
-                        if (_slaveTemplates.ContainsKey(template.OwnerId))
+                        if (_slaveTemplates.TryGetValue(template.OwnerId, out var value))
                         {
-                            _slaveTemplates[template.OwnerId].PassiveBuffs.Add(template);
+                            value.PassiveBuffs.Add(template);
                         }
                     }
                 }
@@ -1033,9 +1033,9 @@ public class SlaveManager : Singleton<SlaveManager>
                             Persist = reader.GetBoolean("persist", true),
                             Scale = reader.GetFloat("scale")
                         };
-                        if (_slaveTemplates.ContainsKey(template.OwnerId))
+                        if (_slaveTemplates.TryGetValue(template.OwnerId, out var value))
                         {
-                            _slaveTemplates[template.OwnerId].DoodadBindings.Add(template);
+                            value.DoodadBindings.Add(template);
                         }
                     }
                 }
@@ -1060,9 +1060,9 @@ public class SlaveManager : Singleton<SlaveManager>
                             Persist = false,
                             Scale = 1f
                         };
-                        if (_slaveTemplates.ContainsKey(template.OwnerId))
+                        if (_slaveTemplates.TryGetValue(template.OwnerId, out var value))
                         {
-                            _slaveTemplates[template.OwnerId].HealingPointDoodads.Add(template);
+                            value.HealingPointDoodads.Add(template);
                         }
                     }
                 }
@@ -1086,9 +1086,9 @@ public class SlaveManager : Singleton<SlaveManager>
                             SlaveId = reader.GetUInt32("slave_id")
                         };
 
-                        if (_slaveTemplates.ContainsKey(template.OwnerId))
+                        if (_slaveTemplates.TryGetValue(template.OwnerId, out var value))
                         {
-                            _slaveTemplates[template.OwnerId].SlaveBindings.Add(template);
+                            value.SlaveBindings.Add(template);
                         }
                     }
                 }
@@ -1119,9 +1119,9 @@ public class SlaveManager : Singleton<SlaveManager>
                             Logger.Warn($"Non slave-owned drops defined in slave_drop_doodads table");
                             continue;
                         }
-                        if (_slaveTemplates.ContainsKey(template.OwnerId))
+                        if (_slaveTemplates.TryGetValue(template.OwnerId, out var value))
                         {
-                            _slaveTemplates[template.OwnerId].SlaveDropDoodads.Add(template);
+                            value.SlaveDropDoodads.Add(template);
                         }
                     }
                 }

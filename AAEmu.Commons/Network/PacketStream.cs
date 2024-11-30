@@ -248,10 +248,8 @@ public class PacketStream : ICloneable, IComparable
 
     public PacketStream Erase(int from, int to)
     {
-        if (from > to)
-            throw new ArgumentOutOfRangeException(nameof(from));
-        if (Count < to)
-            throw new ArgumentOutOfRangeException(nameof(to));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(from, to);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(to, Count);
 
         // shift good content to erase
         SBuffer.BlockCopy(Buffer, to, Buffer, from, Count -= to - from);

@@ -116,11 +116,13 @@ public class AiGameData : Singleton<AiGameData>, IGameDataLoader
                     template.Param1 = reader.GetUInt32("param1");
                     template.Param2 = reader.GetString("param2");
 
-                    if (!_aiCommands.ContainsKey(template.CmdSetId))
+                    if (!_aiCommands.TryGetValue(template.CmdSetId, out var value))
                     {
-                        _aiCommands.Add(template.CmdSetId, new List<AiCommands>());
+                        value = new List<AiCommands>();
+                        _aiCommands.Add(template.CmdSetId, value);
                     }
-                    _aiCommands[template.CmdSetId].Add(template);
+
+                    value.Add(template);
                 }
             }
         }

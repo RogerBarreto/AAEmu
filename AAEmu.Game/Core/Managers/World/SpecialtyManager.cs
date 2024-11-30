@@ -202,19 +202,18 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
 
         var bundleIdAtNPC = specialtyNpc.SpecialtyBundleId;
 
-        if (!_specialtyBundleItemsMapped.ContainsKey(backpack.TemplateId))
+        if (!_specialtyBundleItemsMapped.TryGetValue(backpack.TemplateId, out var bundleMapping))
         {
             player.SendErrorMessage(ErrorMessageType.Invalid);
             return 0;
         }
 
-        if (!_specialtyBundleItemsMapped[backpack.TemplateId].TryGetValue(bundleIdAtNPC, out var value))
+        if (!bundleMapping.TryGetValue(bundleIdAtNPC, out var bundleItem))
         {
             player.SendErrorMessage(ErrorMessageType.Invalid);
             return 0;
         }
 
-        var bundleItem = value;
         if (bundleItem == null)
         {
             player.SendErrorMessage(ErrorMessageType.Invalid);
@@ -325,9 +324,7 @@ public class SpecialtyManager : Singleton<SpecialtyManager>
         if (!_soldPackAmountInTick.ContainsKey(backpack.TemplateId))
             _soldPackAmountInTick.Add(backpack.TemplateId, new Dictionary<uint, int>());
 
-        if (!_soldPackAmountInTick[backpack.TemplateId].ContainsKey(zoneGroupId))
-            _soldPackAmountInTick[backpack.TemplateId].Add(zoneGroupId, 0);
-
+        _soldPackAmountInTick[backpack.TemplateId].TryAdd(zoneGroupId, 0);
         _soldPackAmountInTick[backpack.TemplateId][zoneGroupId] += 1;
 
         return basePrice;

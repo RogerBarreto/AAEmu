@@ -50,12 +50,12 @@ public class FriendMananger : Singleton<FriendMananger>
 
     public void AddToAllFriends(FriendTemplate template)
     {
-        if (!_allFriends.ContainsKey(template.Id)) _allFriends.Add(template.Id, template);
+        _allFriends.TryAdd(template.Id, template);
     }
 
     public void RemoveFromAllFriends(uint id)
     {
-        if (_allFriends.ContainsKey(id)) _allFriends.Remove(id);
+        _allFriends.Remove(id);
     }
 
     public void SendStatusChange(Character unit, bool forOnline, bool boolean)

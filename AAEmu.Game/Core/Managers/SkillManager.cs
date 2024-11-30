@@ -1713,9 +1713,10 @@ public class SkillManager : Singleton<SkillManager>, ISkillManager
                     {
                         var trigger = new BuffTriggerTemplate();
                         var buffId = reader.GetUInt32("buff_id");
-                        if (!_buffTriggers.ContainsKey(buffId))
+                        if (!_buffTriggers.TryGetValue(buffId, out var value))
                         {
-                            _buffTriggers.Add(buffId, new List<BuffTriggerTemplate>());
+                            value = new List<BuffTriggerTemplate>();
+                            _buffTriggers.Add(buffId, value);
                         }
                         trigger.Id = reader.GetUInt32("id");
                         trigger.Kind = (BuffEventTriggerKind)reader.GetUInt16("event_id");
@@ -1730,7 +1731,7 @@ public class SkillManager : Singleton<SkillManager>, ISkillManager
                         //Apparently this is possible..
                         if (trigger.Effect != null)
                         {
-                            _buffTriggers[buffId].Add(trigger);
+                            value.Add(trigger);
                         }
                     }
                 }

@@ -69,8 +69,8 @@ public class PlotTree
 
                 if (now >= item.timestamp)
                 {
-                    if (state.Tickets.ContainsKey(node.Event.Id))
-                        state.Tickets[node.Event.Id]++;
+                    if (state.Tickets.TryGetValue(node.Event.Id, out var value))
+                        state.Tickets[node.Event.Id] = ++value;
                     else
                         state.Tickets.TryAdd(node.Event.Id, 1);
 

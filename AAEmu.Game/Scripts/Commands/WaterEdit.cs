@@ -251,7 +251,7 @@ public class WaterEdit : ICommand
             {
                 foreach (var area in world.Water.Areas)
                 {
-                    if (area.Name.ToLower() == selectName || area.Id.ToString() == selectName)
+                    if (area.Name.Equals(selectName, StringComparison.CurrentCultureIgnoreCase) || area.Id.ToString() == selectName)
                     {
                         SelectedWater = area;
                         NextPoint = 0;
@@ -267,7 +267,7 @@ public class WaterEdit : ICommand
                 {
                     foreach (var area in world.Water.Areas)
                     {
-                        if (area.Name.ToLower().Contains(selectName))
+                        if (area.Name.Contains(selectName, StringComparison.CurrentCultureIgnoreCase))
                         {
                             SelectedWater = area;
                             NextPoint = 0;

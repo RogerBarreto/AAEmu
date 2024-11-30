@@ -172,12 +172,12 @@ public class GameScheduleManager : Singleton<GameScheduleManager>
     public string GetCronRemainingTime(int spawnerId, bool start = true)
     {
         var cronExpression = Empty;
-        if (!_gameScheduleSpawnerIds.ContainsKey(spawnerId))
+        if (!_gameScheduleSpawnerIds.TryGetValue(spawnerId, out var _gameScheduleIds))
         {
             return cronExpression;
         }
 
-        foreach (var gameScheduleId in _gameScheduleSpawnerIds[spawnerId])
+        foreach (var gameScheduleId in _gameScheduleIds)
         {
             if (!_gameSchedules.ContainsKey(gameScheduleId)) { continue; }
 
@@ -192,12 +192,12 @@ public class GameScheduleManager : Singleton<GameScheduleManager>
     public string GetDoodadCronRemainingTime(int doodadId, bool start = true)
     {
         var cronExpression = Empty;
-        if (!_gameScheduleDoodadIds.ContainsKey(doodadId))
+        if (!_gameScheduleDoodadIds.TryGetValue(doodadId, out var value))
         {
             return cronExpression;
         }
 
-        foreach (var gameScheduleId in _gameScheduleDoodadIds[doodadId])
+        foreach (var gameScheduleId in value)
         {
             if (!_gameSchedules.ContainsKey(gameScheduleId)) { continue; }
 
@@ -211,14 +211,14 @@ public class GameScheduleManager : Singleton<GameScheduleManager>
 
     public TimeSpan GetRemainingTime(int spawnerId, bool start = true)
     {
-        if (!_gameScheduleSpawnerIds.ContainsKey(spawnerId))
+        if (!_gameScheduleSpawnerIds.TryGetValue(spawnerId, out var value))
         {
             return TimeSpan.Zero;
         }
 
         var remainingTime = TimeSpan.MaxValue;
 
-        foreach (var gameScheduleId in _gameScheduleSpawnerIds[spawnerId])
+        foreach (var gameScheduleId in value)
         {
             if (!_gameSchedules.ContainsKey(gameScheduleId)) { continue; }
 
@@ -244,13 +244,13 @@ public class GameScheduleManager : Singleton<GameScheduleManager>
         _gameScheduleSpawnerIds = new Dictionary<int, List<int>>();
         foreach (var gss in _gameScheduleSpawners.Values)
         {
-            if (!_gameScheduleSpawnerIds.ContainsKey(gss.SpawnerId))
+            if (!_gameScheduleSpawnerIds.TryGetValue(gss.SpawnerId, out var gameScheduleIds))
             {
-                _gameScheduleSpawnerIds.Add(gss.SpawnerId, new List<int> { gss.GameScheduleId });
+                _gameScheduleSpawnerIds.Add(gss.SpawnerId, [gss.GameScheduleId]);
             }
             else
             {
-                _gameScheduleSpawnerIds[gss.SpawnerId].Add(gss.GameScheduleId);
+                gameScheduleIds.Add(gss.GameScheduleId);
             }
         }
 
@@ -258,13 +258,13 @@ public class GameScheduleManager : Singleton<GameScheduleManager>
         _gameScheduleDoodadIds = new Dictionary<int, List<int>>();
         foreach (var gsd in _gameScheduleDoodads.Values)
         {
-            if (!_gameScheduleDoodadIds.ContainsKey(gsd.DoodadId))
+            if (!_gameScheduleDoodadIds.TryGetValue(gsd.DoodadId, out var gameScheduleIds))
             {
-                _gameScheduleDoodadIds.Add(gsd.DoodadId, new List<int> { gsd.GameScheduleId });
+                _gameScheduleDoodadIds.Add(gsd.DoodadId, [gsd.GameScheduleId]);
             }
             else
             {
-                _gameScheduleDoodadIds[gsd.DoodadId].Add(gsd.GameScheduleId);
+                gameScheduleIds.Add(gsd.GameScheduleId);
             }
         }
         //TODO: quests data

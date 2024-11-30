@@ -321,9 +321,9 @@ public class TransferManager : Singleton<TransferManager>
                             AttachPointId = (AttachPointKind)reader.GetInt16("attach_point_id"),
                             TransferId = reader.GetUInt32("transfer_id")
                         };
-                        if (_templates.ContainsKey(template.OwnerId))
+                        if (_templates.TryGetValue(template.OwnerId, out var value))
                         {
-                            _templates[template.OwnerId].TransferBindings.Add(template);
+                            value.TransferBindings.Add(template);
                         }
                     }
                 }
@@ -346,9 +346,9 @@ public class TransferManager : Singleton<TransferManager>
                             AttachPointId = (AttachPointKind)reader.GetInt32("attach_point_id"),
                             DoodadId = reader.GetUInt32("doodad_id"),
                         };
-                        if (_templates.ContainsKey(template.OwnerId))
+                        if (_templates.TryGetValue(template.OwnerId, out var value))
                         {
-                            _templates[template.OwnerId].TransferBindingDoodads.Add(template);
+                            value.TransferBindingDoodads.Add(template);
                         }
                     }
                 }
@@ -372,9 +372,9 @@ public class TransferManager : Singleton<TransferManager>
                             WaitTimeStart = reader.GetDouble("wait_time_start"),
                             WaitTimeEnd = reader.GetDouble("wait_time_end")
                         };
-                        if (_templates.ContainsKey(template.OwnerId))
+                        if (_templates.TryGetValue(template.OwnerId, out var value))
                         {
-                            _templates[template.OwnerId].TransferAllPaths.Add(template);
+                            value.TransferAllPaths.Add(template);
                         }
                     }
                 }

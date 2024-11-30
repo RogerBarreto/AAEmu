@@ -189,7 +189,7 @@ public class HousingManager : Singleton<HousingManager>
                         template.GardenRadius = reader.GetFloat("garden_radius");
                         template.Family = reader.GetString("family");
                         var taxationId = reader.GetUInt32("taxation_id");
-                        template.Taxation = TaxationsManager.Instance.taxations.ContainsKey(taxationId) ? TaxationsManager.Instance.taxations[taxationId] : null;
+                        template.Taxation = TaxationsManager.Instance.taxations.TryGetValue(taxationId, out var taxation) ? taxation : null;
                         template.GuardTowerSettingId = reader.GetUInt32("guard_tower_setting_id", 0);
                         template.CinemaRadius = reader.GetFloat("cinema_radius");
                         template.AutoZOffsetX = reader.GetFloat("auto_z_offset_x");

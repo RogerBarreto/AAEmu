@@ -3,7 +3,7 @@
 // Adapted from:
 
 /* C# Version Copyright (C) 2001-2004 Akihilo Kramot (Takel).  */
-/* C# porting from a C-program for MT19937, originaly coded by */
+/* C# porting from a C-program for MT19937, originally coded by */
 /* Takuji Nishimura and Makoto Matsumoto, considering the suggestions by */
 /* Topher Cooper and Marc Rieffel in July-Aug. 1997.           */
 /* This library is free software under the Artistic license:   */
@@ -113,8 +113,7 @@ public class MersenneTwister : Random
     /// <param name="initKey">The array for initializing keys.</param>
     public MersenneTwister(int[] initKey)
     {
-        if (initKey == null)
-            throw new ArgumentNullException(nameof(initKey));
+        ArgumentNullException.ThrowIfNull(initKey);
 
         var initArray = new uint[initKey.Length];
 
@@ -194,8 +193,7 @@ public class MersenneTwister : Random
     {
         if (maxValue < 1)
         {
-            if (maxValue < 0)
-                throw new ArgumentOutOfRangeException(nameof(maxValue));
+            ArgumentOutOfRangeException.ThrowIfNegative(maxValue);
             return 0;
         }
 
@@ -235,8 +233,7 @@ public class MersenneTwister : Random
     public override void NextBytes(byte[] buffer)
     {
         // [codekaizen: corrected this to check null before checking length.]
-        if (buffer == null)
-            throw new ArgumentNullException(nameof(buffer));
+        ArgumentNullException.ThrowIfNull(buffer);
 
         var bufLen = buffer.Length;
         for (var idx = 0; idx < bufLen; ++idx)

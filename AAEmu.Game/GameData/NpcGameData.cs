@@ -158,13 +158,13 @@ public class NpcGameData : Singleton<NpcGameData>, IGameDataLoader
 
         foreach (var nsn in _npcSpawnerTemplateNpcs.Values)
         {
-            if (!_npcMemberAndSpawnerTemplateIds.ContainsKey(nsn.MemberId))
+            if (!_npcMemberAndSpawnerTemplateIds.TryGetValue(nsn.MemberId, out var value))
             {
                 _npcMemberAndSpawnerTemplateIds.Add(nsn.MemberId, new List<uint> { nsn.NpcSpawnerTemplateId });
             }
             else
             {
-                _npcMemberAndSpawnerTemplateIds[nsn.MemberId].Add(nsn.NpcSpawnerTemplateId);
+                value.Add(nsn.NpcSpawnerTemplateId);
             }
         }
     }
@@ -191,11 +191,11 @@ public class NpcGameData : Singleton<NpcGameData>, IGameDataLoader
 
     public List<NpcSkill> GetNpSkills(uint npcId, SkillUseConditionKind skillCondition = SkillUseConditionKind.None)
     {
-        if (_skillsForNpc.ContainsKey(npcId))
+        if (_skillsForNpc.TryGetValue(npcId, out var value))
         {
             if (skillCondition == SkillUseConditionKind.None)
                 return _skillsForNpc[npcId];
-            return _skillsForNpc[npcId].Where(npSkill => npSkill.SkillUseCondition == skillCondition).ToList();
+            return value.Where(npSkill => npSkill.SkillUseCondition == skillCondition).ToList();
         }
 
         return null;

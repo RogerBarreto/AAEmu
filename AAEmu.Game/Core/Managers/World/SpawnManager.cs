@@ -477,10 +477,7 @@ public class SpawnManager : Singleton<SpawnManager>
 
     public void RemovePlayerDoodad(Doodad doodad)
     {
-        if (_playerDoodads.Contains(doodad))
-        {
-            _playerDoodads.Remove(doodad);
-        }
+        _playerDoodads.Remove(doodad);
     }
 
     public void AddPlayerDoodad(Doodad doodad)

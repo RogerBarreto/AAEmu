@@ -77,9 +77,7 @@ public enum SkillResult : byte
     LackSourceItemSet = 0x45,
     LackActability = 0x46,
     UrkStart = 0x46, // Start offset for UnitReqsKindType
-#pragma warning disable CA1069 // Enums values should not be duplicated
     UrkLevel = 0x47,
-#pragma warning restore CA1069 // Enums values should not be duplicated
     UrkAbility = 0x48,
     UrkRace = 0x49,
     UrkGender = 0x4A,

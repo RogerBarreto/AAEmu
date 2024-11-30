@@ -42,7 +42,7 @@ public class Move : ICommand
             targetPlayer = WorldManager.GetTargetOrSelf(character, args[0], out firstArg);
         }
 
-        var moveToMe = targetPlayer != character && args.Length == 2 && args[1].ToLower() == "tome";
+        var moveToMe = targetPlayer != character && args.Length == 2 && args[1].Equals("tome", System.StringComparison.CurrentCultureIgnoreCase);
 
         if (!moveToMe && args.Length < firstArg + 3 && targetPlayer == character)
         {

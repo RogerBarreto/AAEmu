@@ -738,11 +738,11 @@ public class Unit : BaseUnit, IUnit
 
     public override void RemoveBonus(uint bonusIndex, UnitAttribute attribute)
     {
-        if (!Bonuses.ContainsKey(bonusIndex))
+        if (!Bonuses.TryGetValue(bonusIndex, out var bonuses))
         {
             return;
         }
-        var bonuses = Bonuses[bonusIndex];
+
         foreach (var bonus in new List<Bonus>(bonuses))
         {
             if (bonus.Template != null && bonus.Template.Attribute == attribute)
@@ -1126,14 +1126,14 @@ public class Unit : BaseUnit, IUnit
                 if (template.EquipItemSetId == 0)
                     continue;
 
-                if (!setNumPieces.ContainsKey(equipItemSetId))
+                if (!setNumPieces.TryGetValue(equipItemSetId, out var value))
                 {
                     setNumPieces.Add(equipItemSetId, (1));
                     itemLevels.Add(equipItemSetId, (uint)item.Template.Level);
                 }
                 else
                 {
-                    setNumPieces[equipItemSetId]++;
+                    setNumPieces[equipItemSetId] = ++value;
                     if (item.Template.Level < itemLevels[equipItemSetId])
                         itemLevels[equipItemSetId] = (uint)item.Template.Level;
                 }

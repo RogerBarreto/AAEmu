@@ -28,10 +28,8 @@ public class CharacterActability
     /// <returns>The amount that was actually changed</returns>
     public int AddPoint(uint id, int point)
     {
-        if (!Actabilities.ContainsKey(id))
+        if (!Actabilities.TryGetValue(id, out var actability))
             return 0;
-
-        var actability = Actabilities[id];
         var previousPoints = actability.Point;
         actability.Point += point;
 

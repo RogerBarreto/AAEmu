@@ -265,10 +265,7 @@ public class CharacterPortals
             {
                 //if (portal.Id != returnPointsId) { continue; }
 
-                if (!DistrictPortals.ContainsKey(portal.Id))
-                {
-                    DistrictPortals.Add(portal.Id, portal);
-                }
+                DistrictPortals.TryAdd(portal.Id, portal);
             }
         }
     }

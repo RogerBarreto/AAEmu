@@ -424,7 +424,7 @@ public class AuctionManager : Singleton<AuctionManager>
         var deletedCount = 0;
         var updatedCount = 0;
 
-        if (_deletedAuctionItemIds.Count > 0)
+        if (!_deletedAuctionItemIds.IsEmpty)
         {
             using (var command = connection.CreateCommand())
             {

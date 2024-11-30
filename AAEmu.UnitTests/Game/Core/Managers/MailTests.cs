@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AAEmu.Commons.Utils;
 using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.Id;
 using AAEmu.Game.Models.Game.Char;
@@ -27,14 +28,14 @@ public sealed class MailTests : IDisposable
 
         _mails = new CharacterMails(_character);
 
-        NameManager.Instance.AddCharacterName(_character.Id, _character.Name, 1);
+        NameManager.Instance.AddCharacter(_character.Id, _character.Name, 1);
         MailIdManager.Instance.Initialize();
         MailManager.Instance._allPlayerMails = new Dictionary<long, BaseMail>();
     }
 
     public void Dispose()
     {
-        NameManager.Instance.RemoveCharacterName(_character.Id);
+        NameManager.Instance.RemoveCharacterId(_character.Id);
         MailManager.Instance._allPlayerMails = null;
         _character = null;
         _mails = null;
@@ -44,7 +45,7 @@ public sealed class MailTests : IDisposable
     public void MoneyTest()
     {
         var type = MailType.Express;
-        var receiverCharName = "tester";
+        var receiverCharName = "tester".NormalizeName();
         var title = "test";
         var text = "test";
         var attachments = (byte)0;

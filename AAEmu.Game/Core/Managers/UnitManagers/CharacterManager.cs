@@ -274,10 +274,10 @@ public class CharacterManager : Singleton<CharacterManager>
                         expand.ItemCount = reader.GetInt32("item_count");
                         expand.CurrencyId = reader.GetInt32("currency_id");
 
-                        if (!_expands.ContainsKey(expand.Step))
+                        if (!_expands.TryGetValue(expand.Step, out var value))
                             _expands.Add(expand.Step, new List<Expand> { expand });
                         else
-                            _expands[expand.Step].Add(expand);
+                            value.Add(expand);
                     }
                 }
             }
@@ -417,7 +417,7 @@ public class CharacterManager : Singleton<CharacterManager>
     public void Create(GameConnection connection, string name, Race race, Gender gender, uint[] bodyItems, UnitCustomModelParams customModel, AbilityType ability1, AbilityType ability2, AbilityType ability3, byte level)
     {
         name = name.NormalizeName();
-        var nameValidationCode = NameManager.Instance.ValidationCharacterName(name);
+        var nameValidationCode = NameManager.Instance.ValidateCharacterName(name);
         if (nameValidationCode != CharacterCreateError.Ok)
         {
             connection.SendPacket(new SCCharacterCreationFailedPacket(nameValidationCode));
@@ -441,7 +441,7 @@ public class CharacterManager : Singleton<CharacterManager>
             useAccessLevel = Math.Max(AppConfiguration.Instance.Account.AccessLevelFirstCharacter, useAccessLevel);
 
         var characterId = CharacterIdManager.Instance.GetNextId();
-        NameManager.Instance.AddCharacterName(characterId, name, connection.AccountId);
+        NameManager.Instance.AddCharacter(characterId, name, connection.AccountId);
         var template = GetTemplate(race, gender);
 
         var character = new Character(customModel);
@@ -565,7 +565,7 @@ public class CharacterManager : Singleton<CharacterManager>
             // Just send a generic Failed error (Name already in use for pending deletion)
             connection.SendPacket(new SCCharacterCreationFailedPacket(CharacterCreateError.Failed));
             CharacterIdManager.Instance.ReleaseId(characterId);
-            NameManager.Instance.RemoveCharacterName(characterId);
+            NameManager.Instance.RemoveCharacterId(characterId);
             // TODO release items...
             DeleteCharacterAssets(character, true);
         }
@@ -641,8 +641,8 @@ public class CharacterManager : Singleton<CharacterManager>
                 if (AppConfiguration.Instance.Account.DeleteReleaseName)
                 {
                     deletedName = "!" + character.Name;
-                    NameManager.Instance.RemoveCharacterName(character.Id);
-                    NameManager.Instance.AddCharacterName(character.Id, deletedName, character.AccountId);
+                    NameManager.Instance.RemoveCharacterId(character.Id);
+                    NameManager.Instance.AddCharacter(character.Id, deletedName, character.AccountId);
                 }
 
                 command.Connection = dbConnection;
@@ -901,7 +901,7 @@ public class CharacterManager : Singleton<CharacterManager>
         // The client will do a salon leave request after it gets the SCCharacterGenderAndModelModifiedPacket
     }
 
-    public bool IsCharacterPendingDeletion(string name)
+    public virtual bool IsCharacterPendingDeletion(string name)
     {
         using (var connection = MySQL.CreateConnection())
         {

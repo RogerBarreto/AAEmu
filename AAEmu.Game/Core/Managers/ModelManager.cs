@@ -27,15 +27,10 @@ namespace AAEmu.Game.Core.Managers
 
             public ActorModel GetActorModel(uint modelId)
             {
-                if (!_modelTypes.ContainsKey(modelId))
+                if (!_modelTypes.TryGetValue(modelId, out var modelType))
                     return null;
-
-                var modelType = _modelTypes[modelId];
-
-                if (!_models.ContainsKey(modelType.SubType) || !_models[modelType.SubType].ContainsKey(modelType.SubId))
+                if (!_models.TryGetValue(modelType.SubType, out var value) || !value.TryGetValue(modelType.SubId, out var model))
                     return null;
-
-                var model = _models[modelType.SubType][modelType.SubId];
                 if (model is ActorModel actorModel)
                     return actorModel;
                 return null;
@@ -43,15 +38,10 @@ namespace AAEmu.Game.Core.Managers
 
             public ShipModel GetShipModel(uint modelId)
             {
-                if (!_modelTypes.ContainsKey(modelId))
+                if (!_modelTypes.TryGetValue(modelId, out var modelType))
                     return null;
-
-                var modelType = _modelTypes[modelId];
-
-                if (!_models.ContainsKey(modelType.SubType) || !_models[modelType.SubType].ContainsKey(modelType.SubId))
+                if (!_models.TryGetValue(modelType.SubType, out var value) || !value.TryGetValue(modelType.SubId, out var model))
                     return null;
-
-                var model = _models[modelType.SubType][modelType.SubId];
                 if (model is ShipModel shipModel)
                     return shipModel;
                 return null;
@@ -59,15 +49,10 @@ namespace AAEmu.Game.Core.Managers
 
             public VehicleModel GetVehicleModels(uint modelId)
             {
-                if (!_modelTypes.ContainsKey(modelId))
+                if (!_modelTypes.TryGetValue(modelId, out var modelType))
                     return null;
-
-                var modelType = _modelTypes[modelId];
-
-                if (!_models.ContainsKey(modelType.SubType) || !_models[modelType.SubType].ContainsKey(modelType.SubId))
+                if (!_models.TryGetValue(modelType.SubType, out var value) || !value.TryGetValue(modelType.SubId, out var model))
                     return null;
-
-                var model = _models[modelType.SubType][modelType.SubId];
                 if (model is VehicleModel vehicleModel)
                     return vehicleModel;
                 return null;
@@ -75,12 +60,10 @@ namespace AAEmu.Game.Core.Managers
 
             public bool IsFlyOrSwim(uint modelId)
             {
-                if (!_modelTypes.ContainsKey(modelId))
+                if (!_modelTypes.TryGetValue(modelId, out var modelType))
                     return false;
-                var modelType = _modelTypes[modelId];
-                if (!_models.ContainsKey(modelType.SubType) || !_models[modelType.SubType].ContainsKey(modelType.SubId))
+                if (!_models.TryGetValue(modelType.SubType, out var value) || !value.TryGetValue(modelType.SubId, out var model))
                     return false;
-                var model = _models[modelType.SubType][modelType.SubId];
                 return model is ActorModel { MovementId: 2 };
             }
 
