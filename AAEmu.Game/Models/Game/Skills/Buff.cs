@@ -21,7 +21,7 @@ public enum EffectState
 
 public class Buff
 {
-    protected static Logger Logger => LogManager.GetCurrentClassLogger();
+    protected static Logger Logger = LogManager.GetCurrentClassLogger();
 
     private object _lock = new();
     private int _count;
