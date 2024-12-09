@@ -35,6 +35,7 @@ indent_size = 2
 
 # Dotnet code style settings:
 [*.{cs,vb}]
+spelling_exclusion_path = exclusion.dic
 end_of_line = crlf
 # Sort using and Import directives with System.* appearing first
 dotnet_sort_system_directives_first = true
@@ -137,6 +138,8 @@ dotnet_diagnostic.CA1859.severity = warning # Use concrete types when possible f
 dotnet_diagnostic.CA1860.severity = warning # Prefer comparing 'Count' to 0 rather than using 'Any()', both for clarity and for performance
 dotnet_diagnostic.CA2000.severity = warning # Call System.IDisposable.Dispose on object before all references to it are out of scope
 dotnet_diagnostic.CA2201.severity = warning # Exception type System.Exception is not sufficiently specific
+dotnet_diagnostic.CA1822.severity = none # Member does not access instance and can be marked as static
+dotnet_diagnostic.CA2211.severity = none # Non-constant fields should not be visible
 
 dotnet_diagnostic.IDE0001.severity = warning # Simplify name
 dotnet_diagnostic.IDE0005.severity = warning # Remove unnecessary using directives

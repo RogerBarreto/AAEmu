@@ -5,8 +5,6 @@ using AAEmu.Game.Core.Managers.World;
 using NetCoreServer;
 using AAEmu.Game.Services.WebApi.Models;
 
-#pragma warning disable CA1822 // Mark members as static
-
 namespace AAEmu.Game.Services.WebApi.Controllers;
 
 internal class CommandController : BaseController

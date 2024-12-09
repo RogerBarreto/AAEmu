@@ -12,22 +12,24 @@ using AAEmu.Game.Models.Game.World.Transform;
 
 using NLog;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+
 namespace AAEmu.Game.Models.Game.Gimmicks;
 
-public enum OffsetCoordiateType
+public enum OffsetCoordinateType
 {
     Unk0 = 0,
     Unk1 = 1,
     Unk2 = 2,
     Unk3 = 3
 }
-public enum VelocityCoordiateType
+public enum VelocityCoordinateType
 {
     Unk0 = 0,
     Unk1 = 1,
     Unk2 = 2
 }
-public enum AngVelCoordiateType
+public enum AngVelCoordinateType
 {
     Unk0 = 0,
     Unk1 = 1,
@@ -53,15 +55,15 @@ public class GimmickSpawner : Spawner<Gimmick>
     public Gimmick Last { get; set; }
     public uint Count { get; set; }
     public bool OffsetFromSource { get; set; }
-    public OffsetCoordiateType OffsetCoordiateId { get; set; }
+    public OffsetCoordinateType OffsetCoordiateId { get; set; }
     public float OffsetX { get; set; }
     public float OffsetY { get; set; }
     public float OffsetZ { get; set; }
-    public VelocityCoordiateType VelocityCoordiateId { get; set; }
+    public VelocityCoordinateType VelocityCoordiateId { get; set; }
     public float VelocityX { get; set; }
     public float VelocityY { get; set; }
     public float VelocityZ { get; set; }
-    public AngVelCoordiateType AngVelCoordiateId { get; set; }
+    public AngVelCoordinateType AngVelCoordiateId { get; set; }
     public float AngVelX { get; set; }
     public float AngVelY { get; set; }
     public float AngVelZ { get; set; }
@@ -70,16 +72,16 @@ public class GimmickSpawner : Spawner<Gimmick>
     {
         GimmickId = sgEffect.GimmickId;
         OffsetFromSource = sgEffect.OffsetFromSource;
-        OffsetCoordiateId = (OffsetCoordiateType)sgEffect.OffsetCoordiateId;
+        OffsetCoordiateId = (OffsetCoordinateType)sgEffect.OffsetCoordiateId;
         OffsetX = sgEffect.OffsetX;
         OffsetY = sgEffect.OffsetY;
         OffsetZ = sgEffect.OffsetZ;
         Scale = sgEffect.Scale;
-        VelocityCoordiateId = (VelocityCoordiateType)sgEffect.VelocityCoordiateId;
+        VelocityCoordiateId = (VelocityCoordinateType)sgEffect.VelocityCoordiateId;
         VelocityX = sgEffect.VelocityX;
         VelocityY = sgEffect.VelocityY;
         VelocityZ = sgEffect.VelocityZ;
-        AngVelCoordiateId = (AngVelCoordiateType)sgEffect.AngVelCoordiateId;
+        AngVelCoordiateId = (AngVelCoordinateType)sgEffect.AngVelCoordiateId;
         AngVelX = sgEffect.AngVelX;
         AngVelY = sgEffect.AngVelY;
         AngVelZ = sgEffect.AngVelZ;
@@ -92,13 +94,13 @@ public class GimmickSpawner : Spawner<Gimmick>
         gimmick.Transform.ApplyWorldSpawnPosition(caster.Transform.CloneAsSpawnPosition());
         switch (OffsetCoordiateId)
         {
-            case OffsetCoordiateType.Unk0:
+            case OffsetCoordinateType.Unk0:
                 var (newX0, newY0, newZ0) = PositionAndRotation.AddDistanceToFront(1, 1, gimmick.Transform.World.Position, gimmick.Transform.World.Position);
                 gimmick.Transform.World.Position = new Vector3(newX0, newY0, newZ0);
                 break;
-            case OffsetCoordiateType.Unk1:
+            case OffsetCoordinateType.Unk1:
                 break;
-            case OffsetCoordiateType.Unk2:
+            case OffsetCoordinateType.Unk2:
                 //gimmick.Transform.World.Position = new Vector3(
                 //    gimmick.Transform.World.Position.X - OffsetX,
                 //    gimmick.Transform.World.Position.Y - OffsetY,
@@ -108,10 +110,12 @@ public class GimmickSpawner : Spawner<Gimmick>
                 var (newX, newY, newZ) = PositionAndRotation.AddDistanceToFront(1, 1, gimmick.Transform.World.Position, gimmick.Transform.World.Position);
                 gimmick.Transform.World.Position = new Vector3(newX, newY, newZ + OffsetZ);
                 break;
-            case OffsetCoordiateType.Unk3:
+            case OffsetCoordinateType.Unk3:
                 break;
             default:
+#pragma warning disable CA2208 // Instantiate argument exceptions correctly
                 throw new ArgumentOutOfRangeException();
+#pragma warning restore CA2208 // Instantiate argument exceptions correctly
         }
 
         gimmick.EntityGuid = 0;

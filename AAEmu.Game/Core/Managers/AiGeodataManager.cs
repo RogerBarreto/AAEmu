@@ -15,6 +15,8 @@ using NLog;
 
 using Point = AAEmu.Game.Models.Game.AI.AStar.Point;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+
 namespace AAEmu.Game.Core.Managers;
 
 // GeoData AiNavigation

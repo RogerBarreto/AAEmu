@@ -9,7 +9,7 @@ namespace AAEmu.Game.Models.Tasks;
 
 public class ShutdownTask : Task
 {
-    private DateTime _lastCheckTime = DateTime.MinValue;
+    // private DateTime _lastCheckTime = DateTime.MinValue;
     private bool _alreadyShuttingDown;
     private DateTime _shutdownTime;
     private DateTime _nextTriggerTime = DateTime.MinValue;

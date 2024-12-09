@@ -134,7 +134,7 @@ public class QuestActCheckTimer(QuestComponentTemplate parentComponent) : QuestA
                 _ = QuestManager.Instance.RemoveQuestTimer(questAct.QuestComponent.Parent.Parent.Owner.Id, questAct.QuestComponent.Parent.Parent.TemplateId);
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(args), "Step option out of range");
         }
     }
 }

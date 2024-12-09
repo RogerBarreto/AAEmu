@@ -1,5 +1,8 @@
 ﻿namespace AAEmu.Game.Models.Game.Skills;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable CA1069 // Enums should not have duplicate values
+
 public enum BuffConstants : uint
 {
     ArmorBuffTag = 145,

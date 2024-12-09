@@ -6,7 +6,7 @@ namespace AAEmu.Game.Models.Game.Indun.Actions;
 
 public class IndunAction
 {
-    protected static Logger Logger = LogManager.GetCurrentClassLogger();
+    protected readonly static Logger Logger = LogManager.GetCurrentClassLogger();
 
     public uint Id { get; set; }
     public uint DetailId { get; set; }

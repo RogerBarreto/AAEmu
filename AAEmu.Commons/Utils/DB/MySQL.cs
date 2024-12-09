@@ -3,6 +3,8 @@ using AAEmu.Commons.Models;
 using MySql.Data.MySqlClient;
 using NLog;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+
 namespace AAEmu.Commons.Utils.DB;
 
 public static class MySQL

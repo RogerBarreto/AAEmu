@@ -54,7 +54,7 @@ internal class MailController : BaseController
         }
 
         // Check if Receiver Type is a valid value in the Recipient Type enumeration
-        if (!Enum.IsDefined(typeof(RecipientType), mailRequest.RecipientType))
+        if (!Enum.IsDefined(mailRequest.RecipientType))
         {
             return BadRequestJson(new ErrorModel("Invalid recipient type."));
         }

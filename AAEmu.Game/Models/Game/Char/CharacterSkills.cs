@@ -182,7 +182,7 @@ public class CharacterSkills(Character owner)
             {
                 while (reader.Read())
                 {
-                    var type = (SkillType)Enum.Parse(typeof(SkillType), reader.GetString("type"), true);
+                    var type = Enum.Parse<SkillType>(reader.GetString("type"), true);
                     switch (type)
                     {
                         case SkillType.Skill:

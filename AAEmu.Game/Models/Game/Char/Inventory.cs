@@ -39,28 +39,26 @@ public class Inventory
         // Override Unit's created equipment container with a persistent one
         Owner.Equipment = ItemManager.Instance.GetItemContainerForCharacter(Owner.Id, SlotType.Equipment, (Character)owner, 0);
 
-        var slotTypes = Enum.GetValues(typeof(SlotType));
+        var slotTypes = Enum.GetValues<SlotType>();
         foreach (var stv in slotTypes)
         {
-            var st = (SlotType)stv;
-
-            if (st == SlotType.EquipmentMate)
+            if (stv == SlotType.EquipmentMate)
                 continue;
 
             // Take Equipment Container from Parent Unit's Equipment
-            if (st == SlotType.Equipment)
+            if (stv == SlotType.Equipment)
             {
                 Equipment = Owner.Equipment;
                 Equipment.Owner = Owner;
-                _itemContainers.Add(st, Equipment);
+                _itemContainers.Add(stv, Equipment);
                 continue;
             }
 
             //var newContainer = new ItemContainer(owner.Id, st, true, false);
-            var newContainer = ItemManager.Instance.GetItemContainerForCharacter(Owner.Id, st, (Character)owner, 0);
+            var newContainer = ItemManager.Instance.GetItemContainerForCharacter(Owner.Id, stv, (Character)owner, 0);
             newContainer.Owner = Owner; // override to be sure the object reference is set correctly
-            _itemContainers.Add(st, newContainer);
-            switch (st)
+            _itemContainers.Add(stv, newContainer);
+            switch (stv)
             {
                 /*
                 case SlotType.Equipment:

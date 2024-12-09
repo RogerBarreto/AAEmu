@@ -6,8 +6,6 @@ using AAEmu.Game.Utils.DB;
 
 using Microsoft.Data.Sqlite;
 
-using NLog;
-
 namespace AAEmu.Game.GameData;
 
 [GameData]
@@ -20,7 +18,6 @@ public class TagsGameData : Singleton<TagsGameData>, IGameDataLoader
         Npcs,
         Skills
     }
-    private Logger Logger = LogManager.GetCurrentClassLogger();
     private Dictionary<TagType, Dictionary<uint, HashSet<uint>>> _tags;
 
 

@@ -944,7 +944,7 @@ public class ItemContainer
         var cName = GetType().Name;
         if (cName.Contains('.'))
         {
-            cName = cName.Substring(cName.LastIndexOf(".", StringComparison.InvariantCulture) + 1);
+            cName = cName.Substring(cName.LastIndexOf('.') + 1);
         }
 
         return cName;

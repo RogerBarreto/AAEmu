@@ -14,7 +14,7 @@ using NLog;
 
 namespace AAEmu.Game.Core.Managers;
 
-public class CommandManager : Singleton<CommandManager>
+public partial class CommandManager : Singleton<CommandManager>
 {
     public const string CommandPrefix = "/";
     private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
@@ -87,7 +87,7 @@ public class CommandManager : Singleton<CommandManager>
     private static string[] SplitCommandString(string baseString)
     {
         // https://codereview.stackexchange.com/questions/10826/splitting-a-string-into-words-or-double-quoted-substrings
-        var re = new Regex("(?<=\")[^\"]*(?=\")|[^\" ]+");
+        var re = CommandRegex();
         return re.Matches(baseString).Cast<Match>().Select(m => m.Value).ToArray();
     }
 
@@ -206,4 +206,7 @@ public class CommandManager : Singleton<CommandManager>
             ? $"[{command.CommandNames[0]}] {text}"
             : $"[Invalid Command] {text}");
     }
+
+    [GeneratedRegex("(?<=\")[^\"]*(?=\")|[^\" ]+")]
+    private static partial Regex CommandRegex();
 }

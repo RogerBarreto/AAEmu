@@ -9,15 +9,11 @@ using AAEmu.Game.Utils.DB;
 
 using Microsoft.Data.Sqlite;
 
-using NLog;
-
 namespace AAEmu.Game.GameData;
 
 [GameData]
 public class IndunGameData : Singleton<IndunGameData>, IGameDataLoader
 {
-    private Logger Logger = LogManager.GetCurrentClassLogger();
-
     private Dictionary<uint, IndunAction> _indunActions;
     private Dictionary<uint, List<IndunEvent>> _indunEvents;
     private Dictionary<uint, IndunZone> _indunZones;

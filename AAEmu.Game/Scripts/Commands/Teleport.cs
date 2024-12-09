@@ -15,6 +15,49 @@ public class Teleport : ICommand
     private List<TPloc> Locations { get; init; } = new();
     private bool AllowPingPos { get; set; } = true; // Enable or Disable /teleport . (dot) command functionality
 
+    private static readonly string[] cinder = ["cinder"];
+    private static readonly string[] dew = ["dew"];
+    private static readonly string[] gwen = ["gwen"];
+    private static readonly string[] hell = ["hell"];
+    private static readonly string[] halcy = ["halcy"];
+    private static readonly string[] karkase = ["kar", "karkase"];
+    private static readonly string[] lily = ["lily", "lili"];
+    private static readonly string[] maria = ["maria", "west"];
+    private static readonly string[] sand = ["sand"];
+    private static readonly string[] solz = ["solz"];
+    private static readonly string[] twoc = ["2c", "twoc"];
+    private static readonly string[] arden = ["arden"];
+
+    private static readonly string[] arcum = ["arcum"];
+    private static readonly string[] maha = ["maha"];
+    private static readonly string[] peri = ["peri", "perinor"];
+    private static readonly string[] rook = ["rook", "rookborn"];
+    private static readonly string[] sf = ["sf", "silent"];
+    private static readonly string[] austera = ["austera", "east"];
+    private static readonly string[] tiger = ["tiger"];
+    private static readonly string[] villa = ["villa"];
+    private static readonly string[] windscoure = ["windscoure", "ws"];
+    private static readonly string[] yny = ["yny"];
+
+    private static readonly string[] diamondshores = ["ds", "auroria", "origin"];
+    private static readonly string[] exe = ["exe"];
+    private static readonly string[] golden = ["golden"];
+
+    private static readonly string[] freedichAlt = ["freeditch", "free"];
+    private static readonly string[] growlgateAlt = ["pirate"];
+    private static readonly string[] nuiajailAlt = ["nuianjail", "westjail"];
+    private static readonly string[] haranyajailAlt = ["haranijail", "eastjail"];
+    private static readonly string[] haraniAlt = ["harihana"];
+    private static readonly string[] firranAlt = ["ferre"];
+
+    private static readonly string[] sharpwindAlt = ["sm", "gsm", "mines"];
+    private static readonly string[] burntAlt = ["bc", "bca", "gbc", "castle", "orchidna"];
+    private static readonly string[] cellarAlt = ["pc", "gpc", "sewer"];
+    private static readonly string[] hadirAlt = ["hf", "ghf", "farm"];
+    private static readonly string[] cradleAlt = ["kc", "gkc", "kroloal", "kroloa", "koala"];
+    private static readonly string[] abyssAlt = ["ha", "gha", "howling"];
+    private static readonly string[] serpentisAlt = ["snake", "snek"];
+
     public void OnLoad()
     {
         CommandManager.Instance.Register(CommandNames, this);
@@ -55,7 +98,7 @@ public class Teleport : ICommand
             X = 15400,
             Y = 11543,
             Z = 107,
-            AltNames = new string[] { "cinder" }
+            AltNames = cinder
         });
         Locations.Add(new TPloc
         {
@@ -65,7 +108,7 @@ public class Teleport : ICommand
             X = 12204,
             Y = 13305,
             Z = 178,
-            AltNames = new string[] { "dew" }
+            AltNames = dew
         });
         Locations.Add(new TPloc
         {
@@ -75,7 +118,7 @@ public class Teleport : ICommand
             X = 10604,
             Y = 14925,
             Z = 280,
-            AltNames = new string[] { "gwen" }
+            AltNames = gwen
         });
         Locations.Add(new TPloc
         {
@@ -85,7 +128,7 @@ public class Teleport : ICommand
             X = 9342,
             Y = 10321,
             Z = 187,
-            AltNames = new string[] { "halcy" }
+            AltNames = halcy
         });
         Locations.Add(new TPloc
         {
@@ -95,7 +138,7 @@ public class Teleport : ICommand
             X = 7482,
             Y = 9853,
             Z = 189,
-            AltNames = new string[] { "hell" }
+            AltNames = hell
         });
         Locations.Add(new TPloc
         {
@@ -105,7 +148,7 @@ public class Teleport : ICommand
             X = 10470,
             Y = 17346,
             Z = 186,
-            AltNames = new string[] { "kar", "karkase" }
+            AltNames = karkase
         });
         Locations.Add(new TPloc
         {
@@ -115,7 +158,7 @@ public class Teleport : ICommand
             X = 12666,
             Y = 15520,
             Z = 165,
-            AltNames = new string[] { "lily", "lili" }
+            AltNames = lily
         });
         Locations.Add(new TPloc
         {
@@ -125,7 +168,7 @@ public class Teleport : ICommand
             X = 11144,
             Y = 12066,
             Z = 145,
-            AltNames = new string[] { "maria", "west" }
+            AltNames = maria
         });
         Locations.Add(new TPloc
         {
@@ -135,7 +178,7 @@ public class Teleport : ICommand
             X = 10720,
             Y = 9591,
             Z = 105,
-            AltNames = new string[] { "sand" }
+            AltNames = sand
         });
         Locations.Add(new TPloc
         {
@@ -145,7 +188,7 @@ public class Teleport : ICommand
             X = 15369,
             Y = 13864,
             Z = 159,
-            AltNames = new string[] { "solz" }
+            AltNames = solz
         });
         Locations.Add(new TPloc
         {
@@ -155,7 +198,7 @@ public class Teleport : ICommand
             X = 13500,
             Y = 10531,
             Z = 223,
-            AltNames = new string[] { "2c", "twoc" }
+            AltNames = twoc
         });
         Locations.Add(new TPloc
         {
@@ -165,7 +208,7 @@ public class Teleport : ICommand
             X = 9682,
             Y = 12775,
             Z = 161,
-            AltNames = new string[] { "arden" }
+            AltNames = arden
         });
 
         #endregion
@@ -181,7 +224,7 @@ public class Teleport : ICommand
             X = 20509,
             Y = 7173,
             Z = 193,
-            AltNames = new string[] { "arcum" }
+            AltNames = arcum
         });
         Locations.Add(new TPloc
         {
@@ -209,7 +252,7 @@ public class Teleport : ICommand
             X = 19284,
             Y = 8620,
             Z = 227,
-            AltNames = new string[] { "maha" }
+            AltNames = maha
         });
         Locations.Add(new TPloc
         {
@@ -219,7 +262,7 @@ public class Teleport : ICommand
             X = 27787,
             Y = 6732,
             Z = 572,
-            AltNames = new string[] { "peri", "perinor" }
+            AltNames = peri
         });
         Locations.Add(new TPloc
         {
@@ -229,7 +272,7 @@ public class Teleport : ICommand
             X = 25388,
             Y = 9753,
             Z = 714,
-            AltNames = new string[] { "rook", "rookborn" }
+            AltNames = rook
         });
         Locations.Add(new TPloc
         {
@@ -239,7 +282,7 @@ public class Teleport : ICommand
             X = 23306,
             Y = 12526,
             Z = 271,
-            AltNames = new string[] { "sf", "silent" }
+            AltNames = sf
         });
         Locations.Add(new TPloc
         {
@@ -249,7 +292,7 @@ public class Teleport : ICommand
             X = 16743,
             Y = 9018,
             Z = 120,
-            AltNames = new string[] { "austera", "east" }
+            AltNames = austera
         });
         Locations.Add(new TPloc
         {
@@ -259,7 +302,7 @@ public class Teleport : ICommand
             X = 21772,
             Y = 8089,
             Z = 404,
-            AltNames = new string[] { "tiger" }
+            AltNames = tiger
         });
         Locations.Add(new TPloc
         {
@@ -269,7 +312,7 @@ public class Teleport : ICommand
             X = 21178,
             Y = 10604,
             Z = 119,
-            AltNames = new string[] { "villa" }
+            AltNames = villa
         });
         Locations.Add(new TPloc
         {
@@ -279,7 +322,7 @@ public class Teleport : ICommand
             X = 25926,
             Y = 6855,
             Z = 362,
-            AltNames = new string[] { "windscoure", "ws" }
+            AltNames = windscoure
         });
         Locations.Add(new TPloc
         {
@@ -289,7 +332,7 @@ public class Teleport : ICommand
             X = 20931,
             Y = 13158,
             Z = 116,
-            AltNames = new string[] { "yny" }
+            AltNames = yny
         });
 
         #endregion
@@ -314,7 +357,7 @@ public class Teleport : ICommand
             X = 19332,
             Y = 26883,
             Z = 130,
-            AltNames = new string[] { "ds", "auroria", "origin" }
+            AltNames = diamondshores
         });
         Locations.Add(new TPloc
         {
@@ -324,7 +367,7 @@ public class Teleport : ICommand
             X = 22349,
             Y = 24941,
             Z = 189,
-            AltNames = new string[] { "exe" }
+            AltNames = exe
         });
         Locations.Add(new TPloc
         {
@@ -334,7 +377,7 @@ public class Teleport : ICommand
             X = 17230,
             Y = 27501,
             Z = 141,
-            AltNames = new string[] { "golden" }
+            AltNames = golden
         });
         Locations.Add(new TPloc
         {
@@ -397,7 +440,7 @@ public class Teleport : ICommand
             X = 20944,
             Y = 18799,
             Z = 134,
-            AltNames = new string[] { "freeditch", "free" }
+            AltNames = freedichAlt
         });
         Locations.Add(new TPloc
         {
@@ -407,7 +450,7 @@ public class Teleport : ICommand
             X = 15138,
             Y = 22983,
             Z = 105,
-            AltNames = new string[] { "pirate" }
+            AltNames = growlgateAlt
         });
         Locations.Add(new TPloc
         {
@@ -426,7 +469,7 @@ public class Teleport : ICommand
             X = 10860,
             Y = 11950,
             Z = 132,
-            AltNames = new string[] { "nuianjail", "westjail" }
+            AltNames = nuiajailAlt
         });
         Locations.Add(new TPloc
         {
@@ -436,7 +479,7 @@ public class Teleport : ICommand
             X = 17000,
             Y = 9566,
             Z = 135,
-            AltNames = new string[] { "haranijail", "eastjail" }
+            AltNames = haranyajailAlt
         });
         Locations.Add(new TPloc
         {
@@ -464,7 +507,7 @@ public class Teleport : ICommand
             X = 19304,
             Y = 7646,
             Z = 215,
-            AltNames = new string[] { "harihana" }
+            AltNames = haraniAlt
         });
         Locations.Add(new TPloc
         {
@@ -474,7 +517,7 @@ public class Teleport : ICommand
             X = 23881,
             Y = 10495,
             Z = 592,
-            AltNames = new string[] { "ferre" }
+            AltNames = firranAlt
         });
 
         #endregion
@@ -490,7 +533,7 @@ public class Teleport : ICommand
             X = 11375,
             Y = 13135,
             Z = 146,
-            AltNames = new string[] { "sm", "gsm", "mines" }
+            AltNames = sharpwindAlt
         });
         Locations.Add(new TPloc
         {
@@ -500,7 +543,7 @@ public class Teleport : ICommand
             X = 15683,
             Y = 12590,
             Z = 170,
-            AltNames = new string[] { "bc", "bca", "gbc", "castle", "orchidna" }
+            AltNames = burntAlt
         });
         Locations.Add(new TPloc
         {
@@ -510,7 +553,7 @@ public class Teleport : ICommand
             X = 19317,
             Y = 8512,
             Z = 198,
-            AltNames = new string[] { "pc", "gpc", "sewer" }
+            AltNames = cellarAlt
         });
         Locations.Add(new TPloc
         {
@@ -520,7 +563,7 @@ public class Teleport : ICommand
             X = 20022,
             Y = 12777,
             Z = 140,
-            AltNames = new string[] { "hf", "ghf", "farm" }
+            AltNames = hadirAlt
         });
         Locations.Add(new TPloc
         {
@@ -530,7 +573,7 @@ public class Teleport : ICommand
             X = 26862,
             Y = 9042,
             Z = 777,
-            AltNames = new string[] { "kc", "gkc", "kroloal", "kroloa", "koala" }
+            AltNames = cradleAlt
         });
         Locations.Add(new TPloc
         {
@@ -540,7 +583,7 @@ public class Teleport : ICommand
             X = 7800,
             Y = 10315,
             Z = 251,
-            AltNames = new string[] { "ha", "gha", "howling" }
+            AltNames = abyssAlt
         });
         Locations.Add(new TPloc
         {
@@ -550,7 +593,7 @@ public class Teleport : ICommand
             X = 23041,
             Y = 25848,
             Z = 142,
-            AltNames = new string[] { "snake", "snek" }
+            AltNames = serpentisAlt
         });
 
         #endregion
@@ -662,7 +705,7 @@ public class Teleport : ICommand
             }
 
             var sb = new List<string>();
-            foreach (TeleportCommandRegions r in System.Enum.GetValues(typeof(TeleportCommandRegions)))
+            foreach (TeleportCommandRegions r in System.Enum.GetValues<TeleportCommandRegions>())
             {
                 sb.Add($"|cFFFFFFFF{r}|r: ");
             }

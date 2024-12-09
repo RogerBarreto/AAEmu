@@ -13,8 +13,8 @@ namespace AAEmu.Game.Core.Managers;
 /// </summary>
 public class TimedRewardsManager : Singleton<TimedRewardsManager>
 {
-    public static short MaxLabor = 2000;
-    public static short MaxLaborPremium = 5000;
+    private const short MaxLabor = 2000;
+    private const short MaxLaborPremium = 5000;
 
     public void Initialize()
     {

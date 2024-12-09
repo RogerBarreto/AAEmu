@@ -37,7 +37,7 @@ public class BoatPhysicsManager//: Singleton<BoatPhysicsManager>
     private CollisionSystem _collisionSystem;
     private Jitter.World _physWorld;
     private Buoyancy _buoyancy;
-    private uint _tickCount;
+    // private uint _tickCount;
     private bool ThreadRunning { get; set; }
     public InstanceWorld SimulationWorld { get; set; }
     private object _slaveListLock = new();
@@ -101,7 +101,7 @@ public class BoatPhysicsManager//: Singleton<BoatPhysicsManager>
             {
                 Thread.Sleep((int)Math.Floor(1000f / TargetPhysicsTps));
                 _physWorld.Step(1f / TargetPhysicsTps, false);
-                _tickCount++;
+                // _tickCount++;
 
                 lock (_slaveListLock)
                 {

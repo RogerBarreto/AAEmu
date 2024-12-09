@@ -7,6 +7,8 @@ using System.Security.Cryptography;
 using System.Text;
 using AAEmu.Commons.Exceptions;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+
 // Source: https://github.com/ZeromusXYZ/AAEmu-Packer
 
 namespace AAEmu.Commons.Utils.AAPak;

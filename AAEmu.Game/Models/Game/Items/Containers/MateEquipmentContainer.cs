@@ -11,7 +11,7 @@ public class MateEquipmentContainer : EquipmentContainer
     public MateEquipmentContainer(uint ownerId, SlotType containerType, bool createWithNewId, Unit parentUnit) : base(ownerId, containerType, createWithNewId, parentUnit)
     {
         // Fancy way of getting the last enum value + 1 for equipment slots
-        ContainerSize = (int)Enum.GetValues(typeof(EquipmentItemSlot)).Cast<EquipmentItemSlot>().Max() + 1;
+        ContainerSize = (int)Enum.GetValues<EquipmentItemSlot>().Max() + 1;
     }
 
     public override void OnEnterContainer(Item item, ItemContainer lastContainer, byte previousSlot)

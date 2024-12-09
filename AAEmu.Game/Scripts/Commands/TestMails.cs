@@ -41,7 +41,7 @@ public class TestMails : ICommand
             // List all mailTypes
             CommandManager.SendNormalText(this, messageOutput, $"{GetCommandHelpText()}\rPossible MailTypes:");
             var s = string.Empty;
-            foreach (var t in Enum.GetValues(typeof(MailType)))
+            foreach (var t in Enum.GetValues<MailType>())
             {
                 s += $"{(byte)t}={t}";
                 s += "  ";

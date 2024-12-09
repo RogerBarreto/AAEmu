@@ -55,27 +55,27 @@ public class GetAttribute : ICommand
 
         if (args[argsIdx].Equals("all", StringComparison.CurrentCultureIgnoreCase))
         {
-            foreach (var attr in Enum.GetValues(typeof(UnitAttribute)))
+            foreach (var attr in Enum.GetValues<UnitAttribute>())
             {
-                var value = target.GetAttribute((UnitAttribute)attr);
+                var value = target.GetAttribute(attr);
                 character.SendPacket(new SCChatMessagePacket(ChatType.System, $"{(UnitAttribute)attr}: {value}"));
             }
         }
         else if (args[argsIdx].Equals("used", StringComparison.CurrentCultureIgnoreCase))
         {
-            foreach (var attr in Enum.GetValues(typeof(UnitAttribute)))
+            foreach (var attr in Enum.GetValues<UnitAttribute>())
             {
-                var value = target.GetAttribute((UnitAttribute)attr);
+                var value = target.GetAttribute(attr);
                 var hide = value == "NotFound" || value == "0";
                 // Exception for multipliers
-                if (value != "NotFound" && ((UnitAttribute)attr).ToString().Contains("Mul"))
+                if (value != "NotFound" && (attr).ToString().Contains("Mul"))
                 {
                     hide = value == "1";
                 }
 
                 if (!hide)
                 {
-                    character.SendPacket(new SCChatMessagePacket(ChatType.System, $"{(UnitAttribute)attr}: {value}"));
+                    character.SendPacket(new SCChatMessagePacket(ChatType.System, $"{attr}: {value}"));
                 }
             }
         }

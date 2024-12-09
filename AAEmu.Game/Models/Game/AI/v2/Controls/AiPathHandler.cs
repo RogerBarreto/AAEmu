@@ -86,7 +86,7 @@ public class AiPathHandler(NpcAi aiOwner)
                     Owner.GoToRunCommandSet();
                     return true;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new NotSupportedException($"Not supported nextPos.Action value: {nextPos.Action}");
             }
 
             // Set next move point if it's not zero

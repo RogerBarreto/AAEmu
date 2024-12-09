@@ -14,6 +14,8 @@ using AAEmu.Game.Models.Game.Quests.Templates;
 using AAEmu.Game.Models.Game.Skills;
 using AAEmu.Game.Models.StaticValues;
 
+#pragma warning disable IDE0052 // Remove unread private members
+
 namespace AAEmu.Game.Models.Game.Quests;
 
 public partial class Quest : PacketMarshaler

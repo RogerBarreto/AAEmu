@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
+    <NoWarn>CA1861</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

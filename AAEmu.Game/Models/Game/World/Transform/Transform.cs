@@ -331,9 +331,8 @@ public class Transform : IDisposable
 
     private void InternalDetachChild(Transform child)
     {
-        if (_children.Contains(child))
+        if (_children.Remove(child))
         {
-            _children.Remove(child);
             // TODO: This needs better handling and take into account rotations
             child.Local.Rotation += World.Rotation;
             child.Local.Position += World.Position;
@@ -642,9 +641,8 @@ public class Transform : IDisposable
 
     public bool ToggleDebugTracker(Character player)
     {
-        if (_debugTrackers.Contains(player))
+        if (_debugTrackers.Remove(player))
         {
-            _debugTrackers.Remove(player);
             return false;
         }
         else

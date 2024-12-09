@@ -35,6 +35,8 @@ using AAEmu.Game.Utils;
 
 using MySql.Data.MySqlClient;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+
 namespace AAEmu.Game.Models.Game.Char;
 
 public partial class Character : Unit, ICharacter

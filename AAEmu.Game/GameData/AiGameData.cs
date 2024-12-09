@@ -12,6 +12,8 @@ using Microsoft.Data.Sqlite;
 
 using NLog;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+
 namespace AAEmu.Game.GameData;
 
 [GameData]

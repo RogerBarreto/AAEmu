@@ -686,8 +686,8 @@ public class AuctionManager : Singleton<AuctionManager>
 
     private class LanguageDetector
     {
-        private static readonly string[] CyrillicLanguages = ["ru", "uk", "bg", "sr", "mk"];
-        private static readonly string[] LatinLanguages = ["en", "es", "fr", "de", "it"];
+        // private static readonly string[] CyrillicLanguages = ["ru", "uk", "bg", "sr", "mk"];
+        // private static readonly string[] LatinLanguages = ["en", "es", "fr", "de", "it"];
 
         public static string DetectLanguage(string text)
         {

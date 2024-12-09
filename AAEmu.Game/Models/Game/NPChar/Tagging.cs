@@ -4,8 +4,6 @@ using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.World;
 using System.Collections.Generic;
 
-#pragma warning disable IDE0130 // Namespace does not match folder structure
-
 namespace AAEmu.Game.Models.Game.NPChar;
 
 public class Tagging
@@ -14,7 +12,7 @@ public class Tagging
     private Dictionary<Character, int> _taggers = new();
     private Character _tagger;
     private uint _tagTeam;
-    private int _totalDamage;
+    // private int _totalDamage;
 
     public Unit Owner { get; }
 
@@ -48,7 +46,7 @@ public class Tagging
         _taggers = new Dictionary<Character, int>();
         _tagger = null;
         _tagTeam = 0;
-        _totalDamage = 0;
+        // _totalDamage = 0;
     }
     public void AddTagger(Unit checkUnit, int damage)
     {
@@ -81,7 +79,8 @@ public class Tagging
                     _taggers[pl] += damage;
                 }
 
-                _totalDamage += damage;
+                // _totalDamage += damage;
+
                 // Check if the character is in a party
                 if (pl.InParty)
                 {

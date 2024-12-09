@@ -33,6 +33,8 @@ using AAEmu.Game.Utils;
 
 using NLog;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+
 namespace AAEmu.Game.Models.Game.Skills;
 
 public class Skill

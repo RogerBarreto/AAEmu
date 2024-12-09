@@ -1,5 +1,8 @@
 ﻿namespace AAEmu.Game.Models.Game.Skills.Static;
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable CA1069 // Enums should not be duplicated
+
 /// <summary>
 /// Extracted enum of skill results, might not be correct
 /// </summary>

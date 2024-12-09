@@ -54,7 +54,7 @@ public class SubStream : Stream
 
     private void CheckDisposed()
     {
-        if (baseStream == null) throw new ObjectDisposedException(GetType().Name);
+        ObjectDisposedException.ThrowIf(baseStream == null, GetType());
     }
 
     public override long Length

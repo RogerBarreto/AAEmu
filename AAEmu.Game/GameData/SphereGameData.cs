@@ -280,7 +280,7 @@ public class SphereGameData : Singleton<SphereGameData>, IGameDataLoader
         var questTemplate = QuestManager.Instance.GetTemplate(questId);
         if (questTemplate == null)
             return null;
-        foreach (QuestComponentKind step in Enum.GetValues(typeof(QuestComponentKind)))
+        foreach (QuestComponentKind step in Enum.GetValues<QuestComponentKind>())
         {
             var components = questTemplate.GetComponents(step);
             if (components.Length == 0)

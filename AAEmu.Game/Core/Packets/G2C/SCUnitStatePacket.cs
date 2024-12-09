@@ -18,8 +18,11 @@ public class SCUnitStatePacket : GamePacket
 {
     private readonly Unit _unit;
     private readonly BaseUnitType _baseUnitType;
+#pragma warning disable IDE0052 // Remove unread private members
     private ModelPostureType _modelPostureType;
-    //private byte _attachPoint;
+#pragma warning restore IDE0052 // Remove unread private members
+
+    // private byte _attachPoint;
 
     public SCUnitStatePacket(Unit unit) : base(SCOffsets.SCUnitStatePacket, 1)
     {

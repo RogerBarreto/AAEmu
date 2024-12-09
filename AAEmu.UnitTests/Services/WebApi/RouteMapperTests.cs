@@ -5,8 +5,6 @@ using AAEmu.Game.Services.WebApi.Controllers;
 using NetCoreServer;
 using Xunit;
 
-#pragma warning disable CA1822 // Mark members as static
-
 namespace AAEmu.UnitTests.Services.WebApi;
 
 public class RouteMapperTests

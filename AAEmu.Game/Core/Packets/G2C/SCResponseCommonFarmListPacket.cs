@@ -26,7 +26,7 @@ public class SCResponseCommonFarmListPacket : GamePacket
         stream.Write(_allPlanted.Values.Sum(l => l.Count));
         stream.Write(_allPlanted.Values.Sum(l => l.Count));
 
-        foreach (FarmType type in Enum.GetValues(typeof(FarmType)))
+        foreach (FarmType type in Enum.GetValues<FarmType>())
         {
             if (_allPlanted.TryGetValue(type, out var doodadList))
             {

@@ -653,7 +653,6 @@ public class Unit : BaseUnit, IUnit
         BroadcastPacket(new SCUnitInvisiblePacket(ObjId, Invisible), true);
     }
 
-#pragma warning disable CA1822 // Mark members as static
     public void SetGeoDataMode(bool value)
     {
         AppConfiguration.Instance.World.GeoDataMode = value;
@@ -694,7 +693,6 @@ public class Unit : BaseUnit, IUnit
     {
         AppConfiguration.Instance.World.MOTD = value;
     }
-#pragma warning restore CA1822 // Mark members as static
     public void SetCriminalState(bool criminalState, BaseUnit attackedTarget)
     {
         if (criminalState)

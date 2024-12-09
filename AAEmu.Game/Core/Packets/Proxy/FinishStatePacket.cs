@@ -7,6 +7,9 @@ namespace AAEmu.Game.Core.Packets.Proxy;
 
 public class FinishStatePacket : GamePacket
 {
+    private readonly bool[] _scAccountInitPacket = [false, true];
+    private readonly byte[] _scLevelRestrictionInitPacket = [0, 15, 15, 15, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 15];
+
     public FinishStatePacket() : base(PPOffsets.FinishStatePacket, 2)
     {
     }
@@ -53,9 +56,8 @@ public class FinishStatePacket : GamePacket
                         Connection.Payment.EndTime)
                 );
                 Connection.SendPacket(new SCChatSpamDelayPacket());
-                Connection.SendPacket(new SCAccountAttributeConfigPacket(new[] { false, true })); // TODO
-                Connection.SendPacket(new SCLevelRestrictionConfigPacket(10, 10, 10, 10, 10,
-                    new byte[] { 0, 15, 15, 15, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 15 })); // TODO - config files
+                Connection.SendPacket(new SCAccountAttributeConfigPacket(_scAccountInitPacket)); // TODO
+                Connection.SendPacket(new SCLevelRestrictionConfigPacket(10, 10, 10, 10, 10, _scLevelRestrictionInitPacket)); // TODO - config files
                 break;
             case 1:
                 Connection.SendPacket(new ChangeStatePacket(2));

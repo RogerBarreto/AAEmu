@@ -5,14 +5,12 @@ using System.Collections.Generic;
 using AAEmu.Commons.Utils;
 using AAEmu.Game.Models.Tasks;
 using NCrontab;
-using NLog;
 
 namespace AAEmu.Game.Core.Managers;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class TaskManager : Singleton<TaskManager>, ITaskManager
 {
-    private static Logger s_log = LogManager.GetCurrentClassLogger();
     private readonly ConcurrentDictionary<uint, Task> _queue = new();
     private readonly HashSet<uint> _taskIds = [];
     private readonly object _taskIdLock = new();

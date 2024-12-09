@@ -19,13 +19,12 @@ public class FeatureCheckSubCommand : SubCommandBase
 
     public override void Execute(ICharacter character, string triggerArgument, IDictionary<string, ParameterValue> parameters, IMessageOutput messageOutput)
     {
-        foreach (var fObj in Enum.GetValues(typeof(Models.Game.Features.Feature)))
+        foreach (var fObj in Enum.GetValues<Models.Game.Features.Feature>())
         {
-            var f = (Models.Game.Features.Feature)fObj;
-            if (FeaturesManager.Fsets.Check(f))
-                messageOutput.SendMessage("[Feature] |cFF00FF00ON  |cFF80FF80" + f.ToString() + "|r");
+            if (FeaturesManager.Fsets.Check(fObj))
+                messageOutput.SendMessage("[Feature] |cFF00FF00ON  |cFF80FF80" + fObj.ToString() + "|r");
             else
-                messageOutput.SendMessage("[Feature] |cFFFF0000OFF |cFF802020" + f.ToString() + "|r");
+                messageOutput.SendMessage("[Feature] |cFFFF0000OFF |cFF802020" + fObj.ToString() + "|r");
         }
     }
 }
