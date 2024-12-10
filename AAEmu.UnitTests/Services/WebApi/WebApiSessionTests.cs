@@ -95,7 +95,6 @@ public class WebApiSessionTests
         return Task.CompletedTask;
     }
 
-
     private static void AssertContentType(HttpResponse response, string expectedContentType)
     {
         for (var i = 0; i < response.Headers; i++)

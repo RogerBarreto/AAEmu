@@ -9,6 +9,7 @@ using AAEmu.Game.Models.Game.Quests.Static;
 using AAEmu.Game.Models.Game.Quests.Templates;
 using Moq;
 using Xunit;
+
 #pragma warning disable IDE0051
 
 namespace AAEmu.UnitTests.Game.Models.Game.Quests;
