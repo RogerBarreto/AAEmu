@@ -11,7 +11,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class CofferActions : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "coffer", "chest" };
+    public string[] CommandNames { get; set; } = ["coffer", "chest"];
 
     public void OnLoad()
     {

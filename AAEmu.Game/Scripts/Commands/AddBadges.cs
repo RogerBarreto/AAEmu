@@ -9,7 +9,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class AddBadges : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "vocation", "vocationpoints", "add_vp", "add_vb" };
+    public string[] CommandNames { get; set; } = ["vocation", "vocationpoints", "add_vp", "add_vb"];
 
     public void OnLoad()
     {

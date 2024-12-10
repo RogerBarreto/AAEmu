@@ -11,7 +11,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class AddGold : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "gold", "addgold", "add_gold" };
+    public string[] CommandNames { get; set; } = ["gold", "addgold", "add_gold"];
 
     public void OnLoad()
     {
