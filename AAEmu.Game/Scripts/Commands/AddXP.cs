@@ -8,7 +8,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class AddXP : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "xp", "add_xp", "addxp", "givexp" };
+    public string[] CommandNames { get; set; } = ["xp", "add_xp", "addxp", "givexp"];
 
     public void OnLoad()
     {

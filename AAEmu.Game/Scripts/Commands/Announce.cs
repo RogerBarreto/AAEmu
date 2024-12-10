@@ -30,7 +30,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class Announce : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "announce" };
+    public string[] CommandNames { get; set; } = ["announce"];
 
     public void OnLoad()
     {

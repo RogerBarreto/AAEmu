@@ -8,7 +8,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class ClearCombat : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "clearcombat", "clear_combat", "cc" };
+    public string[] CommandNames { get; set; } = ["clearcombat", "clear_combat", "cc"];
 
     public void OnLoad()
     {

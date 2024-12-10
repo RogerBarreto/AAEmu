@@ -10,7 +10,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class Fly : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "fly" };
+    public string[] CommandNames { get; set; } = ["fly"];
     private static List<uint> characterFlyStateCache = new();
 
     private static bool GetCacheState(uint characterId)

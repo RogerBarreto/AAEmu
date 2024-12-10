@@ -7,7 +7,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class GodMode : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "godmode" };
+    public string[] CommandNames { get; set; } = ["godmode"];
 
     public void OnLoad()
     {

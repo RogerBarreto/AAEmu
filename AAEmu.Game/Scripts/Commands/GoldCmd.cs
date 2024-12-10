@@ -10,7 +10,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class GoldCmd : SubCommandBase, ICommand, ICommandV2
 {
-    public string[] CommandNames { get; set; } = new string[] { "gold" };
+    public string[] CommandNames { get; set; } = ["gold"];
 
     public GoldCmd()
     {

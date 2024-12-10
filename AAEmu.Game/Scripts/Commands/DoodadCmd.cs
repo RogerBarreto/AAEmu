@@ -11,7 +11,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class DoodadCmd : SubCommandBase, ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "doodad" };
+    public string[] CommandNames { get; set; } = ["doodad"];
 
     public DoodadCmd()
     {

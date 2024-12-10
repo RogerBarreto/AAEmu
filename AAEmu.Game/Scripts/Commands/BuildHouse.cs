@@ -1,4 +1,4 @@
-using AAEmu.Game.Core.Managers;
+﻿using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models.Game;
 using AAEmu.Game.Models.Game.Char;
@@ -9,7 +9,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class BuildHouse : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "build", "build_house" };
+    public string[] CommandNames { get; set; } = ["build", "build_house"];
 
     public void OnLoad()
     {

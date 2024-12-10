@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Models.Game;
@@ -13,7 +13,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class Around : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "around", "near" };
+    public string[] CommandNames { get; set; } = ["around", "near"];
 
     public void OnLoad()
     {

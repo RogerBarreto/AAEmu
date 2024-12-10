@@ -8,7 +8,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class AddPortals : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "register_portal", "add_portal", "addportal" };
+    public string[] CommandNames { get; set; } = ["register_portal", "add_portal", "addportal"];
 
     public void OnLoad()
     {

@@ -9,7 +9,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class GetPosition : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "position", "pos" };
+    public string[] CommandNames { get; set; } = ["position", "pos"];
 
     public void OnLoad()
     {

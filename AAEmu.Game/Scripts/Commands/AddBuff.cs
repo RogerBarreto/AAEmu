@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using AAEmu.Game.Core.Managers;
 using AAEmu.Game.GameData;
@@ -13,7 +13,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class AddBuff : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "buff", "addbuff", "add_buff", "buffs" };
+    public string[] CommandNames { get; set; } = ["buff", "addbuff", "add_buff", "buffs"];
 
     public void OnLoad()
     {

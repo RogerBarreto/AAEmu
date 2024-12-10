@@ -11,7 +11,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class GetAttribute : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "getattribute", "getattr", "attr" };
+    public string[] CommandNames { get; set; } = ["getattribute", "getattr", "attr"];
 
     public void OnLoad()
     {

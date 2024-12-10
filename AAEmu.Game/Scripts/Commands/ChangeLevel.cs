@@ -1,4 +1,4 @@
-using AAEmu.Game.Core.Managers;
+﻿using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Packets.G2C;
 using AAEmu.Game.Models.Game;
 using AAEmu.Game.Models.Game.Char;
@@ -11,7 +11,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class ChangeLevel : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "level", "setlevel", "set_level", "change_level", "changelevel" };
+    public string[] CommandNames { get; set; } = ["level", "setlevel", "set_level", "change_level", "changelevel"];
 
     public void OnLoad()
     {

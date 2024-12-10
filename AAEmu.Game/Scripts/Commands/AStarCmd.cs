@@ -11,7 +11,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class AStarCmd : SubCommandBase, ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "pathfind", "pf" };
+    public string[] CommandNames { get; set; } = ["pathfind", "pf"];
 
     public AStarCmd()
     {
@@ -19,10 +19,10 @@ public class AStarCmd : SubCommandBase, ICommand
         Description = "Root command to manage Path Findings";
         CallPrefix = $"{CommandManager.CommandPrefix}{CommandNames[0]}";
 
-        Register(new AStarPathFindingSubCommand(), "find", "go"); // начать поиск пути
-        Register(new AStarStartPositionSubCommand(), "start", "begin"); // установить начальную точку пути
-        Register(new AStarEndPositionSubCommand(), "goal", "end"); // установить конечную точку пути
-        Register(new AStarViewSubCommand(), "view"); // отобразить на местности найденные точки пути
+        Register(new AStarPathFindingSubCommand(), "find", "go"); // start searching for a path
+        Register(new AStarStartPositionSubCommand(), "start", "begin"); // set the starting point of the path
+        Register(new AStarEndPositionSubCommand(), "goal", "end"); // set the end point of the path
+        Register(new AStarViewSubCommand(), "view"); // display the found path points on the terrain
     }
 
     public void OnLoad()

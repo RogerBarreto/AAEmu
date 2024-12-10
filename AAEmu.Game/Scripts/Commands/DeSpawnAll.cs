@@ -8,7 +8,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class DeSpawnAll : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "despawnall", "despawn_all" };
+    public string[] CommandNames { get; set; } = ["despawnall", "despawn_all"];
 
     public void OnLoad()
     {

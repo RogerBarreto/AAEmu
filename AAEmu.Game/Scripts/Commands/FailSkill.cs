@@ -11,7 +11,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class FailSkill : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "failskill", "fail_skill", "skillfail", "skill_fail" };
+    public string[] CommandNames { get; set; } = ["failskill", "fail_skill", "skillfail", "skill_fail"];
 
     public void OnLoad()
     {

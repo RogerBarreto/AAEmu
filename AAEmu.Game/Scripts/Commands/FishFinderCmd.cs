@@ -10,7 +10,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class FishFinderCmd : SubCommandBase, ICommand, ICommandV2
 {
-    public string[] CommandNames { get; set; } = new string[] { "fishfinder" };
+    public string[] CommandNames { get; set; } = ["fishfinder"];
 
     public FishFinderCmd()
     {

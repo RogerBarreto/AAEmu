@@ -8,7 +8,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class AddLabor : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "labor", "addlabor", "add_labor" };
+    public string[] CommandNames { get; set; } = ["labor", "addlabor", "add_labor"];
 
     public void OnLoad()
     {

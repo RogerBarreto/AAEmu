@@ -1,4 +1,4 @@
-using AAEmu.Game.Core.Managers;
+﻿using AAEmu.Game.Core.Managers;
 using AAEmu.Game.Core.Managers.World;
 using AAEmu.Game.Models.Game;
 using AAEmu.Game.Models.Game.Char;
@@ -10,7 +10,7 @@ namespace AAEmu.Game.Scripts.Commands;
 
 public class Dist : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "distance", "dist" };
+    public string[] CommandNames { get; set; } = ["distance", "dist"];
 
     public void OnLoad()
     {

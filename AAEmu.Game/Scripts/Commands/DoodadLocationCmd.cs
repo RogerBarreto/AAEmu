@@ -6,9 +6,9 @@ using AAEmu.Game.Utils.Scripts;
 
 namespace AAEmu.Game.Scripts.Commands;
 
-public class Dloc : ICommand
+public class DoodadLocationCmd : ICommand
 {
-    public string[] CommandNames { get; set; } = new string[] { "doodad_location", "doodadlocation", "dloc" };
+    public string[] CommandNames { get; set; } = ["doodad_location", "doodadlocation", "dloc"];
 
     public void OnLoad()
     {
